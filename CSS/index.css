@@ -1,162 +1,237 @@
 /* General */
 
-body {
-  color: rgb(255, 255, 255);
-  font-family: "Overpass", sans-serif;
-  font-size: 1rem;
-  display: grid;
-  background: #090909;
+:root {
+  --bg-color: #090909;
+  --color1: #1d3383;
+  --color2: #126743;
+  --color3: #cc3037;
+
+  body {
+    display: block;
+    overflow-x: hidden;
+    align-content: center;
+    justify-content: center;
+    color: rgb(255, 255, 255);
+    font-family: "Overpass", sans-serif;
+    font-size: 1rem;
+    background: var(--bg-color);
+  }
+
+  hr {
+    color: white;
+  }
+
+  h1 {
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-weight: 700;
+    font-size: 1.125rem;
+  }
+
+  /* Navigation */
+
+  .nav_full {
+    background: var(--bg-color);
+    position: sticky;
+    inset: 0rem;
+    z-index: 1;
+  }
+
+  .navbar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 3.125rem;
+    align-items: end;
+    width: auto;
+    border-bottom: 0.1875rem white solid;
+  }
+
+  .nav_logo {
+    font-weight: bold;
+    font-family: "Overpass";
+    font-size: 3rem;
+    align-items: end;
+    margin: 5px;
+  }
+
+  .menu_bar {
+    display: flex;
+    flex-direction: row;
+    /* width: auto; */
+    height: 5.625rem;
+    align-items: end;
+    margin: 0rem;
+  }
+
+  /*Nav Button Styling*/
+
+  .nav_button {
+    display: flex;
+    align-items: flex-start;
+    border-width: 0;
+    flex-direction: column;
+    height: 3.125rem;
+    width: 9.375rem;
+    color: white;
+    background: #181818;
+    font-weight: 800;
+    font-size: 1.25rem;
+    padding-left: 1.25rem;
+    margin: 0rem 1.25rem;
+    transition: height ease-in 0.1s;
+  }
+  .nav_button:hover {
+    height: 4.375rem;
+  }
+
+  .nav_button:active {
+    height: 3.125rem;
+  }
+
+  .hamburger_menu {
+    display: none;
+  }
+
+  #button_About {
+    border-top: 0.3125rem solid var(--color1);
+  }
+
+  #button_Projects {
+    border-top: 0.3125rem solid var(--color2);
+  }
+
+  #button_Resume {
+    border-top: 0.3125rem solid var(--color3);
+  }
+
+  #button_About:active {
+    background: var(--color1);
+  }
+
+  #button_Projects:active {
+    background: var(--color2);
+  }
+
+  #button_Resume:active {
+    background: var(--color3);
+  }
+
+  /* Content Styling */
+  .landing {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    /* background-repeat: no-repeat; */
+    background-position: center;
+    /* background-image: url(https://live.staticflickr.com/5219/5436444822_66525ce22d_b.jpg); */
+    /* background-image: url(p:\References\NIKON_D5100_20130622_249_50_51_LuminarAI-edit.jpg); */
+    /* background-size: auto; */
+  }
+
+  .hero {
+    display: flex;
+    flex-flow: row wrap;
+    opacity: 0.85;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    gap: 80px;
+    padding: 40px;
+    border-radius: 5px;
+    z-index: 0;
+    filter: blur();
+    background: var(--bg-color);
+  }
+
+  .name {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: stretch;
+    font-family: Overpass;
+    font-size: clamp(30px, 10vw, 72px);
+    font-weight: 900;
+    line-height: 120%; /* 5.4rem */
+    letter-spacing: -0.135rem;
+    text-transform: uppercase;
+    width: min-content;
+    background-image: linear-gradient(
+      -45deg,
+      #ee7752,
+      #e73c7e,
+      #23a6d5,
+      #23d552
+    );
+    background-size: 250% 250%;
+    animation: gradient 5s ease infinite;
+    /* transition: 0.5s ease-in; */
+    background-clip: text;
+    color: transparent;
+  }
+
+  .intro {
+    /* width: 31.25rem; */
+    width: min-content;
+  }
+
+  #intro_blurb1 {
+    font-size: 30px;
+    font-weight: 600;
+    text-transform: capitalize;
+    /* max-width: 45ch; */
+    padding: 0 5px;
+    /* border-bottom: 2px white solid; */
+  }
+
+  #intro_blurb2 {
+    font-size: 1.8rem;
+    line-height: 150%;
+  }
+
+  .contact {
+    display: flex;
+    flex-flow: row wrap;
+    color: white;
+    padding: 30px;
+    text-align: left;
+    flex-direction: column;
+    align-self: center;
+    justify-content: center;
+    justify-content: space-between;
+    font-size: 1.5rem;
+    border: none;
+    background: none;
+    border-left: 0.125rem solid #fff;
+  }
+
+  .contact:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  #mail {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    gap: 5px;
+    /* font-weight: lighter; */
+  }
+
+  #mail:hover {
+    text-decoration-style: dotted;
+  }
 }
-
-h1 {
-  font-weight: bold;
-  font-size: 1.5rem;
-}
-
-h2 {
-  font-weight: 700;
-  font-size: 1.125rem;
-}
-
-/* Navigation */
-
-.Nav_full {
-  background: #090909;
-  position: sticky;
-  inset: 0px;
-}
-
-.navbar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding-top: 50px;
-  align-items: end;
-  margin-bottom: -8px;
-  width: auto;
-}
-
-.logo {
-  font-weight: bold;
-  font-family: "JetBrains Mono";
-  font-size: 1.5rem;
-  align-items: end;
-}
-
-.menu_bar {
-  display: flex;
-  flex-direction: row;
-  width: auto;
-  height: 90px;
-  align-items: end;
-  margin: 0px;
-}
-
-.Nav_full hr {
-  border-style: double;
-}
-
-/*Nav Button Styling*/
-
-.button {
-  display: flex;
-  align-items: flex-start;
-  height: 70px;
-  width: min-content;
-  gap: 10px;
-  flex-direction: column;
-  background: #181818;
-  color: white;
-  font-weight: 700;
-  padding: 0;
-  border: 0px;
-  margin: 0px 20px;
-  transition: height ease-in 0.1s;
-}
-
-.button:hover {
-  height: 90px;
-}
-
-.button:active {
-  height: 70px;
-  background: #1d3383;
-}
-
-/* .button rect {
-  fill: white;
-} */
-
-.button h2 {
-  margin-left: 20px;
-}
-
-hr {
-  color: white;
-}
-
-/* .About,
-.Projects,
-.Contact,
-.Resume {
-  align-items: end;
-  display: flex;
-  height: 50px;
-  width: 150px;
-  margin-left: 20px;
-  font-family: overpass;
-  font-weight: 700;
-  font-size: 1.25rem;
-  border-radius: 0;
-  border: 0;
-  background: #181818;
-  color: white;
-} */
-
-/* Content Styling */
-.Hero {
-  display: flex;
-  width: inherit;
-  height: 1200px;
-  justify-content: center;
-  align-items: center;
-  background-image: url("../Images/hero_bg.jpg");
-  background-size: cover;
-}
-
-.Intro {
-  display: flex;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-.Name {
-  display: flex;
-  padding: 20px;
-  font-size: 60px;
-  width: min-content;
-  font-weight: bold;
-  font-family: "Overpass", sans-serif;
-}
-
-.Intro_blurb {
-  font-weight: lighter;
-}
-
-.Intro_blurb {
-  margin: 30px;
-  width: 400px;
-  font-size: 32px;
-}
-
-.Skills h2 {
-  margin: 40px;
+.skills h2 {
+  margin: 2.5rem;
 }
 
 .skill_container {
   display: flex;
-  margin: 50px;
-  gap: 30px;
+  margin: 3.125rem;
+  gap: 1.875rem;
   justify-content: center;
 }
 
@@ -166,53 +241,107 @@ hr {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 300px;
-  gap: 20px;
+  width: clamp(12rem, 50%, 18.75rem);
+  gap: 1.25rem;
 }
 
 .Projects {
   display: flex;
+  align-items: center;
   flex-direction: column;
   justify-content: center;
-  margin-left: 80;
-  margin-right: 80;
+  align-content: center;
+  padding: 20vh 0;
+}
+
+#Projects_header {
+  font-size: 24px;
+  text-transform: uppercase;
 }
 
 .Container {
   display: flex;
+  flex-grow: 1;
   flex-direction: row;
   align-self: center;
+  /* padding: 0rem;aa */
 }
 
 .case_study {
   display: flex;
-  height: 400px;
+  height: 25rem;
   width: 400px;
-  margin: 30px;
+  margin: 1.875rem;
   align-items: flex-end;
   background-color: black;
-  border-radius: 5px;
-  /* background-image: url(https://solutions.technologyadvice.com/wp-content/uploads/2023/06/write-better-case-studies.jpeg); */
+  border-radius: 0.3125rem;
 }
 
 .case_study h2 {
   background: #121212;
-  padding: 30px;
-  height: 85px;
-  width: inherit;
+  padding: 1.875rem;
+  height: 5.3125rem;
 }
 
 .case_study:hover {
   background-color: azure;
 }
 
-/* .card {
-  height: 400;
-  width: 500;
-  padding: 40;
-  margin: auto;
+footer {
+  display: flex;
+  flex-flow: row wrap;
+  padding: 3.4375rem 0rem;
+  justify-content: center;
+  /* justify-content: space-between; */
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  border-top: 0.125rem solid #fff;
+  background: var(--BG, #090909);
 }
 
-.card h1 {
+#sign {
   display: flex;
-} */
+  width: max-content;
+  font-weight: 300;
+  /* font-size: 30px; */
+}
+
+#Socials {
+  display: flex;
+  padding: 0;
+  /* flex-flow: row wrap; */
+  width: min-content;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  list-style: none;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Mobile Styling  */
+
+@media (max-width: 1000) {
+  .menu_bar {
+    display: none;
+  }
+  /* .Container {
+    flex-direction: column;
+  } */
+  /* .hamburger_menu {
+    display: flex;
+    align-self: center;
+    padding: 10%;
+  } */
+}
