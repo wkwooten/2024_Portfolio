@@ -1,0 +1,218 @@
+/* General */
+
+body {
+  color: rgb(255, 255, 255);
+  font-family: "Overpass", sans-serif;
+  font-size: 1rem;
+  display: grid;
+  background: #090909;
+}
+
+h1 {
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+h2 {
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+/* Navigation */
+
+.Nav_full {
+  background: #090909;
+  position: sticky;
+  inset: 0px;
+}
+
+.navbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-top: 50px;
+  align-items: end;
+  margin-bottom: -8px;
+  width: auto;
+}
+
+.logo {
+  font-weight: bold;
+  font-family: "JetBrains Mono";
+  font-size: 1.5rem;
+  align-items: end;
+}
+
+.menu_bar {
+  display: flex;
+  flex-direction: row;
+  width: auto;
+  height: 90px;
+  align-items: end;
+  margin: 0px;
+}
+
+.Nav_full hr {
+  border-style: double;
+}
+
+/*Nav Button Styling*/
+
+.button {
+  display: flex;
+  align-items: flex-start;
+  height: 70px;
+  width: min-content;
+  gap: 10px;
+  flex-direction: column;
+  background: #181818;
+  color: white;
+  font-weight: 700;
+  padding: 0;
+  border: 0px;
+  margin: 0px 20px;
+  transition: height ease-in 0.1s;
+}
+
+.button:hover {
+  height: 90px;
+}
+
+.button:active {
+  height: 70px;
+  background: #1d3383;
+}
+
+/* .button rect {
+  fill: white;
+} */
+
+.button h2 {
+  margin-left: 20px;
+}
+
+hr {
+  color: white;
+}
+
+/* .About,
+.Projects,
+.Contact,
+.Resume {
+  align-items: end;
+  display: flex;
+  height: 50px;
+  width: 150px;
+  margin-left: 20px;
+  font-family: overpass;
+  font-weight: 700;
+  font-size: 1.25rem;
+  border-radius: 0;
+  border: 0;
+  background: #181818;
+  color: white;
+} */
+
+/* Content Styling */
+.Hero {
+  display: flex;
+  width: inherit;
+  height: 1200px;
+  justify-content: center;
+  align-items: center;
+  background-image: url("../Images/hero_bg.jpg");
+  background-size: cover;
+}
+
+.Intro {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.Name {
+  display: flex;
+  padding: 20px;
+  font-size: 60px;
+  width: min-content;
+  font-weight: bold;
+  font-family: "Overpass", sans-serif;
+}
+
+.Intro_blurb {
+  font-weight: lighter;
+}
+
+.Intro_blurb {
+  margin: 30px;
+  width: 400px;
+  font-size: 32px;
+}
+
+.Skills h2 {
+  margin: 40px;
+}
+
+.skill_container {
+  display: flex;
+  margin: 50px;
+  gap: 30px;
+  justify-content: center;
+}
+
+.Web,
+.Interaction,
+.Research {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 300px;
+  gap: 20px;
+}
+
+.Projects {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: 80;
+  margin-right: 80;
+}
+
+.Container {
+  display: flex;
+  flex-direction: row;
+  align-self: center;
+}
+
+.case_study {
+  display: flex;
+  height: 400px;
+  width: 400px;
+  margin: 30px;
+  align-items: flex-end;
+  background-color: black;
+  border-radius: 5px;
+  /* background-image: url(https://solutions.technologyadvice.com/wp-content/uploads/2023/06/write-better-case-studies.jpeg); */
+}
+
+.case_study h2 {
+  background: #121212;
+  padding: 30px;
+  height: 85px;
+  width: inherit;
+}
+
+.case_study:hover {
+  background-color: azure;
+}
+
+/* .card {
+  height: 400;
+  width: 500;
+  padding: 40;
+  margin: auto;
+}
+
+.card h1 {
+  display: flex;
+} */
