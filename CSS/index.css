@@ -155,7 +155,8 @@ h3 {
 .name {
   display: flex;
   font-size: 4em;
-  /* margin: 50px; */
+  /*margin: 50px;
+  */
   font-weight: 900;
   line-height: 120%;
   letter-spacing: -0.135rem;
@@ -164,7 +165,7 @@ h3 {
   width: min-content;
   background-image: linear-gradient(45deg, #00c971, #a02cff);
   background-size: 500% 500%;
-  animation: gradient 2s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   background-clip: text;
   color: transparent;
 }
@@ -358,7 +359,7 @@ footer {
 
 /* Mobile Styling  */
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1000px) {
   .menu_bar {
     display: none !important;
   }
