@@ -149,7 +149,8 @@ h3 {
   padding-bottom: 20%;
   border-radius: 5px;
   z-index: 0;
-  /* border: cornflowerblue dotted 3px; */
+  /*border: cornflowerblue dotted 3px;
+   */
 }
 
 .name {
@@ -157,6 +158,7 @@ h3 {
   font-size: 4em;
   /*margin: 50px;
   */
+  font-family: "Overpass Monospace";
   font-weight: 900;
   line-height: 120%;
   letter-spacing: -0.135rem;
@@ -183,7 +185,6 @@ h3 {
 }
 
 #intro_blurb2 {
-  padding: 2.5%;
   line-height: 150%;
 }
 
@@ -191,7 +192,7 @@ h3 {
   display: flex;
   color: var(--primary);
   /* font-size: clamp(20px, 20vh, 36px); */
-  padding: 20px 0 5% 20px;
+  /* padding: 5% 0; */
   text-align: left;
   flex-direction: column;
   align-self: center;
@@ -199,7 +200,7 @@ h3 {
   /* font-size: 1.5rem; */
   border: none;
   background: none;
-  border-left: 0.125rem solid #fff;
+  border-top: 0.125rem solid #fff;
 }
 
 /*
@@ -226,6 +227,7 @@ h3 {
   flex-direction: column;
   justify-content: center;
   padding-block: 20vh;
+  margin: 10%;
 }
 
 .projectContainer {
@@ -240,7 +242,7 @@ h3 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   justify-content: center;
-  align-items: left;
+  align-items: center;
   padding: 10%;
   /* height: 20%; */
   /* gap: 10%; */
