@@ -67,7 +67,6 @@ h3 {
 
 .nav_logo {
   font-weight: bold;
-  font-family: "Overpass";
   font-size: 3rem;
   align-items: end;
   margin: 5px;
@@ -158,7 +157,7 @@ h3 {
   font-size: 4em;
   /*margin: 50px;
   */
-  font-family: "Overpass Monospace";
+  /* font-family: "Overpass", monospace; */
   font-weight: 900;
   line-height: 120%;
   letter-spacing: -0.135rem;
@@ -166,10 +165,11 @@ h3 {
   padding: 5% 0;
   width: min-content;
   background-image: linear-gradient(45deg, #00c971, #a02cff);
-  background-size: 500% 500%;
-  animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  background-size: 200% 200%;
+  animation: gradient 3s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   background-clip: text;
   color: transparent;
+  -webkit-animation: gradient 3s cubic-bezier(0.23, 1, 0.32, 1) infinite;
 }
 
 .intro {
@@ -277,9 +277,7 @@ h3 {
   width: fit-content;
 }
 
-.case_study_button:hover {
-  opacity: 50%;
-}
+.case_study_button:hover {}
 
 /* Skills Styling */
 
@@ -309,6 +307,29 @@ h3 {
   width: 300px;
   gap: 1.25rem;
 }
+
+.cs_full {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* .introNav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  align-self: center;
+} */
+
+/* .cs_hero {
+  display: flex;
+  padding: 10%;
+  flex-direction: column;
+  align-items: center;
+  align-self: stretch;
+  border-top: var(--primary) solid 2px;
+} */
 
 /*Footer*/
 footer {
@@ -346,9 +367,8 @@ footer {
   list-style: none;
 }
 
-.cs_hero {}
 
-#cs_intro @keyframes gradient {
+@keyframes gradient {
   0% {
     background-position: 0% 50%;
   }
