@@ -284,6 +284,7 @@ h3 {
 .skills {
   display: flex;
   flex-flow: column wrap;
+  margin: 0 20%;
   align-items: center;
 }
 
@@ -303,7 +304,7 @@ h3 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: clamp(12rem, 50%, 18.75rem);
+  width: 300px;
   gap: 1.25rem;
 }
 
@@ -343,7 +344,9 @@ footer {
   list-style: none;
 }
 
-@keyframes gradient {
+.cs_hero {}
+
+#cs_intro @keyframes gradient {
   0% {
     background-position: 0% 50%;
   }
