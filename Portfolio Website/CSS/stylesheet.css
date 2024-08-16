@@ -38,6 +38,7 @@
     display: none;
     align-self: center;
   }
+
   .nav_full {
     background: var(--bg-color);
     position: sticky;
@@ -88,6 +89,7 @@
     margin: 0rem 1.25rem;
     transition: height ease-in 0.1s;
   }
+
   .nav_button:hover {
     height: 4.375rem;
   }
@@ -158,7 +160,8 @@
     /* font-size: clamp(30px, 10vw, 72px); */
     margin: 50px;
     font-weight: 900;
-    line-height: 120%; /* 5.4rem */
+    line-height: 120%;
+    /* 5.4rem */
     letter-spacing: -0.135rem;
     text-transform: uppercase;
     width: min-content;
@@ -216,9 +219,9 @@
     /* font-weight: lighter; */
   }
 
-  #mail:hover {
+  /* #mail:hover {
     text-decoration-style: dotted;
-  }
+  } */
 }
 
 /* Skills Styling */
@@ -349,9 +352,11 @@ footer {
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -363,11 +368,13 @@ footer {
   .menu_bar {
     display: none !important;
   }
+
   .hamburger_menu {
     display: flex !important;
     align-items: center;
     justify-content: center;
   }
+
   #sign {
     text-align: center;
   }

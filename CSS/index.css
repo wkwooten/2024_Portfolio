@@ -203,21 +203,22 @@ h3 {
   border-top: 0.125rem solid #fff;
 }
 
-/*
-  .contact:hover {
-    background-color: var;
-  } */
-
 #mail {
   display: flex;
   align-items: center;
   padding: 5px;
   gap: 5px;
+  text-decoration: dashed;
   /* font-weight: lighter; */
 }
 
 #mail:hover {
   text-decoration-style: dotted;
+  transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  -o-transform: scale(1.5);
 }
 
 .projects {
@@ -276,8 +277,6 @@ h3 {
   padding: 5px;
   width: fit-content;
 }
-
-.case_study_button:hover {}
 
 /* Skills Styling */
 
