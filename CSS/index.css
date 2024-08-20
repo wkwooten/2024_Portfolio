@@ -309,9 +309,42 @@ h3 {
 
 .cs_full {
   display: flex;
+  width: 100%;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.cs_Nav {
+  display: flex;
+  justify-content: space-between;
+  width: 80%;
+  padding-block: 20px;
+  align-items: center;
+  flex-flow: row;
+  gap: 5%;
+  border-bottom: 2px white solid;
+}
+
+.cs_hero {
+  display: grid;
+  padding-block: 10%;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 3fr 1fr));
+}
+
+.cs_hero_info {
+  display: flex;
+  flex-flow: column;
+  justify-content: center;
+}
+
+.cs_section_header {
+  border-block: 2px white solid;
+  padding-block: 20px
+}
+
+.cs_section {
+  width: 80%;
 }
 
 /* .introNav {
@@ -365,6 +398,9 @@ footer {
   justify-content: space-between;
   list-style: none;
 }
+
+
+
 
 
 @keyframes gradient {
