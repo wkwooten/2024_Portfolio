@@ -13,6 +13,9 @@
 body {
   display: block;
   overflow-x: hidden;
+  top: 0;
+  left: 0;
+  margin: 0;
   align-content: center;
   justify-content: center;
   color: var(--primary);
@@ -43,11 +46,6 @@ h3 {
 }
 
 /* Navigation */
-.hamburger_menu {
-  display: none;
-  align-self: center;
-}
-
 .nav_full {
   background: var(--bg-color);
   position: sticky;
@@ -68,7 +66,7 @@ h3 {
 .nav_logo {
   font-weight: bold;
   font-size: 3rem;
-  align-items: end;
+  align-items: center;
   margin: 5px;
 }
 
@@ -102,15 +100,13 @@ h3 {
 
 .nav_button:hover {
   height: 4.375rem;
+  cursor: pointer;
 }
 
 .nav_button:active {
   height: 3.125rem;
 }
 
-/* .hamburger_menu {
-    display: none;
-  } */
 
 #button_About {
   border-top: 0.3125rem solid var(--color1);
@@ -134,6 +130,89 @@ h3 {
 
 #button_Resume:active {
   background: var(--color3);
+}
+
+.hamburger_menu {
+  display: none;
+}
+
+/* Modal Styling */
+
+.modal {
+  display: none;
+  position: fixed;
+  overflow: auto;
+  z-index: 10;
+  height: 100%;
+  width: 100%;
+  left: 0;
+  top: 0;
+  background: var(--bg-color);
+}
+
+.modal_menu {
+  display: flex;
+  padding-top: 3.125rem;
+  justify-content: space-between;
+  /* align-self: center; */
+  border-bottom: white solid 0.1875rem;
+}
+
+
+.modal_back {
+  align-self: center;
+}
+
+.modal_nav {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 60%;
+  gap: 10%;
+}
+
+.modal_nav_button {
+  width: 50%;
+  text-decoration: none;
+  list-style: none;
+  color: white;
+  /* margin-left: 10%; */
+}
+
+.modal_nav_button h2 {
+  margin-left: 5%;
+}
+
+#nav1 {
+  border-right: 10px solid var(--color1);
+}
+
+#nav2 {
+  border-right: 10px solid var(--color2);
+}
+
+#nav3 {
+  border-right: 10px solid var(--color3);
+}
+
+#nav1:active {
+  background: var(--color1);
+}
+
+#nav2:active {
+  background: var(--color2);
+}
+
+#nav3:active {
+  background: var(--color3);
+}
+
+.modal_contact {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  border-top: white 2px solid;
+  height: 20%;
 }
 
 /* Content Styling */
@@ -426,8 +505,12 @@ footer {
 
   .hamburger_menu {
     display: flex !important;
-    align-items: center;
-    justify-content: center;
+    align-self: center;
+    /* align-self: center; */
+  }
+
+  .hamburger_menu:hover {
+    cursor: pointer;
   }
 
   #sign {

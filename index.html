@@ -9,6 +9,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-ENNVZMQH5L"></script>
     <script>
@@ -25,28 +26,29 @@
       <div class="navbar">
         <div class="nav_logo">KI</div>
         <nav class="menu_bar">
-          <button id="button_Projects" class="nav_button">
+          <li id="button_Projects" class="nav_button">
             <h2>PROJECTS</h2>
-          </button>
-          <button id="button_About" class="nav_button">
+          </li>
+          <li id="button_About" class="nav_button">
             <h2>ABOUT</h2>
-          </button>
-          <button id="button_Resume" class="nav_button">
+          </li>
+          <li id="button_Resume" class="nav_button">
             <h2>RESUME</h2>
-          </button>
+          </li>
         </nav>
         <div class="hamburger_menu">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill="white"
-              fill-rule="evenodd"
-              d="M3 16h18v2H3zm0-5h18v2H3zm0-5h18v2H3z"
-            />
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+            <g fill="none" stroke="white" stroke-width="1.45">
+              <path d="M5 5L12 12L19 5">
+                <animate fill="freeze" attributeName="d" dur="0.4s" values="M5 5L12 12L19 5;M5 5L12 5L19 5" />
+              </path>
+              <path d="M12 12H12">
+                <animate fill="freeze" attributeName="d" dur="0.4s" values="M12 12H12;M5 12H19" />
+              </path>
+              <path d="M5 19L12 12L19 19">
+                <animate fill="freeze" attributeName="d" dur="0.4s" values="M5 19L12 12L19 19;M5 19L12 19L19 19" />
+              </path>
+            </g>
           </svg>
         </div>
       </div>
@@ -187,6 +189,56 @@
         Designed and coded with love by William Ki Wooten - 2024
       </div>
     </footer>
+    <div class="modal">
+        <div class="modal_menu">
+          <div class="nav_logo">KI</div>
+          <div class="modal_back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+            <g fill="none" stroke="white" stroke-width="1.45">
+              <path d="M5 5L12 5L19 5">
+                <animate fill="freeze" attributeName="d" dur="0.4s" values="M5 5L12 5L19 5;M5 5L12 12L19 5" />
+              </path>
+              <path d="M5 12H19">
+                <animate fill="freeze" attributeName="d" dur="0.4s" values="M5 12H19;M12 12H12" />
+              </path>
+              <path d="M5 19L12 19L19 19">
+                <animate fill="freeze" attributeName="d" dur="0.4s" values="M5 19L12 19L19 19;M5 19L12 12L19 19" />
+              </path>
+            </g>
+          </svg>
+        </div>
+        </div>
+
+        <nav class="modal_nav">
+
+            <li class="modal_nav_button" id="nav1">
+
+                <h2>About</h2>
+
+            </li>
+
+            <li class="modal_nav_button" id="nav2">
+
+                <h2>Projects</h2>
+
+            </li>
+
+            <li class="modal_nav_button" id="nav3">
+
+                <h2>Resume/CV</h2>
+
+            </li>
+
+        </nav>
+
+        <div class="modal_contact">
+
+            <a href="mailto:williamkwooten14@gmai.com">Email</a>
+
+            <a href="https://www.linkedin.com/in/example" class="visually-hidden">LinkedIn</a>
+
+        </div>
+    </div>
     <script src="js/index.js"></script>
   </body>
 </html>
