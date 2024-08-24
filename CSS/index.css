@@ -56,6 +56,12 @@ h3 {
   font-size: 1.25rem;
 }
 
+
+.section_header {
+  border-top: var(--basic-line-weight) var(--primary) solid;
+  border-bottom: var(--basic-line-weight) var(--primary solid);
+}
+
 /* Navigation */
 .nav_full {
   background: var(--bg-color);
@@ -250,7 +256,6 @@ h3 {
   font-size: 4em;
   justify-self: center;
   align-items: center;
-  height: 50vh;
   min-height: fit-content;
   /*margin: 50px;
   */
@@ -258,7 +263,7 @@ h3 {
   line-height: 120%;
   letter-spacing: -0.135rem;
   text-transform: uppercase;
-  padding: 5% 0;
+  padding: 260px;
   width: min-content;
   background-image: linear-gradient(45deg, #00c971, #a02cff);
   background-size: 200% 200%;
@@ -353,9 +358,11 @@ h3 {
   justify-content: center;
   align-items: center;
   gap: 5%;
-  /* border-top: 2px solid var(--primary); */
-  /* background-color: red; */
-  /* border-radius: 0.3125rem; */
+  padding: 20px;
+}
+
+.case_study :hover {
+  border: 2px var(--primary) solid;
 }
 
 .case_study img {
@@ -391,7 +398,9 @@ h3 {
 
 /* Skills Styling */
 .about {
+  display: block;
   padding: 10%;
+  gap: 10%;
 }
 
 .about_intro {
@@ -399,11 +408,11 @@ h3 {
   align-self: center;
   grid-template-columns: 1fr 2fr;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 5%;
 }
 
 .about_intro h1 {
   align-self: center;
-  margin: 5%;
   font-size: clamp(50px, 20%, 300px);
 }
 
@@ -427,7 +436,6 @@ h3 {
 .skills h1 {
   display: flex;
   width: 100%;
-  border-bottom: white var(--basic-line-weight) solid;
 }
 
 .skills h2 {

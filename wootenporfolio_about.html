@@ -5,13 +5,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-ENNVZMQH5L"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-ENNVZMQH5L");
+    </script>
   </head>
   <body>
     <header class="nav_full">
@@ -67,26 +79,29 @@
     </header>
     <section class="about">
       <div class="about_intro">
-        <h1>Hi, My name is Ki</h1>
+        <h1>
+          Hi, <br />
+          My name is Ki
+        </h1>
         <img
           src="https://mtek3d.com/wp-content/uploads/2018/01/image-placeholder-500x500.jpg"
-          alt="placeholder"
+          alt="Portrait of Ki"
         />
       </div>
       <div class="about_bio">
-        <p>
+        <h3>
           I am a frontend designer with a background in Engineering. My approach
-          to design revolves around understanding user issues and solving issues
-          using data & user feedback
-        </p>
-        <p>
-          I love learning and I am always searching for ways to improve my
-          skills
-        </p>
+          to design revolves around understanding user issues and solving those
+          issues using data and user feedback
+        </h3>
+        <h3>
+          I love to learn and I am always searching for creative ways to use my
+          skillset to create stellar experiences.
+        </h3>
       </div>
     </section>
     <section class="skills">
-      <h1>My Skills</h1>
+      <h1 class="section_header">Skillset</h1>
       <div class="skill_container">
         <div class="skillCard">
           <h2>INTERACTION DESIGN</h2>
@@ -107,9 +122,11 @@
             </g>
           </svg>
           <p>
-            Figma ipsum component variant main layer. Layer flatten object
-            comment layout. Pixel select plugin opacity vertical arrange group
-            outline undo bold.
+            I craft intuitive and engaging user experiences, focusing on
+            seamless interactions that resonate with users. <br />
+            My approach blends empathy, creativity, and strategic thinking to
+            create designs that not only look good but are also highly
+            functional.
           </p>
         </div>
         <div class="skillCard">
@@ -131,9 +148,10 @@
             </g>
           </svg>
           <p>
-            Figma ipsum component variant main layer. Layer flatten object
-            comment layout. Pixel select plugin opacity vertical arrange group
-            outline undo bold.
+            I believe a deep understanding of the user is vital to the success
+            of any product. Because of that, I take extreme care to understand
+            the user needs and make sure that my work truly solves the issue
+            that the user is having.
           </p>
         </div>
         <div class="skillCard">
@@ -155,9 +173,10 @@
             </g>
           </svg>
           <p>
-            Figma ipsum component variant main layer. Layer flatten object
-            comment layout. Pixel select plugin opacity vertical arrange group
-            outline undo bold.
+            With a strong foundation in front-end technologies, I bring designs
+            to life through clean, efficient code. My development work ensures
+            responsive, accessible, and performance-optimized websites that
+            deliver a polished experience across all devices.
           </p>
         </div>
       </div>
@@ -305,5 +324,6 @@
         >
       </div>
     </div>
+    <script src="js/index.js"></script>
   </body>
 </html>
