@@ -7,7 +7,18 @@
   --color1: #1d3383;
   --color2: #126743;
   --color3: #cc3037;
-  --button-Spacing: 20xpx;
+  --button-Spacing: 20px;
+  --basic-line-weight: 2.5px;
+  --beeg-lne-weight: 3px;
+  --thicc-line-weight: 3px;
+}
+
+a:link {
+  color: white;
+}
+
+a:visited {
+  color: white;
 }
 
 body {
@@ -16,7 +27,7 @@ body {
   top: 0;
   left: 0;
   margin: 0;
-  align-content: center;
+  align-items: center;
   justify-content: center;
   color: var(--primary);
   font-family: "Overpass", sans-serif;
@@ -25,7 +36,7 @@ body {
 }
 
 hr {
-  border-top: 2px solid var(--primary);
+  border-top: var(--basic-line-weight) solid var(--primary);
 }
 
 h1 {
@@ -60,7 +71,7 @@ h3 {
   padding-top: 3.125rem;
   align-items: end;
   width: auto;
-  border-bottom: 0.1875rem var(--primary) solid;
+  border-bottom: var(--thicc-line-weight) var(--primary) solid;
 }
 
 .nav_logo {
@@ -167,12 +178,12 @@ h3 {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 60%;
-  gap: 10%;
+  height: 75vh;
+  gap: 15%;
 }
 
 .modal_nav_button {
-  width: 50%;
+  width: 75%;
   text-decoration: none;
   list-style: none;
   color: white;
@@ -185,14 +196,17 @@ h3 {
 
 #nav1 {
   border-right: 10px solid var(--color1);
+  background: var(--color1);
 }
 
 #nav2 {
   border-right: 10px solid var(--color2);
+  background: var(--color2);
 }
 
 #nav3 {
   border-right: 10px solid var(--color3);
+  background: var(--color3);
 }
 
 #nav1:active {
@@ -212,20 +226,20 @@ h3 {
   align-items: center;
   justify-content: space-evenly;
   border-top: white 2px solid;
-  height: 20%;
+  height: 10%;
 }
 
 /* Content Styling */
 
 .hero {
-  display: flex;
+  display: grid;
   height: 100vh;
   flex-direction: column;
-  align-self: center;
   align-items: center;
   justify-content: center;
   padding-bottom: 20%;
   border-radius: 5px;
+  min-width: fit-content;
   z-index: 0;
   /*border: cornflowerblue dotted 3px;
    */
@@ -234,9 +248,12 @@ h3 {
 .name {
   display: flex;
   font-size: 4em;
+  justify-self: center;
+  align-items: center;
+  height: 50vh;
+  min-height: fit-content;
   /*margin: 50px;
   */
-  /* font-family: "Overpass", monospace; */
   font-weight: 900;
   line-height: 120%;
   letter-spacing: -0.135rem;
@@ -253,7 +270,7 @@ h3 {
 
 .intro {
   min-width: fit-content;
-  margin: 5%;
+  /* margin: 5%; */
 }
 
 #intro_blurb1 {
@@ -279,25 +296,18 @@ h3 {
   /* font-size: 1.5rem; */
   border: none;
   background: none;
-  border-top: 0.125rem solid #fff;
+  /* border-top: 0.125rem solid #fff; */
 }
 
 #mail {
   display: flex;
   align-items: center;
-  padding: 5px;
-  gap: 5px;
   text-decoration: dashed;
   /* font-weight: lighter; */
 }
 
 #mail:hover {
   text-decoration-style: dotted;
-  transform: scale(1.5);
-  -webkit-transform: scale(1.5);
-  -moz-transform: scale(1.5);
-  -ms-transform: scale(1.5);
-  -o-transform: scale(1.5);
 }
 
 .projects {
@@ -306,16 +316,35 @@ h3 {
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  padding-block: 20vh;
-  margin: 10%;
+  /* padding-block: 20vh; */
+  /* margin: 10%; */
 }
 
 .projectContainer {
-  padding: 10%;
+  display: flex;
+  flex-flow: column wrap;
+  align-items: center;
+  gap: 100px;
+  margin: 10%;
 }
 
-.case_study_category {
-  font-weight: 100;
+#case_study_category {
+  display: flex;
+  flex-direction: row;
+  font-weight: 300;
+  list-style: none;
+  gap: 5%;
+  padding-block: 5px;
+}
+
+.tag {
+  padding: 10px;
+  border: 3px white solid;
+  border-radius: 20px;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  -ms-border-radius: 20px;
+  -o-border-radius: 20px;
 }
 
 .case_study {
@@ -323,11 +352,8 @@ h3 {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   justify-content: center;
   align-items: center;
-  padding: 10%;
-  /* height: 20%; */
-  /* gap: 10%; */
-  /* object-fit: cover; */
-  border-top: 2px solid var(--primary);
+  gap: 5%;
+  /* border-top: 2px solid var(--primary); */
   /* background-color: red; */
   /* border-radius: 0.3125rem; */
 }
@@ -338,41 +364,80 @@ h3 {
   height: 100%;
   object-fit: scale-down;
   border-radius: 5px;
+  padding: 5%;
+  /* margin: 20px */
 }
 
-.case_study_text {
-  padding: 10%;
-  /* width: 300px; */
-}
-
-.case_study_button {
+.button {
   display: flex;
   background: none;
   color: var(--primary);
   align-items: center;
   justify-self: center;
-  border: 3px solid var(--primary);
-  border-radius: 10px;
-  padding: 5px;
+  border: none;
   width: fit-content;
+  font-size: 20px;
+}
+
+.button:hover .arrow {
+  transform: translateX(20px);
+  animation: 1 cubic-bezier(0.075, 0.82, 0.165, 1);
+  -webkit-transform: translateX(20px);
+  -moz-transform: translateX(20px);
+  -ms-transform: translateX(20px);
+  -o-transform: translateX(20px);
+  -webkit-animation: 1 cubic-bezier(0.075, 0.82, 0.165, 1);
 }
 
 /* Skills Styling */
+.about {
+  padding: 10%;
+}
+
+.about_intro {
+  display: grid;
+  align-self: center;
+  grid-template-columns: 1fr 2fr;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.about_intro h1 {
+  align-self: center;
+  margin: 5%;
+  font-size: clamp(50px, 20%, 300px);
+}
+
+
+.about_intro img {
+  height: 100%;
+  width: 100%;
+}
+
+.about_bio {
+  margin-block: 10%;
+}
 
 .skills {
   display: flex;
   flex-flow: column wrap;
-  margin: 0 20%;
+  margin-block: 10%;
   align-items: center;
 }
 
+.skills h1 {
+  display: flex;
+  width: 100%;
+  border-bottom: white var(--basic-line-weight) solid;
+}
+
 .skills h2 {
-  margin: 2.5rem;
+  /* margin: 2.5rem; */
   justify-self: center;
 }
 
 .skill_container {
   display: flex;
+  flex-flow: row wrap;
   margin: 3.125rem;
   gap: 1.875rem;
   justify-content: center;
@@ -450,7 +515,7 @@ footer {
   align-items: center;
   justify-content: center;
   gap: 25%;
-  border-top: 0.125rem solid var(--primary);
+  border-top: var(--beeg-lne-weight) solid var(--primary);
   background: var(--BG, #090909);
 }
 
