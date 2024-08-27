@@ -94,6 +94,10 @@ svg {
   margin: 5px;
 }
 
+.nav_logo:hover {
+  cursor: pointer;
+}
+
 .menu_bar {
   display: flex;
   flex-direction: row;
@@ -331,14 +335,15 @@ svg {
 }
 
 #mail:hover {
-  text-decoration-style: dotted;
+  text-decoration: underline;
+  -moz-text-decoration: underline;
 }
 
 .projects {
   display: block;
   align-items: center;
   justify-content: center;
-  height: min-content;
+  /* height: min-content; */
 }
 
 .project_container {
@@ -346,7 +351,7 @@ svg {
   flex-flow: column wrap;
   align-items: center;
   gap: 100px;
-  margin: 5%;
+  padding: 10% 5%;
 }
 
 #case_study_category {
@@ -370,11 +375,10 @@ svg {
 
 .case_study {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   justify-content: center;
   align-items: center;
   gap: 5%;
-  padding: 20px;
 }
 
 .case_study img {
@@ -551,15 +555,16 @@ svg {
 /*Footer*/
 footer {
   display: flex;
-  width: 100%;
   padding: 2.5%;
   flex-flow: row wrap;
   align-items: center;
   justify-content: space-around;
-  /* gap: 25%; */
+  gap: 10px;
+  text-align: center;
   border-top: var(--beeg-line-weight) solid var(--primary);
   background: var(--BG);
 }
+
 
 footer svg:hover {
   /* fill: rgb(88, 255, 219); */
@@ -584,6 +589,7 @@ footer svg:active {
 #social_Container {
   display: flex;
   flex-flow: row wrap;
+  gap: 30px;
   align-items: center;
   justify-content: center;
 }
@@ -618,7 +624,16 @@ footer svg:active {
 }
 
 
-
+.heart {
+  color: rgb(248, 96, 96);
+  animation: normal;
+  -webkit-animation: normal;
+  transform: scale(1.3);
+  -webkit-transform: scale(1.3);
+  -moz-transform: scale(1.3);
+  -ms-transform: scale(1.3);
+  -o-transform: scale(1.3);
+}
 
 
 @keyframes gradient {
@@ -650,6 +665,10 @@ footer svg:active {
 
   .hamburger_menu:hover {
     cursor: pointer;
+  }
+
+  footer {
+    justify-content: center;
   }
 
   #sign {
