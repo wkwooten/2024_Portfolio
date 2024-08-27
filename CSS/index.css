@@ -59,7 +59,7 @@ h3 {
 
 svg {
   fill: var(--primary);
-  stroke: var(--primary);
+  stroke: none;
 }
 
 .section_header {
@@ -401,7 +401,16 @@ svg {
 }
 
 .button:hover {
-  text-decoration: dashed;
+  text-decoration: underline;
+}
+
+.button:active {
+  transform: scale(.95);
+  -webkit-transform: scale(.95);
+  -moz-transform: scale(.95);
+  -ms-transform: scale(.95);
+  -o-transform: scale(.95);
+  opacity: .8;
 }
 
 /* Skills Styling */
@@ -484,13 +493,17 @@ svg {
   justify-content: center;
 }
 
-.cs_hero_image {}
+.cs_hero_image {
+  display: flex;
+  flex-direction: column;
+  gap: px;
+}
 
 .cs_Nav {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  padding-block: 20px;
+  padding: 20px;
   align-items: center;
   flex-flow: row;
   gap: 5%;
@@ -538,24 +551,34 @@ svg {
 /*Footer*/
 footer {
   display: flex;
+  width: 100%;
+  padding: 2.5%;
   flex-flow: row wrap;
-  padding: 3.4375rem 0rem;
   align-items: center;
-  justify-content: center;
-  gap: 25%;
+  justify-content: space-around;
+  /* gap: 25%; */
   border-top: var(--beeg-line-weight) solid var(--primary);
   background: var(--BG);
 }
 
 footer svg:hover {
-  fill: rgb(76, 175, 255);
-  transform: scale(1.5);
+  /* fill: rgb(88, 255, 219); */
+  transform: scale(1.2);
   animation: 3s ease-out;
-  -webkit-transform: scale(1.5);
-  -moz-transform: scale(1.5);
-  -ms-transform: scale(1.5);
-  -o-transform: scale(1.5);
+  -webkit-transform: scale(1.2);
+  -moz-transform: scale(1.2);
+  -ms-transform: scale(1.2);
+  -o-transform: scale(1.2);
   -webkit-animation: 3s ease-out;
+}
+
+footer svg:active {
+  transform: scale(.95);
+  -webkit-transform: scale(.95);
+  -moz-transform: scale(.95);
+  -ms-transform: scale(.95);
+  -o-transform: scale(.95);
+  opacity: .8;
 }
 
 #social_Container {
@@ -563,6 +586,18 @@ footer svg:hover {
   flex-flow: row wrap;
   align-items: center;
   justify-content: center;
+}
+
+.social_1 svg:hover {
+  fill: #2dba4e;
+}
+
+.social_2 svg:hover {
+  fill: #00a0dc;
+}
+
+.social_3 svg:hover {
+  fill: #0057ff;
 }
 
 #sign {
