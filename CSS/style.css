@@ -371,12 +371,9 @@ svg {
 }
 
 .project_container {
-  grid-template-columns: 1fr 1fr;
-  /* flex-flow: column wrap; */
-  justify-items: center;
-  align-items: center;
-  grid-gap: 10rem;
-  padding: 10% 5%;
+  display: grid;
+  gap: 50px;
+  padding: 10%;
 }
 
 .project_card {
@@ -388,11 +385,16 @@ svg {
 }
 
 .project_card_content {
-  /* display: flex;
+  display: flex;
+  flex-grow: 1;
   flex-direction: column;
-  justify-content: center;
-  align-content: center; */
+  justify-self: center;
+  align-self: center;
   max-width: 500px;
+}
+
+.project_card_content hr {
+  width: 100%;
 }
 
 .project_card img {
