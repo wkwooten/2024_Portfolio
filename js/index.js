@@ -5,10 +5,27 @@
 
 console.log("test");
 
-$(".hamburger_menu").on("click", function () {
-  $(".modal").show();
+$(".name").on("click", function () {
+  $(".name").addclass(".animate__fadeIn");
 });
 
-$(".modal_menu").on("click", function () {
+
+$(".hamburger_menu").on("click", function () {
+  $(".modal").show();
+  $(".hamburger_menu").hide();
+  $(".modal_back").show();
+});
+
+$(".modal_back").on("click", function () {
   $(".modal").hide();
+  $(".hamburger_menu").show();
+  $(".modal_back").hide();
+});
+
+$(".side_nav_close").on("click", function () {
+  $(".side_nav_container").show();
+});
+
+$(".side_nav_close").on("click", function () {
+  $(".side_nav_container").hide();
 });
