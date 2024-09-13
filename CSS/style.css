@@ -255,6 +255,10 @@ svg {
   margin: .3125rem;
 }
 
+.nav_logo img {
+  height: 4rem;
+}
+
 .nav_logo:hover {
   cursor: pointer;
 }
@@ -724,7 +728,7 @@ svg {
 }
 
 .works_case_study_title {
-  display: flex;  
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
