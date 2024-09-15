@@ -404,16 +404,17 @@ blockquote {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  margin-top: 9.375rem;
-  height: 50%;
-  gap: 15%;
+  margin-block: 9.375rem var(--space-s);
+  height: 55%;
+  /* margin-block: 20px; */
+  gap: 1.25rem;
 }
 
 .modal_nav_button {
   width: 75%;
   text-decoration: none;
   list-style: none;
-  color: white;
+  color: var(--primary);
   /* margin-left: 10%; */
 }
 
@@ -427,17 +428,17 @@ blockquote {
 
 #nav1 {
   border-right: .625rem solid var(--color1);
-  background: var(--color1);
+  background: var(--bg-color);
 }
 
 #nav2 {
   border-right: .625rem solid var(--color2);
-  background: var(--color2);
+  background: var(--bg-color);
 }
 
 #nav3 {
   border-right: .625rem solid var(--color3);
-  background: var(--color3);
+  background: var(--bg-color);
 }
 
 #nav1:active {
@@ -457,7 +458,7 @@ blockquote {
   align-items: center;
   justify-content: space-evenly;
   /* border-top: white .125rem solid; */
-  height: 10%;
+  /* height: 10%; */
 }
 
 /* Content Styling */
@@ -465,14 +466,15 @@ blockquote {
 .hero {
   display: grid;
   height: 100vh;
-  grid-template-rows: 50% 20% 10%;
-  flex-direction: column;
+  grid-template-columns: repeat(auto-fit, minmax(275px, 1fr));
+  /* flex-direction: column; */
   align-items: center;
   justify-content: center;
   justify-items: center;
   /* padding-bottom: 12.5rem; */
-  min-width: fit-content;
+  /* min-width: fit-content; */
   z-index: 0;
+  margin-bottom: 20vh;
 }
 
 .hero svg {
@@ -481,7 +483,6 @@ blockquote {
 }
 
 .frame {
-  /* height: clamn(18.75rem, 50vh, 62.5rem); */
   display: flex;
   width: min-content;
   padding: 6.25rem 1.875rem;
@@ -511,25 +512,19 @@ blockquote {
   width: min-content;
   color: transparent;
   background: linear-gradient(45deg, #00c971, #a02cff);
-  background-color: white;
+  background-color: var(--bg-color);
   background-size: 200% 200%;
   animation: gradient 5s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   background-clip: text;
   -webkit-animation: gradient 5s cubic-bezier(0.23, 1, 0.32, 1) infinite;
 }
 
+.indicator {
+  display: none;
+}
+
 .name:active {
-  transform: scale(1.3);
-  transition: transform 1s;
-  -webkit-transform: scale(1.3);
-  -moz-transform: scale(1.3);
-  -ms-transform: scale(1.3);
-  -o-transform: scale(1.3);
-  animation: 3s linear 1s infinite alternate slidein;
-  -webkit-transition: transform 1s;
-  -moz-transition: transform 1s;
-  -ms-transition: transform 1s;
-  -o-transition: transform 1s;
+  color: white;
 }
 
 .intro {
@@ -577,10 +572,11 @@ blockquote {
 
 .project_card {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(275px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   justify-content: center;
   align-items: center;
   gap: 5%;
+  margin-block: 10%;
 }
 
 .project_card_content {
@@ -603,7 +599,7 @@ blockquote {
   /* margin: var(--space-s); */
   border-radius: .3125rem;
   width: 100%;
-  min-width: 320px;
+  /* min-width: 275px; */
   -moz-border-radius: .3125rem;
   -ms-border-radius: .3125rem;
   -o-border-radius: .3125rem;
@@ -1019,7 +1015,7 @@ footer svg:active {
 
 @media screen and (max-height: 62.5rem) {
   .hero {
-    display: flex;
+    /* display: flex; */
     justify-content: center;
     height: auto;
   }
