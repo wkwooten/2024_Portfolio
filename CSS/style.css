@@ -596,16 +596,14 @@ blockquote {
   width: 100%;
 }
 
-.project_card img {
+.project_card_img img {
   display: flex;
   justify-self: center;
   align-items: center;
-  margin: var(--space-l);
+  /* margin: var(--space-s); */
   border-radius: .3125rem;
   width: 100%;
   min-width: 320px;
-  /*margin: 1.25rem;
-  */
   -moz-border-radius: .3125rem;
   -ms-border-radius: .3125rem;
   -o-border-radius: .3125rem;
@@ -614,7 +612,7 @@ blockquote {
 }
 
 .project_card img:hover {
-  /* scale: 1.1; */
+  scale: 1.05;
   animation: 10s ease-in(0.075, 0.82, 0.165, 1);
   -webkit-animation: 10s ease-in(0.075, 0.82, 0.165, 1);
 }
