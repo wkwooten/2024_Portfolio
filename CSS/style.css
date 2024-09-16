@@ -24,20 +24,32 @@
   --space-xl: clamp(3.375rem, 3.2446rem + 0.6522vw, 3.75rem);
   --space-2xl: clamp(4.5rem, 4.3261rem + 0.8696vw, 5rem);
   --space-3xl: clamp(6.75rem, 6.4891rem + 1.3043vw, 7.5rem);
-  --fs-0: clamp(1rem, 0.8889rem + 0.5556vw, 1.5rem);
+  /* --fs-0: clamp(1rem, 0.8889rem + 0.5556vw, 1.5rem);
   --fs-1: clamp(1.2rem, 1.111rem + 0.445vw, 1.6005rem);
   --fs-2: clamp(1.44rem, 1.3805rem + 0.2975vw, 1.7077rem);
   --fs-3: clamp(1.728rem, 1.7071rem + 0.1046vw, 1.8222rem);
   --fs-4: clamp(1.9442rem, 2.1023rem + -0.1437vw, 2.0736rem);
-  --fs-5: clamp(2.0745rem, 2.5803rem + -0.4598vw, 2.4883rem);
+  --fs-5: clamp(2.0745rem, 2.5803rem + -0.4598vw, 2.4883rem); */
+  --fs-0: clamp(1rem, 0.8889rem + 0.5556vw, 1.5rem);
+  --fs-1: clamp(1.125rem, 1.0193rem + 0.5283vw, 1.6005rem);
+  --fs-2: clamp(1.2656rem, 1.1674rem + 0.4912vw, 1.7077rem);
+  --fs-3: clamp(1.4238rem, 1.3353rem + 0.4426vw, 1.8222rem);
+  --fs-4: clamp(1.6018rem, 1.5257rem + 0.3805vw, 1.9442rem);
+  --fs-5: clamp(1.802rem, 1.7415rem + 0.3027vw, 2.0745rem);
   --fig-width: 50rem;
 }
+
+
+
+
 
 
 /* Basic reset for lists */
 ul,
 ol {
   list-style-position: inside;
+  font-size: var(--fs-0);
+  line-height: 2;
   /* Keep bullets/numbers inside the content area */
 }
 
@@ -53,8 +65,6 @@ ol {
   list-style-type: decimal;
   margin-left: 20px;
 }
-
-
 
 h1,
 h2,
@@ -144,7 +154,6 @@ h5 {
 
 h6 {
   font-weight: 500;
-  /* font-size: var(--fs-1); */
 }
 
 p {
@@ -153,14 +162,10 @@ p {
   font-size: var(--fs-0);
 }
 
-ul {
-  font-size: var(--fs-0);
-  line-height: 2;
-}
 
 img,
 picture {
-  max-width: 100%;
+  /* max-width: 100%; */
   display: block;
 }
 
@@ -188,8 +193,8 @@ figcaption {
 figure img {
   max-width: var(--fig-width);
   width: 100%;
-  margin: var(--space-m);
-  padding: var(--space-s);
+  border-radius: .3125rem;
+  margin-block: var(--space-m);
 }
 
 blockquote {
@@ -238,7 +243,7 @@ blockquote {
 .flex_col {
   display: flex;
   flex-direction: column;
-  justify-items: center;
+  justify-content: center;
   align-content: center;
   gap: var(--space-s);
   padding-block: var(--space-l);
@@ -486,7 +491,8 @@ blockquote {
   display: flex;
   width: min-content;
   padding: 6.25rem 1.875rem;
-  margin-block: 10%;
+  margin: 10%;
+  align-items: center;
   background-position: center;
   background-size: 110% 100%;
 }
@@ -500,7 +506,7 @@ blockquote {
 .name {
   display: block;
   font-style: normal;
-  font-size: 4em;
+  font-size: 4rem;
   justify-self: center;
   align-items: center;
   min-height: fit-content;
@@ -511,6 +517,7 @@ blockquote {
   text-transform: uppercase;
   width: min-content;
   color: transparent;
+  /* margin: 5%; */
   background: linear-gradient(45deg, #00c971, #a02cff);
   background-color: var(--bg-color);
   background-size: 200% 200%;
@@ -800,7 +807,7 @@ blockquote {
 .cs_hero_image img {
   width: 100%;
   object-fit: cover;
-  object-position: bottom;
+  /* object-position: bottom; */
 }
 
 .cs_info {
@@ -837,7 +844,7 @@ blockquote {
   grid-template-rows: repeat(auto-fit, minmax(300px, 1fr));
 }
 
-.side_nav {
+.toc {
   display: none;
   grid-template-columns: 1fr 1.875rem;
   height: 50%;
@@ -850,6 +857,11 @@ blockquote {
   height: 100%;
   /* padding: 1.25rem; */
   left: 0;
+}
+
+.toc h4 {
+  border-bottom: white 2px solid;
+  width: 100%;
 }
 
 .side_nav_close svg {
@@ -871,7 +883,7 @@ blockquote {
   justify-content: center;
   align-items: flex-start;
   flex-direction: column;
-  border-right: white solid .1875rem;
+  /* border-right: white solid .1875rem; */
 }
 
 .side_nav a {
