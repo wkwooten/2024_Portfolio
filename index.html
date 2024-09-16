@@ -4,178 +4,331 @@
     <title>Ki Wooten Portfolio Website</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <link rel="icon" href="Images\personal logo.png" />
+    <link rel="stylesheet" type="text/css" href="CSS/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://use.typekit.net/ovv0qto.css">
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-ENNVZMQH5L"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-ENNVZMQH5L");
+    </script>
   </head>
   <body>
     <header class="nav_full">
-      <div class="navbar">
-        <div class="nav_logo">KI</div>
+      <nav class="navbar">
+        <a href="https://wkwooten.github.io/2024_Portfolio/" class="nav_logo"> <img src="" alt="KI"></a>
         <nav class="menu_bar">
-          <button id="button_Projects" class="nav_button">
+          <a href="https://wkwooten.github.io/2024_Portfolio/projects" title="Projects" id="button_Projects" class="nav_button">
             <h2>PROJECTS</h2>
-          </button>
-          <button id="button_About" class="nav_button">
+          </a>
+          <a  href="https://wkwooten.github.io/2024_Portfolio/about" title="About Me" id="button_About" class="nav_button">
             <h2>ABOUT</h2>
-          </button>
-          <button id="button_Resume" class="nav_button">
-            <h2>RESUME</h2>
-          </button>
+          </a>
+          <a href="" id="button_Resume" class="nav_button">
+            <h2>RÉSUMÉ↗</h2>
+          </a>
         </nav>
-        <div class="hamburger_menu">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill="white"
-              fill-rule="evenodd"
-              d="M3 16h18v2H3zm0-5h18v2H3zm0-5h18v2H3z"
-            />
-          </svg>
-        </div>
-      </div>
-    </header>
-    <section class="hero">
-        <div class="name">WILLIAM KI WOOTEN</div>
-        <div class="intro animate__animated animate__fadeIn">
-          <h1 id="intro_blurb1">
-            UX/UI designer based in <br />
-            Harlem, New York City.
-          </h1>
-          <hr />
-          <h3 id="intro_blurb2">
-            I am a problem solver creating experiences that are  <strong> well researched,</strong>
-            <strong>polished</strong> and <strong>accessible.</strong>
-          </h3>
-          <div class="contact">
-            <h2>Contact Me </h2>
-            <div id="mail">
-            williamkwooten14@gmail.com</div>
+        <div class="modal_button">
+          <div class="hamburger_menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+              <g fill="none" stroke="white" stroke-width="1.45">
+                <path d="M5 5L12 12L19 5">
+                  <animate fill="freeze" attributeName="d" dur="0.4s" values="M5 5L12 12L19 5;M5 5L12 5L19 5" />
+                </path>
+                <path d="M12 12H12">
+                  <animate fill="freeze" attributeName="d" dur="0.4s" values="M12 12H12;M5 12H19" />
+                </path>
+                <path d="M5 19L12 12L19 19">
+                  <animate fill="freeze" attributeName="d" dur="0.4s" values="M5 19L12 12L19 19;M5 19L12 19L19 19" />
+                </path>
+              </g>
+            </svg>
+          </div>
+          <div class="modal_back collapsed">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
+              <g fill="none" stroke="white" stroke-width="1.45">
+                <path d="M5 5L12 5L19 5">
+                  <animate fill="freeze" attributeName="d" dur="0.4s" values="M5 5L12 5L19 5;M5 5L12 12L19 5" />
+                </path>
+                <path d="M5 12H19">
+                  <animate fill="freeze" attributeName="d" dur="0.4s" values="M5 12H19;M12 12H12" />
+                </path>
+                <path d="M5 19L12 19L19 19">
+                  <animate fill="freeze" attributeName="d" dur="0.4s" values="M5 19L12 19L19 19;M5 19L12 12L19 19" />
+                </path>
+              </g>
+              </svg>
           </div>
         </div>
-      </section>
-    <section class="projects">
-      <hr id="projectsLine" />
-      <h1 id="projectsHeader animate__animated animate__fadeIn">Selected Projects </h1>
-      <hr />
-      <div class="projectContainer">
-        <div class="case_study">
-          <div class="case_study_text">
-            <h1>Untermyer Gardens Responsive Web Redesign</h1>
-            <p id="case_study_category">User Research | Interaction Design</p>
-            <hr>
-            <p>
-              Revamping the Untermyer Gardens Conservancy website to improve
-              navigation and enhance the user experience for first-time
-              visitors.
+      </nav>
+      <div class="modal">
+        <nav class="modal_nav">
+          <li class="modal_nav_button" id="nav1">
+            <h2>About</h2>
+          </li>
+          <li class="modal_nav_button" id="nav2">
+            <h2>Projects</h2>
+          </li>
+          <li class="modal_nav_button" id="nav3">
+            <h2>RÉSUMÉ↗</h2>
+          </li>
+        </nav>
+        <footer>
+          <div id="social_Container">
+              <div id="Socials">
+                <a href="https://github.com/wkwooten class" class="social_1">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="48"
+                    height="48"
+                    title="github link"
+                    viewBox="0 0 256 256"
+                  >
+                    <g>
+                      <path
+                        d="M208 104v8a48 48 0 0 1-48 48h-24a32 32 0 0 1 32 32v40h-64v-40a32 32 0 0 1 32-32h-24a48 48 0 0 1-48-48v-8a49.3 49.3 0 0 1 8.51-27.3A51.92 51.92 0 0 1 76 32a52 52 0 0 1 43.83 24h32.34A52 52 0 0 1 196 32a51.92 51.92 0 0 1 3.49 44.7A49.3 49.3 0 0 1 208 104"
+                        opacity="0.2"
+                      />
+                      <path
+                        d="M208.3 75.68A59.74 59.74 0 0 0 202.93 28a8 8 0 0 0-6.93-4a59.75 59.75 0 0 0-48 24h-24a59.75 59.75 0 0 0-48-24a8 8 0 0 0-6.93 4a59.78 59.78 0 0 0-5.38 47.68A58.14 58.14 0 0 0 56 104v8a56.06 56.06 0 0 0 48.44 55.47A39.8 39.8 0 0 0 96 192v8H72a24 24 0 0 1-24-24a40 40 0 0 0-40-40a8 8 0 0 0 0 16a24 24 0 0 1 24 24a40 40 0 0 0 40 40h24v16a8 8 0 0 0 16 0v-40a24 24 0 0 1 48 0v40a8 8 0 0 0 16 0v-40a39.8 39.8 0 0 0-8.44-24.53A56.06 56.06 0 0 0 216 112v-8a58 58 0 0 0-7.7-28.32M200 112a40 40 0 0 1-40 40h-48a40 40 0 0 1-40-40v-8a41.74 41.74 0 0 1 6.9-22.48a8 8 0 0 0 1.1-7.69a43.8 43.8 0 0 1 .79-33.58a43.88 43.88 0 0 1 32.32 20.06a8 8 0 0 0 6.71 3.69h32.35a8 8 0 0 0 6.74-3.69a43.87 43.87 0 0 1 32.32-20.06a43.8 43.8 0 0 1 .77 33.58a8.09 8.09 0 0 0 1 7.65a41.76 41.76 0 0 1 7 22.52Z"
+                      />
+                    </g>
+                  </svg>
+                </a>
+                <a href="https://www.linkedin.com/in/wkwooten14/" class="social_2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="64"
+                    height="64"
+                    title="LinkedIn link"
+                    viewBox="0 0 256 256"
+                  >
+                    <g>
+                      <path
+                        d="M224 40v176a8 8 0 0 1-8 8H40a8 8 0 0 1-8-8V40a8 8 0 0 1 8-8h176a8 8 0 0 1 8 8"
+                        opacity="0.2"
+                      />
+                      <path
+                        d="M216 24H40a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V40a16 16 0 0 0-16-16m0 192H40V40h176zM96 112v64a8 8 0 0 1-16 0v-64a8 8 0 0 1 16 0m88 28v36a8 8 0 0 1-16 0v-36a20 20 0 0 0-40 0v36a8 8 0 0 1-16 0v-64a8 8 0 0 1 15.79-1.78A36 36 0 0 1 184 140m-84-56a12 12 0 1 1-12-12a12 12 0 0 1 12 12"
+                      />
+                    </g>
+                  </svg>
+                </a>
+                <a href="https://www.behance.net/DigitalKi" class="social_3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="64"
+                    height="64"
+                    title="Behance link"
+                    viewBox="0 0 256 256"
+                  >
+                    <g>
+                      <path
+                        d="M240 152h-80a40 40 0 0 1 80 0M94 124h-4a30 30 0 0 0 0-60H32v128h62a34 34 0 0 0 0-68"
+                        opacity="0.2"
+                      />
+                      <path
+                        d="M160 80a8 8 0 0 1 8-8h64a8 8 0 0 1 0 16h-64a8 8 0 0 1-8-8m-24 78a42 42 0 0 1-42 42H32a8 8 0 0 1-8-8V64a8 8 0 0 1 8-8h58a38 38 0 0 1 25.65 66A42 42 0 0 1 136 158m-96-42h50a22 22 0 0 0 0-44H40Zm80 42a26 26 0 0 0-26-26H40v52h54a26 26 0 0 0 26-26m128-6a8 8 0 0 1-8 8h-71a32 32 0 0 0 56.59 11.2a8 8 0 0 1 12.8 9.61A48 48 0 1 1 248 152m-17-8a32 32 0 0 0-62 0Z"
+                      />
+                    </g>
+                  </svg>
+                </a>
+                <li>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="48"
+                    height="48"
+                    viewBox="0 0 256 256"
+                  >
+                    <g>
+                      <path
+                        d="M224 128a96 96 0 1 1-96-96a96 96 0 0 1 96 96"
+                        opacity="0.2"
+                      />
+                      <path
+                        d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24m87.65 96.18q-3.82-.18-7.65-.18a168.6 168.6 0 0 0-43.94 5.84A166.5 166.5 0 0 0 150.61 96a168.3 168.3 0 0 0 38.2-31.55a87.78 87.78 0 0 1 26.84 55.73m-39.37-65.72A151.8 151.8 0 0 1 142 82.52a169.2 169.2 0 0 0-38.63-39a88 88 0 0 1 73 10.94Zm-90.63-3.58a153.1 153.1 0 0 1 42 39.18A151.8 151.8 0 0 1 64 104a154 154 0 0 1-20.28-1.35a88.4 88.4 0 0 1 41.93-51.77M40 128a88 88 0 0 1 .53-9.64A169 169 0 0 0 64 120a167.84 167.84 0 0 0 72.52-16.4a151 151 0 0 1 12.31 27.13a167 167 0 0 0-24.59 11.6a169.2 169.2 0 0 0-55.07 51.06A87.8 87.8 0 0 1 40 128m42 75a152.9 152.9 0 0 1 50.24-46.79a149 149 0 0 1 20.95-10a152.5 152.5 0 0 1 3.73 33.47a153 153 0 0 1-3.49 32.56A87.92 87.92 0 0 1 82 203m89.06 1.73a170 170 0 0 0 1.86-25a168.7 168.7 0 0 0-4.45-38.47A152.3 152.3 0 0 1 208 136q3.8 0 7.61.19a88.13 88.13 0 0 1-44.55 68.53Z"
+                      />
+                    </g>
+                  </svg>
+                </li>
+              </div>
+          </div>
+          <div id="sign">
+            <p>Designed and coded with <span class="heart">♡</span> by William Ki Wooten - 2024</p>
+          </div>
+        </footer>
+      </div>
+      </header>
+    <div class="page_grid animate__animated animate__fadeInLeft">
+      <section class="hero">
+          <div class="frame">
+            <div class="decoration"> <rect></rect></div>
+            <div class="name animate_jello">WILLIAM KI WOOTEN</div>
+            <div class="decoration"></div>
+          </div>
+          <div class="intro animate__animated animate__fadeIn">
+            <h2 id="intro_blurb1">
+              Interaction designer based in
+              Harlem,
+              New York City.
+            </h2>
+            <hr />
+            <p id="intro_blurb2">
+              I am a problem solver creating experiences that are  <strong> well researched,</strong>
+              <strong>polished</strong> and <strong>accessible.</strong>
             </p>
-            <div class="case_study_button">
-              Read More
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="60"
-                height="60"
-                viewBox="0 0 60 60"
-                fill="none"
-                class="arrow"
-              >
-                <path
-                  d="M32.7563 12.1312C32.4929 12.3948 32.345 12.7523 32.345 13.1249C32.345 13.4976 32.4929 13.855 32.7563 14.1187L47.2289 28.5937L9.37501 28.5937C9.00205 28.5937 8.64437 28.7418 8.38064 29.0056C8.11692 29.2693 7.96876 29.627 7.96876 29.9999C7.96876 30.3729 8.11692 30.7306 8.38064 30.9943C8.64437 31.258 9.00205 31.4062 9.37501 31.4062L47.2289 31.4062L32.7563 45.8812C32.5079 46.1478 32.3726 46.5003 32.3791 46.8647C32.3855 47.229 32.5331 47.5766 32.7907 47.8342C33.0484 48.0919 33.396 48.2394 33.7603 48.2459C34.1246 48.2523 34.4772 48.1171 34.7438 47.8687L51.6188 30.9937C51.8821 30.73 52.03 30.3726 52.03 29.9999C52.03 29.6273 51.8821 29.2698 51.6188 29.0062L34.7438 12.1312C34.4801 11.8678 34.1227 11.7199 33.75 11.7199C33.3774 11.7199 33.0199 11.8678 32.7563 12.1312Z"
-                  fill="white"
-                />
-              </svg>
+            <div class="contact">
+              <h2>Contact Me </h2>
+              <a href="mailto:williamkwooten14@gmai.com" id="mail">
+              williamkwooten14@gmail.com</a>
             </div>
           </div>
-          <img src="https://mtek3d.com/wp-content/uploads/2018/01/image-placeholder-500x500.jpg" alt="placeholder">
-        </div>
-      </section>
+          <svg class="indicator" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256">
+            <path fill="currentColor" d="m213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32" />
+          </svg>
+        </section>
+      <section class="projects">
+        <h1 class="section_header ">Selected Projects </h1>
+        <div class="project_container">
+          <div class="project_card">
+            <div class="project_card_content">
+              <h1>TeamMate: Love & Sports</h1>
+              <!-- <div id="project_card_category">
+                <li class="tag">User Research</li>
+                <li class="tag">Interaction Design</li>
+              </div> -->
+              <hr>
+              <p class="project_card_desc">
+              A dating app designed to create a common space for sports fanatics to find love.
+              </p>
+              <a href="" class="button">
+                Read Case Study →
+              </a>
+            </div>
+            <a class="project_card_img" href=""><img src="Images\teammate_logo_1.png" alt="TeamMate Case Study"></a>
+          </div>
+          <div class="project_card">
+            <div class="project_card_content">
+              <h1>Untermyer Gardens: Redesign </h1>
+              <!-- <div id="project_card_category">
+                <li class="tag">User Research</li>
+                <li class="tag">Interaction Design</li>
+              </div> -->
+              <hr>
+              <p class="project_card_desc">
+                Revamping the Untermyer Gardens Conservancy website to improve
+                navigation and enhance the user experience for first-time
+                visitors.
+              </p>
+              <a href="https://wkwooten.github.io/2024_Portfolio/\UG_Case_Study.html" class="button">
+                Read Case Study →
+              </a>
+            </div>
+            <a class="project_card_img" href="https://wkwooten.github.io/2024_Portfolio/\UG_Case_Study.html"><img src="Images\orglogo.jpg" alt="Untermyer Gardens Case Study"></a>
+          </div>
+        </section>
+    </div>
     <footer>
-      <div id="social_Container">
-        <h1>Let's Get Connected.</h1>
-        <ul id="Socials">
-          <li>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="48"
-              height="48"
-              viewBox="0 0 256 256"
-            >
-              <g fill="white">
-                <path
-                  d="M208 104v8a48 48 0 0 1-48 48h-24a32 32 0 0 1 32 32v40h-64v-40a32 32 0 0 1 32-32h-24a48 48 0 0 1-48-48v-8a49.3 49.3 0 0 1 8.51-27.3A51.92 51.92 0 0 1 76 32a52 52 0 0 1 43.83 24h32.34A52 52 0 0 1 196 32a51.92 51.92 0 0 1 3.49 44.7A49.3 49.3 0 0 1 208 104"
-                  opacity="0.2"
-                />
-                <path
-                  d="M208.3 75.68A59.74 59.74 0 0 0 202.93 28a8 8 0 0 0-6.93-4a59.75 59.75 0 0 0-48 24h-24a59.75 59.75 0 0 0-48-24a8 8 0 0 0-6.93 4a59.78 59.78 0 0 0-5.38 47.68A58.14 58.14 0 0 0 56 104v8a56.06 56.06 0 0 0 48.44 55.47A39.8 39.8 0 0 0 96 192v8H72a24 24 0 0 1-24-24a40 40 0 0 0-40-40a8 8 0 0 0 0 16a24 24 0 0 1 24 24a40 40 0 0 0 40 40h24v16a8 8 0 0 0 16 0v-40a24 24 0 0 1 48 0v40a8 8 0 0 0 16 0v-40a39.8 39.8 0 0 0-8.44-24.53A56.06 56.06 0 0 0 216 112v-8a58 58 0 0 0-7.7-28.32M200 112a40 40 0 0 1-40 40h-48a40 40 0 0 1-40-40v-8a41.74 41.74 0 0 1 6.9-22.48a8 8 0 0 0 1.1-7.69a43.8 43.8 0 0 1 .79-33.58a43.88 43.88 0 0 1 32.32 20.06a8 8 0 0 0 6.71 3.69h32.35a8 8 0 0 0 6.74-3.69a43.87 43.87 0 0 1 32.32-20.06a43.8 43.8 0 0 1 .77 33.58a8.09 8.09 0 0 0 1 7.65a41.76 41.76 0 0 1 7 22.52Z"
-                />
-              </g>
-            </svg>
-          </li>
-          <li>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="64"
-              height="64"
-              viewBox="0 0 256 256"
-            >
-              <g fill="white">
-                <path
-                  d="M224 40v176a8 8 0 0 1-8 8H40a8 8 0 0 1-8-8V40a8 8 0 0 1 8-8h176a8 8 0 0 1 8 8"
-                  opacity="0.2"
-                />
-                <path
-                  d="M216 24H40a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V40a16 16 0 0 0-16-16m0 192H40V40h176zM96 112v64a8 8 0 0 1-16 0v-64a8 8 0 0 1 16 0m88 28v36a8 8 0 0 1-16 0v-36a20 20 0 0 0-40 0v36a8 8 0 0 1-16 0v-64a8 8 0 0 1 15.79-1.78A36 36 0 0 1 184 140m-84-56a12 12 0 1 1-12-12a12 12 0 0 1 12 12"
-                />
-              </g>
-            </svg>
-          </li>
-          <li>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="64"
-              height="64"
-              viewBox="0 0 256 256"
-            >
-              <g fill="white">
-                <path
-                  d="M240 152h-80a40 40 0 0 1 80 0M94 124h-4a30 30 0 0 0 0-60H32v128h62a34 34 0 0 0 0-68"
-                  opacity="0.2"
-                />
-                <path
-                  d="M160 80a8 8 0 0 1 8-8h64a8 8 0 0 1 0 16h-64a8 8 0 0 1-8-8m-24 78a42 42 0 0 1-42 42H32a8 8 0 0 1-8-8V64a8 8 0 0 1 8-8h58a38 38 0 0 1 25.65 66A42 42 0 0 1 136 158m-96-42h50a22 22 0 0 0 0-44H40Zm80 42a26 26 0 0 0-26-26H40v52h54a26 26 0 0 0 26-26m128-6a8 8 0 0 1-8 8h-71a32 32 0 0 0 56.59 11.2a8 8 0 0 1 12.8 9.61A48 48 0 1 1 248 152m-17-8a32 32 0 0 0-62 0Z"
-                />
-              </g>
-            </svg>
-          </li>
-          <li>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="48"
-              height="48"
-              viewBox="0 0 256 256"
-            >
-              <g fill="white">
-                <path
-                  d="M224 128a96 96 0 1 1-96-96a96 96 0 0 1 96 96"
-                  opacity="0.2"
-                />
-                <path
-                  d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24m87.65 96.18q-3.82-.18-7.65-.18a168.6 168.6 0 0 0-43.94 5.84A166.5 166.5 0 0 0 150.61 96a168.3 168.3 0 0 0 38.2-31.55a87.78 87.78 0 0 1 26.84 55.73m-39.37-65.72A151.8 151.8 0 0 1 142 82.52a169.2 169.2 0 0 0-38.63-39a88 88 0 0 1 73 10.94Zm-90.63-3.58a153.1 153.1 0 0 1 42 39.18A151.8 151.8 0 0 1 64 104a154 154 0 0 1-20.28-1.35a88.4 88.4 0 0 1 41.93-51.77M40 128a88 88 0 0 1 .53-9.64A169 169 0 0 0 64 120a167.84 167.84 0 0 0 72.52-16.4a151 151 0 0 1 12.31 27.13a167 167 0 0 0-24.59 11.6a169.2 169.2 0 0 0-55.07 51.06A87.8 87.8 0 0 1 40 128m42 75a152.9 152.9 0 0 1 50.24-46.79a149 149 0 0 1 20.95-10a152.5 152.5 0 0 1 3.73 33.47a153 153 0 0 1-3.49 32.56A87.92 87.92 0 0 1 82 203m89.06 1.73a170 170 0 0 0 1.86-25a168.7 168.7 0 0 0-4.45-38.47A152.3 152.3 0 0 1 208 136q3.8 0 7.61.19a88.13 88.13 0 0 1-44.55 68.53Z"
-                />
-              </g>
-            </svg>
-          </li>
-        </ul>
-      </div>
-      <div id="sign">
-        Designed and coded with love by William Ki Wooten - 2024
-      </div>
+        <div id="social_Container">
+          <h1>Let's Get Connected.</h1>
+          <div id="Socials">
+            <a href="https://github.com/wkwooten class" class="social_1">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 256 256"
+                title="github link"
+              >
+                <g>
+                  <path
+                    d="M208 104v8a48 48 0 0 1-48 48h-24a32 32 0 0 1 32 32v40h-64v-40a32 32 0 0 1 32-32h-24a48 48 0 0 1-48-48v-8a49.3 49.3 0 0 1 8.51-27.3A51.92 51.92 0 0 1 76 32a52 52 0 0 1 43.83 24h32.34A52 52 0 0 1 196 32a51.92 51.92 0 0 1 3.49 44.7A49.3 49.3 0 0 1 208 104"
+                    opacity="0.2"
+                  />
+                  <path
+                    d="M208.3 75.68A59.74 59.74 0 0 0 202.93 28a8 8 0 0 0-6.93-4a59.75 59.75 0 0 0-48 24h-24a59.75 59.75 0 0 0-48-24a8 8 0 0 0-6.93 4a59.78 59.78 0 0 0-5.38 47.68A58.14 58.14 0 0 0 56 104v8a56.06 56.06 0 0 0 48.44 55.47A39.8 39.8 0 0 0 96 192v8H72a24 24 0 0 1-24-24a40 40 0 0 0-40-40a8 8 0 0 0 0 16a24 24 0 0 1 24 24a40 40 0 0 0 40 40h24v16a8 8 0 0 0 16 0v-40a24 24 0 0 1 48 0v40a8 8 0 0 0 16 0v-40a39.8 39.8 0 0 0-8.44-24.53A56.06 56.06 0 0 0 216 112v-8a58 58 0 0 0-7.7-28.32M200 112a40 40 0 0 1-40 40h-48a40 40 0 0 1-40-40v-8a41.74 41.74 0 0 1 6.9-22.48a8 8 0 0 0 1.1-7.69a43.8 43.8 0 0 1 .79-33.58a43.88 43.88 0 0 1 32.32 20.06a8 8 0 0 0 6.71 3.69h32.35a8 8 0 0 0 6.74-3.69a43.87 43.87 0 0 1 32.32-20.06a43.8 43.8 0 0 1 .77 33.58a8.09 8.09 0 0 0 1 7.65a41.76 41.76 0 0 1 7 22.52Z"
+                  />
+                </g>
+              </svg>
+            </a>
+            <a href="https://www.linkedin.com/in/wkwooten14/" class="social_2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                title="LinkedIn link"
+                viewBox="0 0 256 256"
+              >
+                <g>
+                  <path
+                    d="M224 40v176a8 8 0 0 1-8 8H40a8 8 0 0 1-8-8V40a8 8 0 0 1 8-8h176a8 8 0 0 1 8 8"
+                    opacity="0.2"
+                  />
+                  <path
+                    d="M216 24H40a16 16 0 0 0-16 16v176a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V40a16 16 0 0 0-16-16m0 192H40V40h176zM96 112v64a8 8 0 0 1-16 0v-64a8 8 0 0 1 16 0m88 28v36a8 8 0 0 1-16 0v-36a20 20 0 0 0-40 0v36a8 8 0 0 1-16 0v-64a8 8 0 0 1 15.79-1.78A36 36 0 0 1 184 140m-84-56a12 12 0 1 1-12-12a12 12 0 0 1 12 12"
+                  />
+                </g>
+              </svg>
+            </a>
+            <a href="https://www.behance.net/DigitalKi" class="social_3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="64"
+                height="64"
+                title="Behance link"
+                viewBox="0 0 256 256"
+              >
+                <g>
+                  <path
+                    d="M240 152h-80a40 40 0 0 1 80 0M94 124h-4a30 30 0 0 0 0-60H32v128h62a34 34 0 0 0 0-68"
+                    opacity="0.2"
+                  />
+                  <path
+                    d="M160 80a8 8 0 0 1 8-8h64a8 8 0 0 1 0 16h-64a8 8 0 0 1-8-8m-24 78a42 42 0 0 1-42 42H32a8 8 0 0 1-8-8V64a8 8 0 0 1 8-8h58a38 38 0 0 1 25.65 66A42 42 0 0 1 136 158m-96-42h50a22 22 0 0 0 0-44H40Zm80 42a26 26 0 0 0-26-26H40v52h54a26 26 0 0 0 26-26m128-6a8 8 0 0 1-8 8h-71a32 32 0 0 0 56.59 11.2a8 8 0 0 1 12.8 9.61A48 48 0 1 1 248 152m-17-8a32 32 0 0 0-62 0Z"
+                  />
+                </g>
+              </svg>
+            </a>
+            <!-- <li>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                title="driblle link"
+                viewBox="0 0 256 256"
+              >
+                <g>
+                  <path
+                    d="M224 128a96 96 0 1 1-96-96a96 96 0 0 1 96 96"
+                    opacity="0.2"
+                  />
+                  <path
+                    d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24m87.65 96.18q-3.82-.18-7.65-.18a168.6 168.6 0 0 0-43.94 5.84A166.5 166.5 0 0 0 150.61 96a168.3 168.3 0 0 0 38.2-31.55a87.78 87.78 0 0 1 26.84 55.73m-39.37-65.72A151.8 151.8 0 0 1 142 82.52a169.2 169.2 0 0 0-38.63-39a88 88 0 0 1 73 10.94Zm-90.63-3.58a153.1 153.1 0 0 1 42 39.18A151.8 151.8 0 0 1 64 104a154 154 0 0 1-20.28-1.35a88.4 88.4 0 0 1 41.93-51.77M40 128a88 88 0 0 1 .53-9.64A169 169 0 0 0 64 120a167.84 167.84 0 0 0 72.52-16.4a151 151 0 0 1 12.31 27.13a167 167 0 0 0-24.59 11.6a169.2 169.2 0 0 0-55.07 51.06A87.8 87.8 0 0 1 40 128m42 75a152.9 152.9 0 0 1 50.24-46.79a149 149 0 0 1 20.95-10a152.5 152.5 0 0 1 3.73 33.47a153 153 0 0 1-3.49 32.56A87.92 87.92 0 0 1 82 203m89.06 1.73a170 170 0 0 0 1.86-25a168.7 168.7 0 0 0-4.45-38.47A152.3 152.3 0 0 1 208 136q3.8 0 7.61.19a88.13 88.13 0 0 1-44.55 68.53Z"
+                  />
+                </g>
+              </svg>
+            </li> -->
+          </div>
+        </div>
+        <div id="sign">
+          <p>Designed and coded with <span class="heart">♡</span> by William Ki Wooten - 2024</p>
+        </div>
     </footer>
     <script src="js/index.js"></script>
   </body>
