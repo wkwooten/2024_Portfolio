@@ -217,6 +217,10 @@ blockquote {
   gap: 20px;
 }
 
+.pic_display {
+  display: ;
+}
+
 .section_header {
   /* width: 100%; */
   padding-block: 1.25rem;
@@ -541,8 +545,8 @@ blockquote {
 }
 
 #intro_blurb1 {
-  display: flex;
-  text-transform: capitalize;
+  /* display: flex;
+  text-transform: capitalize; */
   /* max-width: 45ch; */
   /* border-bottom: .125rem var(--primary) solid; */
 }
@@ -550,17 +554,6 @@ blockquote {
 /* #intro_blurb2 {
   padding-block: 1.25rem;
 } */
-
-
-#mail {
-  display: flex;
-  align-items: center;
-}
-
-#mail:hover {
-  text-decoration: underline;
-  -moz-text-decoration: underline;
-}
 
 /* Featured Projects Section */
 
@@ -800,6 +793,7 @@ blockquote {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: ;
   gap: var(--space-s);
 }
 
@@ -812,7 +806,8 @@ blockquote {
 
 .cs_info {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  grid-auto-flow: column dense;
   grid-gap: var(--space-s);
   justify-content: center;
 }
