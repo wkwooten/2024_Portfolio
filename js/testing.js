@@ -1,3 +1,3 @@
-u(".cs_hero_image").on('click', e => {
-  alert("Hello world");
+u(".name").on('click', e => {
+  u(".modal").show();
 });

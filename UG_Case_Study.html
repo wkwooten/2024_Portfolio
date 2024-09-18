@@ -173,7 +173,7 @@
             <p>Designed and coded with <span class="heart">♡</span> by William Ki Wooten - 2024</p>
           </div>
       </footer>
-    </header>
+      </header>
     <div class="hamburger_menu"></div>
     <div class="page_grid animate__animated animate__fadeIn">
       <section class="cs_Nav">
@@ -215,17 +215,17 @@
         <h2 class="section_header">1. Overview</h2>
         <div class="cs_section_content">
           <div class="cs_info">
-            <div>
+            <div id="role">
               <h3 class="subsection_header">My Role</h3>
               <p >Lead Interaction Designer & Researcher</p>
             </div>
-            <div>
+            <div id="team">
               <h3 class="subsection_header">Collaborators</h3>
 
               <p>Elvis Towers</p>
               <p>Sara Semmoune</p>
             </div>
-            <div>
+            <div id="tools">
               <h3 class="subsection_header">Tools</h3>
               <p>Figma</p>
               <p>Adobe Creative Cloud</p>
@@ -237,9 +237,21 @@
               The Untermyer Gardens Conservancy is a 43-arce public Garden located in Yonkers, New York focused on the restoration and preservation of the historic Gardens.
             </p>
             <figure>
-              <h4>Figure 1</h4>
-              <img src="Images/2021-08-21_Untermyer-3.jpg" alt="">
-              <figcaption>The park is insanely beautiful and I highly recommend visiting if you have the chance.</figcaption>
+              <!-- <div class="container">
+                <div>
+                  <h4>Figure 1</h4>
+                  <img src="Images/2021-08-21_Untermyer-3.jpg" alt="">
+                </div>
+                <div>
+                  <h4>Figure 2</h4>
+                  <img src="Images/2021-08-21_Untermyer-3.jpg" alt="">
+                </div>
+                <div>
+                  <h4>Figure 3</h4>
+                  <img src="Images/2021-08-21_Untermyer-3.jpg" alt="">
+                </div>
+              </div> -->
+              <figcaption>This park is insanely beautiful and I highly recommend visiting if you have the chance.</figcaption>
             </figure>
           </div>
           <blockquote>
@@ -267,7 +279,7 @@
           <div class="flex_col">
             <h3 class="subsection_header">Research Plan</h3>
               <p>To kick things off, we ran a heuristic evaulation on the website to determine if the site was compliant with web standards. During this evaulation, we found that the font size was 11px, which is too small for sight impaired individuals.</p>
-              <p>We followed up by conducting an interview with a stakeholder from Untermyer Garden. The purpose of this interview was to understand the brand and to learn of any specifications the stakeholder had.
+              <p>We followed up by conducting an interview with a stakeholder from Untermyer Gardens. The purpose of this interview was to understand the brand and to learn of any specifications the stakeholder had.
               </p>
             <p>After this we conducted user interviews to see how they navigated the website and used that information to create empathy maps and get our user insights. </p>
           </div>
@@ -275,11 +287,15 @@
             <h3 class="subsection_header">User Interviews & Research Insights</h3>
             <p>We conducted 5 in-person interviews in which we observed the users while they completed a set of tasks. These tasks were:
             </p>
-            <figure>
-              <h4>Figure 2</h4>
-              <img src="Images\untermyer-ad.png" alt="">
-              <h4>Figure 3</h4>
-              <img src="Images\untermyer-em.png" alt="">
+            <figure class="cs_figure">
+              <div>
+                <h4>Figure 2</h4>
+                <img src="Images\untermyer-ad.png" alt="">
+              </div>
+              <div>
+                <h4>Figure 3</h4>
+                <img src="Images\untermyer-em.png" alt="">
+              </div>
             </figure>
             <p>Our research showed that users were overwelmed by the header and felt that some of the pages were too busy. </p>
           </div>
@@ -287,11 +303,11 @@
             <h3 class="subsection_header">Empathy Map & User Persona</h3>
             <p>We then compiled the data from the user interviews into an empathy map to further organize our findings.</p>
             <figure>
-              <h4>Figure 4</h4>
+              <!-- <h4>Figure 4</h4> -->
               <img src="Images\untermyer-emp.png" alt="">
             </figure>
             <figure>
-              <h4> Figure 5</h4>
+              <!-- <h4> Figure 5</h4> -->
               <img src="Images/Group1 Project 2.png" alt="User persona of Walter Mueller">
             </figure>
             <p> We created Walter to remind us who the user is. Walter represents the everyman that simply wants to find directions with a little friction as possible.</p>
@@ -315,9 +331,9 @@
             <h3 class="subsection_header">Card Sorting</h3>
             <p> Our greatest task was to completely overhaul the nav bar to make it less cluttered and easy to understand at glance. We focused on reducing redudances and ensuring that like elements would be paired together. </p>
           </div>
-          <div>
+          <div class="flex_col">
             <h3 class="subsection_header">User Flow</h3>
-            <p>We prioritized these features after conducting our stakeholder interview and our user interviews. </p>
+            <p>We created a user flow so that we could focus on delivering the features our users and stakeholders would appriecite.</p>
             <p>We wanted to make the process of learning about and setting up tours much easier</p>
             <figure> <img src="Images\UMG_user_flow.png" alt=""></figure>
           </div>
@@ -328,7 +344,11 @@
         <div class="cs_section_content">
           <div class="flex_col">
             <h3 class="subsection_header">Paper Wireframing</h3>
-            <p>.....</p>
+            <!-- <div class="container">
+              <img src="Images\wireframe1.png" alt="Elvis's Wireframe'">
+              <img src="Images\wireframe2.png" alt="My Wireframe">
+              <img src="Images\wireframe3.png" alt="Sara's Wireframe'">
+            </div> -->
           </div>
           <!-- <div class="flex_col">
             <h3 class="subsection_header">Style Guide</h3>
@@ -384,7 +404,17 @@
           <h3 class="subsection_header">High Fidelity Mockup</h3>
           <p>.....</p>
           <h3 class="subsection_header">Key Takeaways</h3>
-          <p>.....</p>
+          <p>Information architecture can have a huge impact on usability of site</p>
+          <ul>
+            <li>Present what we have to stakeholder
+            </li>
+            <li>Visit the Garden in person to understand the garden better
+            </li>
+            <li>Add more pages, continue more user testing
+            </li>
+            <li>Tighten up clickable prototype
+            </li>
+          </ul>
         </div>
       </section>
     </div>
