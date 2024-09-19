@@ -784,14 +784,13 @@ blockquote {
 
 /* Case Study Section */
 
-.container {
+.cs_gallery {
   display: flex;
   /* min-width: 300px; */
   max-width: 1000px;
   width: 100%;
   /* justify-content: center; */
-  padding: var(--space-m);
-  margin: var(--space-s);
+  margin-block: var(--space-s);
   /* width: 80%; */
   flex-direction: row;
   gap: var(--space-l);
@@ -799,10 +798,19 @@ blockquote {
   scroll-snap-type: x mandatory;
 }
 
-.container img {
+.cs_gallery img {
   aspect-ratio: 1;
-  width: 600px;
+  /* width: 150%; */
+  max-width: 500px;
   scroll-snap-align: center;
+}
+
+.cs_row {
+  max-width: 1000px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-shrink: 2;
 }
 
 .flex_col {
