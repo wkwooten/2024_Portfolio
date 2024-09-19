@@ -166,7 +166,7 @@ p {
 
 img,
 picture {
-  /* max-width: 100%; */
+  max-width: 100%;
   display: block;
 }
 
@@ -798,13 +798,19 @@ blockquote {
   overflow-x: scroll;
 }
 
+.flex_col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 
 .cs_Nav {
   display: flex;
   justify-self: center;
   justify-content: space-between;
   width: 100%;
-  padding: var(--padding);
+  margin: var(--space-m);
   align-items: center;
   text-align: right;
   flex-flow: row;
@@ -821,35 +827,35 @@ blockquote {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 5% 2.5%;
-  justify-self: center;
-  max-width: 87.5rem;
+  align-items: center;
+  /* max-width: 87.5rem; */
   /* grid-template-columns: repeat(auto-fit, minmax(18.75rem, 3fr 1fr)); */
 }
-
-.cs_hero_image {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--space-s);
-}
-
 
 .cs_hero_image img {
   width: 100%;
   object-fit: cover;
+  margin: var(--space-s);
+  aspect-ratio: 16/9;
   /* object-position: bottom; */
 }
 
-.cs_hero_image {
-  text-align: center;
+.cs_hero_image a {
+  margin: var(--space-s);
+}
+
+.cs_section {
+  display: flex;
+  flex-direction: column;
+  /* width: 100%; */
 }
 
 .cs_info {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
+  grid-template-rows: repeat(auto-fit, minmax(10rem, 1fr));
   grid-gap: var(--space-s);
   justify-content: center;
+  width: 100%;
 }
 
 
@@ -872,18 +878,13 @@ blockquote {
 .cs_info > #tools {
   grid-area: tools;
 } */
-.flex_col {
-  display: flex;
-  flex-direction: column;
+
+.cs_section_content {
+  /* display: block; */
   justify-content: center;
   align-items: center;
   margin: var(--space-s) var(--space-s) var(--space-s) var(--space-m);
-  /* gap: var(--space-s); */
-  /* padding-block: var(--space-l); */
-}
-
-.cs_section_content {
-  padding-block: var(--space-m);
+  /* padding-block: var(--space-m); */
 }
 
 .cs_section_content ul,
