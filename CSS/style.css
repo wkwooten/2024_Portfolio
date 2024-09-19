@@ -57,14 +57,11 @@ ol {
 /* Styling for unordered lists */
 ul {
   list-style-type: square;
-  margin-left: var(--space-m);
-  /* Indent list items */
 }
 
 /* Styling for ordered lists */
 ol {
   list-style-type: decimal;
-  margin-left: var(--space-m);
 }
 
 h1,
@@ -789,13 +786,17 @@ blockquote {
 
 .container {
   display: flex;
-  min-width: 300px;
+  /* min-width: 300px; */
   max-width: 1000px;
   width: 100%;
   /* width: 80%; */
   flex-direction: row;
   gap: 20px;
   overflow-x: scroll;
+}
+
+.container img {
+  aspect-ratio: 1;
 }
 
 .flex_col {
@@ -828,6 +829,7 @@ blockquote {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: var(--space-s);
   /* max-width: 87.5rem; */
   /* grid-template-columns: repeat(auto-fit, minmax(18.75rem, 3fr 1fr)); */
 }
@@ -840,9 +842,6 @@ blockquote {
   /* object-position: bottom; */
 }
 
-.cs_hero_image a {
-  margin: var(--space-s);
-}
 
 .cs_section {
   display: flex;
@@ -852,12 +851,21 @@ blockquote {
 
 .cs_info {
   display: grid;
-  grid-template-rows: repeat(auto-fit, minmax(10rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
   grid-gap: var(--space-s);
   justify-content: center;
   width: 100%;
 }
 
+.cs_end {
+  display: flex;
+  margin-block: var(--space-l);
+  justify-content: space-between;
+}
+
+.cs_end_next {
+  text-align: right;
+}
 
 /*
 .cs_info {
