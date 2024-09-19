@@ -789,14 +789,20 @@ blockquote {
   /* min-width: 300px; */
   max-width: 1000px;
   width: 100%;
+  /* justify-content: center; */
+  padding: var(--space-m);
+  margin: var(--space-s);
   /* width: 80%; */
   flex-direction: row;
-  gap: 20px;
+  gap: var(--space-l);
   overflow-x: scroll;
+  scroll-snap-type: x mandatory;
 }
 
 .container img {
   aspect-ratio: 1;
+  width: 600px;
+  scroll-snap-align: center;
 }
 
 .flex_col {
@@ -859,7 +865,8 @@ blockquote {
 
 .cs_end {
   display: flex;
-  margin-block: var(--space-l);
+  border-top: var(--line-weight) var(--primary) solid;
+  margin-block: var(--space-xl);
   justify-content: space-between;
 }
 
