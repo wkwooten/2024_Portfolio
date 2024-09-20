@@ -798,15 +798,16 @@ blockquote {
   margin-block: var(--space-s);
   width: 100%;
   flex-direction: row;
-  gap: var(--space-l);
+  gap: var(--space-s);
   overflow-x: scroll;
+  overscroll-behavior-x: contain;
 }
 
 .cs_gallery img {
   aspect-ratio: 1;
   border-radius: 5px;
   object-fit: cover;
-  width: 300px;
+  width: 400px;
   scroll-snap-align: center;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
@@ -842,10 +843,6 @@ blockquote {
   align-items: center;
   justify-content: center;
   /* width: 100%; */
-}
-
-.red {
-  background-color: red;
 }
 
 .cs_Nav {
