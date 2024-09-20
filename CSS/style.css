@@ -189,6 +189,7 @@ figure {
 figcaption {
   font-weight: 200;
   max-width: var(--fig-width);
+  text-align: center;
 }
 
 figure img {
@@ -215,11 +216,6 @@ blockquote {
   /* margin-inline: 2.5%; */
 }
 
-.grid_row_2 {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(18.75rem, 1fr));
-  gap: 20px;
-}
 
 .section_header {
   /* width: 100%; */
@@ -800,8 +796,7 @@ blockquote {
   /* min-width: 300px; */
   max-width: 1000px;
   margin-block: var(--space-s);
-  width: 80%;
-
+  width: 100%;
   flex-direction: row;
   gap: var(--space-l);
   overflow-x: scroll;
@@ -841,7 +836,17 @@ blockquote {
   align-items: center;
 } */
 
-.cs_subsection {}
+.subsection_body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* width: 100%; */
+}
+
+.red {
+  background-color: red;
+}
 
 .cs_Nav {
   display: flex;
@@ -879,13 +884,6 @@ blockquote {
   /* object-position: bottom; */
 }
 
-
-.cs_section {
-  display: flex;
-  flex-direction: column;
-  /* width: 100%; */
-}
-
 .cs_info {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
@@ -905,30 +903,7 @@ blockquote {
   text-align: right;
 }
 
-/*
-.cs_info {
-  display: grid;
-  grid-template-areas: "a" "b c";
-}
-
-
-.cs_info > #role {
-  grid-area: role;
-}
-
-.cs_info > #team {
-  grid-area: team;
-}
-
-
-.cs_info > #tools {
-  grid-area: tools;
-} */
-
 .cs_section_content {
-  /* display: block; */
-  justify-content: center;
-  align-items: center;
   margin: var(--space-s) var(--space-s) var(--space-m) var(--space-s);
   /* padding-block: var(--space-m); */
 }
@@ -936,28 +911,6 @@ blockquote {
 .cs_section_content ul,
 ol {
   width: 100%;
-}
-
-/* .cs_section_content p {
-  text-align: justify;
-} */
-
-/* .cs_section_content img {
-  display: flex;
-  justify-content: center;
-  border-radius: 5px;
-  width: 100%;
-  margin: var(--space-l);
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  -ms-border-radius: 5px;
-  -o-border-radius: 5px;
-} */
-
-.cs_images_background {
-  align-items: center;
-  width: 80%;
-  grid-template-rows: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 .toc {
