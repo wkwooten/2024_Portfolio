@@ -218,9 +218,13 @@ blockquote {
 
 
 .section_header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   /* width: 100%; */
-  padding-block: 1.25rem;
-  padding-left: .3125rem;
+  padding-block: var(--space-s);
+  padding-inline: .3125rem;
   border-block: var(--beeg-line-weight) var(--primary) solid;
 
 }
@@ -465,24 +469,30 @@ blockquote {
 
 /* Content Styling */
 
-.hero {
-  display: grid;
+.hero_full {
+  display: flex;
   height: 100vh;
-  grid-template-columns: repeat(auto-fit, minmax(275px, 1fr));
-  /* flex-direction: column; */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  justify-items: center;
   /* padding-bottom: 12.5rem; */
   /* min-width: fit-content; */
   z-index: 0;
   margin-bottom: 20vh;
 }
 
-.hero svg {
+.hero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(275px, 1fr));
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
+}
+
+/* .hero svg {
   padding-block: var(--space-2xs);
   align-items: center;
-}
+} */
 
 .frame {
   display: flex;
@@ -525,7 +535,10 @@ blockquote {
 }
 
 .indicator {
-  display: none;
+  display: flex;
+  cursor: pointer;
+  animation: gentle-hover 3s infinite;
+  -webkit-animation: gentle-hover 3s infinite;
 }
 
 .name:active {
@@ -830,6 +843,11 @@ blockquote {
   align-items: center;
 }
 
+.flex_row {
+  display: flex;
+  flex-flow: row;
+}
+
 /* .flex_col {
   display: grid;
   flex-direction: column;
@@ -843,6 +861,28 @@ blockquote {
   align-items: center;
   justify-content: center;
   /* width: 100%; */
+}
+
+.chev {
+  display: flex;
+  align-items: center;
+}
+
+.chev :hover {
+  cursor: pointer;
+}
+
+.chev_rotate {
+  transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+  transition: all 0.6s cubic-bezier(0.11, 0, 0.5, 0);
+  -webkit-transition: all 0.6s cubic-bezier(0.11, 0, 0.5, 0);
+  -moz-transition: all 0.6s cubic-bezier(0.11, 0, 0.5, 0);
+  -ms-transition: all 0.6s cubic-bezier(0.11, 0, 0.5, 0);
+  -o-transition: all 0.6s cubic-bezier(0.11, 0, 0.5, 0);
 }
 
 .cs_Nav {
@@ -1053,6 +1093,32 @@ footer svg:active {
 
   100% {
     background-position: 0% 50%;
+  }
+}
+
+@keyframes gentle-hover {
+  from {
+    transform: translatey(0);
+    -webkit-transform: translatey(0);
+    -moz-transform: translatey(0);
+    -ms-transform: translatey(0);
+    -o-transform: translatey(0);
+  }
+
+  50% {
+    transform: translatey(10px);
+    -webkit-transform: translatey(10px);
+    -moz-transform: translatey(10px);
+    -ms-transform: translatey(10px);
+    -o-transform: translatey(10px);
+  }
+
+  to {
+    transform: translatey(0);
+    -webkit-transform: translatey(0);
+    -moz-transform: translatey(0);
+    -ms-transform: translatey(0);
+    -o-transform: translatey(0);
   }
 }
 
