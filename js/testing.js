@@ -11,6 +11,11 @@ u(".indicator").on('click', e => {
 //   u('.chev').addClass('chev_rotate');
 // });
 
+u(".modal_button").on('click', e => {
+  u('.modal').toggleClass('collapsed');
+  u('.chev').addClass('chev_rotate');
+});
+
 
 u(".chev").on('click', e => {
   u('#overview').toggleClass('collapsed');

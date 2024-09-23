@@ -470,6 +470,7 @@ blockquote {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-bottom: 20vh;
   /* padding-bottom: 12.5rem; */
   /* min-width: fit-content; */
   z-index: 0;
@@ -771,7 +772,7 @@ blockquote {
   flex-direction: column;
   width: min-content;
   justify-content: center;
-  align-items: center;
+  align-items: last baseline;
   /* height: 600px; */
   border-radius: 25px;
   -webkit-border-radius: 25px;
@@ -802,8 +803,14 @@ blockquote {
   -o-transition: 400ms ease;
 }
 
+.works_overlay a {
+  text-decoration: none;
+}
+
 .works_case_study:hover .works_overlay {
-  opacity: 100%;
+  opacity: 95%;
+  filter: blur();
+  -webkit-filter: blur();
 }
 
 .works_desc {
