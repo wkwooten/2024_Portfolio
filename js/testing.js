@@ -6,14 +6,18 @@ u(".indicator").on('click', e => {
   u('.projects').scroll();
 });
 
-u(".chev").on('click', e => {
-  u('#overview').addClass('collapsed');
-  u('.chev').addClass('chev_rotate');
-});
-
 // u(".chev").on('click', e => {
-//   u('#overview').removeClass('collapsed');
-//   u('.chev').removeClass('chev_rotate');
+//   u('#overview').addClass('collapsed');
+//   u('.chev').addClass('chev_rotate');
 // });
 
-// if ("")
+
+u(".chev").on('click', e => {
+  u('#overview').toggleClass('collapsed');
+  u('.chev').toggleClass('chev_rotate');
+});
+
+
+// el.classList.toggle(className);
+
+// chev.addEventListener('click', () => {});
