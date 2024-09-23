@@ -204,8 +204,8 @@ blockquote {
 .page_grid {
   display: grid;
   justify-content: center;
-  gap: 10vh;
-  margin-inline: 5%;
+  gap: var(--space-3xl);
+  margin-inline: var(--space-xs);
   /* max-width: 112.5rem; */
   /* width: 100%; */
   /* margin-inline: 2.5%; */
@@ -470,7 +470,7 @@ blockquote {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20vh;
+  /* margin-bottom: var(--space-3xl); */
   /* padding-bottom: 12.5rem; */
   /* min-width: fit-content; */
   z-index: 0;
@@ -808,9 +808,7 @@ blockquote {
 }
 
 .works_case_study:hover .works_overlay {
-  opacity: 95%;
-  filter: blur();
-  -webkit-filter: blur();
+  opacity: 100%;
 }
 
 .works_desc {
