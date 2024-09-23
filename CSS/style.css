@@ -204,6 +204,7 @@ blockquote {
 .page_grid {
   display: grid;
   justify-content: center;
+  gap: 10vh;
   margin-inline: 5%;
   /* max-width: 112.5rem; */
   /* width: 100%; */
@@ -472,7 +473,6 @@ blockquote {
   /* padding-bottom: 12.5rem; */
   /* min-width: fit-content; */
   z-index: 0;
-  margin-bottom: 20vh;
 }
 
 .hero {
@@ -756,13 +756,13 @@ blockquote {
 /* Works Section */
 
 .works_container {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  justify-content: center;
+  display: flex;
   flex-flow: row wrap;
-  gap: var(--space-l);
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-xl);
   width: 100%;
-  padding-block: 5%;
+  padding-block: 10%;
 }
 
 .works_case_study {
@@ -772,6 +772,7 @@ blockquote {
   width: min-content;
   justify-content: center;
   align-items: center;
+  /* height: 600px; */
   border-radius: 25px;
   -webkit-border-radius: 25px;
   -moz-border-radius: 25px;
@@ -793,12 +794,12 @@ blockquote {
   overflow: hidden;
   height: 100%;
   opacity: 0;
-  transition: .5s ease;
-  background-color: var(--secondary);
-  -webkit-transition: .5s ease;
-  -moz-transition: .5s ease;
-  -ms-transition: .5s ease;
-  -o-transition: .5s ease;
+  transition: 400ms ease;
+  background-color: var(--bg-color);
+  -webkit-transition: 400ms ease;
+  -moz-transition: 400ms ease;
+  -ms-transition: 400ms ease;
+  -o-transition: 400ms ease;
 }
 
 .works_case_study:hover .works_overlay {
