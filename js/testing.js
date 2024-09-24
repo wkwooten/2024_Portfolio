@@ -1,6 +1,7 @@
-u(".name").on('click', e => {
-  u(".modal").show();
+u(".modal_button").on('click', e => {
+  u(".modal").toggleClass("collapsed");
 });
+
 
 u(".indicator").on('click', e => {
   u('.projects').scroll();
@@ -30,6 +31,18 @@ u(".indicator").on('click', e => {
 var acc = document.getElementsByClassName("section_header");
 var i;
 
+for (i = 0; i < acc.length; i++) {
+  acc[i].addEventListener("click", function () {
+    u('.chev').toggleClass('chev_rotate')
+    var cs_section_content = this.nextElementSibling;
+    if (cs_section_content.style.maxHeight) {
+      cs_section_content.style.maxHeight = null;
+    } else {
+      cs_section_content.style.maxHeight = cs_section_content.scrollHeight + "px";
+    }
+  });
+}
+
 // for (i = 0; i < acc.length; i++) {
 //   acc[i].addEventListener("click", function() {
 //     this.classList.toggle("active");
@@ -44,14 +57,14 @@ var i;
 // }
 
 
-for (i = 0; i < acc.length; i++) {
-  acc[i].addEventListener("click", function() {
-    u('.chev').toggleClass('chev_rotate')
-    var cs_section_content = this.nextElementSibling;
-    if (cs_section_content.style.maxHeight) {
-      cs_section_content.style.maxHeight = null;
-    } else {
-      cs_section_content.style.maxHeight = cs_section_content.scrollHeight + "px";
-    }
-  });
-}
+// for (i = 0; i < acc.length; i++) {
+//   acc[i].addEventListener("click", function() {
+//     u('.chev').toggleClass('chev_rotate')
+//     var cs_section_content = this.nextElementSibling;
+//     if (cs_section_content.style.maxHeight) {
+//       cs_section_content.style.maxHeight = null;
+//     } else {
+//       cs_section_content.style.maxHeight = cs_section_content.scrollHeight + "px";
+//     }
+//   });
+// }
