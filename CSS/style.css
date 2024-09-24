@@ -211,25 +211,6 @@ blockquote {
   /* margin-inline: 2.5%; */
 }
 
-
-.section_header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  /* width: 100%; */
-  padding-block: var(--space-s);
-  padding-inline: .3125rem;
-  border-block: var(--beeg-line-weight) var(--primary) solid;
-
-}
-
-.subsection_header {
-  width: 100%;
-  border-bottom: var(--primary) var(--basic-line-weight) solid;
-  padding-block: var(--space-s);
-}
-
 .tag {
   padding: .625rem;
   border: .1875rem white solid;
@@ -268,8 +249,9 @@ blockquote {
 .nav_logo {
   font-weight: bold;
   font-size: 3rem;
-  align-items: center;
-  margin: .3125rem;
+  /* align-items: center; */
+  margin-inline: .3125rem;
+  text-decoration: none;
 }
 
 .nav_logo img {
@@ -871,6 +853,34 @@ blockquote {
   align-items: center;
 } */
 
+.section_header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  /* width: 100%; */
+  padding-block: var(--space-s);
+  padding-inline: .3125rem;
+  border-block: var(--beeg-line-weight) var(--primary) solid;
+}
+
+.cs_section_content {
+  display: block;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 1s ease;
+  -webkit-transition: max-height 1s ease;
+  -moz-transition: max-height 1s ease;
+  -ms-transition: max-height 1s ease;
+  -o-transition: max-height 1s ease;
+}
+
+.subsection_header {
+  width: 100%;
+  border-bottom: var(--primary) var(--basic-line-weight) solid;
+  padding-block: var(--space-s);
+}
+
 .subsection_body {
   display: flex;
   flex-direction: column;
@@ -929,9 +939,16 @@ blockquote {
   /* grid-template-columns: repeat(auto-fit, minmax(18.75rem, 3fr 1fr)); */
 }
 
+.test {
+  display: flex;
+  flex-direction: row;
+  /* align-items: center; */
+  justify-content: center;
+}
+
 .cs_hero_image img {
   width: 100%;
-  height: 500px;
+  /* height: 500px; */
   object-fit: cover;
   aspect-ratio: 16/9;
   /* object-position: bottom; */
@@ -956,14 +973,17 @@ blockquote {
   text-align: right;
 }
 
-.cs_section_content {
-  margin: var(--space-s) var(--space-s) var(--space-m) var(--space-s);
-  /* padding-block: var(--space-m); */
-}
 
-.cs_section_content ul,
-ol {
+/* css image modal */
+
+.cs_img_modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
   width: 100%;
+  height: 100%;
+  overflow: auto;
+
 }
 
 .toc {
