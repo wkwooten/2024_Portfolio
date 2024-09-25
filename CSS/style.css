@@ -25,12 +25,6 @@
   --space-xl: clamp(3.375rem, 3.2446rem + 0.6522vw, 3.75rem);
   --space-2xl: clamp(4.5rem, 4.3261rem + 0.8696vw, 5rem);
   --space-3xl: clamp(6.75rem, 6.4891rem + 1.3043vw, 7.5rem);
-  /* --fs-0: clamp(1rem, 0.8889rem + 0.5556vw, 1.5rem);
-  --fs-1: clamp(1.2rem, 1.111rem + 0.445vw, 1.6005rem);
-  --fs-2: clamp(1.44rem, 1.3805rem + 0.2975vw, 1.7077rem);
-  --fs-3: clamp(1.728rem, 1.7071rem + 0.1046vw, 1.8222rem);
-  --fs-4: clamp(1.9442rem, 2.1023rem + -0.1437vw, 2.0736rem);
-  --fs-5: clamp(2.0745rem, 2.5803rem + -0.4598vw, 2.4883rem); */
   --fs-0: clamp(1rem, 0.8889rem + 0.5556vw, 1.5rem);
   --fs-1: clamp(1.125rem, 1.0193rem + 0.5283vw, 1.6005rem);
   --fs-2: clamp(1.2656rem, 1.1674rem + 0.4912vw, 1.7077rem);
@@ -366,7 +360,7 @@ blockquote {
   /*position: fixed;
   */
   overflow: hidden;
-  overscroll-behavior: contain;
+  overscroll-behavior: none;
   height: 100vh;
   width: 100%;
   /*z-index: 10;
@@ -382,6 +376,10 @@ blockquote {
   display: none;
 }
 
+.stop_scroll {
+  overflow: hidden;
+}
+
 .modal_button {
   display: none;
   align-self: center;
@@ -389,8 +387,8 @@ blockquote {
 
 /* Modal toggle */
 .collapsed {
-  /*display: none !important;
-  */
+  /* display: none !important; */
+
   overflow: hidden;
   height: 0;
   transition: height var(--modal-time) ease;
@@ -407,7 +405,7 @@ blockquote {
   margin-block: var(--space-l);
   /* height: 55%; */
   /* margin-block: 20px; */
-  gap: var(--space-m);
+  gap: var(--space-s);
 }
 
 .modal_nav_button {
@@ -469,7 +467,6 @@ blockquote {
   align-items: center;
   justify-content: space-evenly;
   width: 100%;
-  padding-block: var(--space-s);
 }
 
 /* Content Styling */
@@ -1062,7 +1059,7 @@ footer {
   padding: 3.125rem var(--section-spacing);
   flex-flow: row wrap;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
   gap: .625rem;
   text-align: center;
   border-top: var(--beeg-line-weight) solid var(--primary);

@@ -9,6 +9,7 @@
 
 u(".modal_button").on('click', e => {
   u(".modal").toggleClass("collapsed");
+  u("body").toggleClass("stop_scroll");
   u(".modal_back_btn").toggleClass("switch");
   u(".modal_menu_btn").toggleClass("switch");
 });
