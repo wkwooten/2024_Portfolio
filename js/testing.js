@@ -1,5 +1,16 @@
+// function toggle(el) {
+//   if (el.style.display == 'none') {
+//     el.style.display = '';
+//   } else {
+//     el.style.display = 'none';
+//   }
+// }
+
+
 u(".modal_button").on('click', e => {
   u(".modal").toggleClass("collapsed");
+  u(".modal_back_btn").toggleClass("switch");
+  u(".modal_menu_btn").toggleClass("switch");
 });
 
 

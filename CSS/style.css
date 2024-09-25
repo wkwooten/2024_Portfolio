@@ -5,6 +5,7 @@
   --color1: #1d3383;
   --color2: #126743;
   --color3: #cc3037;
+  --modal-time: 1s;
   --button-height: 3.125rem;
   --basic-line-weight: 2px;
   --line-weight: .1875rem;
@@ -82,6 +83,10 @@ figcaption {
 /* a:not([class]) {
   text-decoration-skip-ink: auto;
   color: currentColor;
+} */
+
+/* a {
+  all: unset;
 } */
 
 a:link {
@@ -231,6 +236,7 @@ blockquote {
   position: sticky;
   justify-content: center;
   top: 0;
+  overflow: hidden;
   width: 100%;
   z-index: 2;
 }
@@ -352,53 +358,46 @@ blockquote {
 /* Modal Styling */
 
 .modal {
-  /*display: block;
-  */
+  display: grid;
+  background: var(--bg-color);
+  grid-template-rows: 2fr 1fr 1fr;
   /*inset-block-start: 7.8125rem;
   */
   /*position: fixed;
   */
-  overflow: auto;
-  z-index: 10;
+  overflow: hidden;
+  overscroll-behavior: contain;
   height: 100vh;
   width: 100%;
-  right: 0;
-  top: 0;
-  z-index: 1;
-  transition: height 1s ease;
-  background: var(--bg-color);
-  /*opacity: .85;
-  -webkit-transition: height 1s ease;
-  -moz-transition: height 1s ease;
-  -ms-transition: height 1s ease;
-  -o-transition: height 1s ease;
+  /*z-index: 10;
+  */
+  transition: height var(--modal-time) ease;
+  -webkit-transition: height var(--modal-time) ease;
+  -moz-transition: height var(--modal-time) ease;
+  -ms-transition: height var(--modal-time) ease;
+  -o-transition: height var(--modal-time) ease;
 }
 
-.modal_menu {
-  display: flex;
-  padding-top: 3.125rem;
-  justify-content: space-between;
-  /* align-self: center; */
-  border-bottom: white solid 0.1875rem;
+.switch {
+  display: none;
 }
-
 
 .modal_button {
   display: none;
   align-self: center;
 }
 
+/* Modal toggle */
 .collapsed {
   /*display: none !important;
   */
-  scroll-behavior: ;
   overflow: hidden;
   height: 0;
-  transition: height 1s ease;
-  -webkit-transition: height 1s ease;
-  -moz-transition: height 1s ease;
-  -ms-transition: height 1s ease;
-  -o-transition: height 1s ease;
+  transition: height var(--modal-time) ease;
+  -webkit-transition: height var(--modal-time) ease;
+  -moz-transition: height var(--modal-time) ease;
+  -ms-transition: height var(--modal-time) ease;
+  -o-transition: height var(--modal-time) ease;
 }
 
 .modal_nav {
@@ -412,7 +411,10 @@ blockquote {
 }
 
 .modal_nav_button {
+  display: flex;
+  align-items: center;
   width: 75%;
+  height: 60px;
   text-decoration: none;
   list-style: none;
   color: var(--primary);
@@ -428,14 +430,15 @@ blockquote {
 }
 
 #nav1 {
-  border-right: .625rem solid var(--color1);
+  border-right: .625rem solid var(--color2);
   background: var(--bg-color);
 }
 
 #nav2 {
-  border-right: .625rem solid var(--color2);
+  border-right: .625rem solid var(--color1);
   background: var(--bg-color);
 }
+
 
 #nav3 {
   border-right: .625rem solid var(--color3);
@@ -444,16 +447,16 @@ blockquote {
 
 
 #nav1:active {
-  transition: background 1s ease;
-  background: var(--color1);
-  -webkit-transition: background 1s ease;
-  -moz-transition: background 1s ease;
-  -ms-transition: background 1s ease;
-  -o-transition: background 1s ease;
+  background: var(--color2);
 }
 
 #nav2:active {
-  background: var(--color2);
+  transition: all 1s ease;
+  background: var(--color1);
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  -ms-transition: all 1s ease;
+  -o-transition: all 1s ease;
 }
 
 #nav3:active {
@@ -467,8 +470,6 @@ blockquote {
   justify-content: space-evenly;
   width: 100%;
   padding-block: var(--space-s);
-  /* border-top: white .125rem solid; */
-  /* height: 10%; */
 }
 
 /* Content Styling */
@@ -1113,6 +1114,7 @@ footer svg:active {
 #sign {
   display: flex;
   font-weight: 300;
+  padding: var(--space-s);
   /* font-size: 1.875rem; */
 }
 
@@ -1215,9 +1217,9 @@ footer svg:active {
 }
 
 @media screen and (max-height: 62.5rem) {
-  .hero {
+  .hero_full {
     /* display: flex; */
     justify-content: center;
-    height: auto;
+    height: auto !important;
   }
 }
