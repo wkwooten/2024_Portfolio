@@ -203,7 +203,7 @@ blockquote {
 .page_grid {
   display: grid;
   justify-content: center;
-  gap: var(--space-3xl);
+  /* gap: var(--space-3xl); */
   margin-inline: var(--space-xs);
   /* max-width: 112.5rem; */
   /* width: 100%; */
@@ -477,7 +477,7 @@ blockquote {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* margin-bottom: var(--space-3xl); */
+  margin-bottom: 50%;
   /* padding-bottom: 12.5rem; */
   /* min-width: fit-content; */
   z-index: 0;
@@ -893,6 +893,8 @@ blockquote {
   -moz-transition: max-height 1s cubic-bezier(.39, .58, .57, 1);
   -ms-transition: max-height 1s cubic-bezier(.39, .58, .57, 1);
   -o-transition: max-height 1s cubic-bezier(.39, .58, .57, 1);
+  margin-bottom: var(--space-l);
+  margin-inline: var(--space-s);
 }
 
 .subsection_header {
@@ -955,8 +957,7 @@ blockquote {
   justify-content: center;
   align-items: center;
   gap: var(--space-s);
-  /* max-width: 87.5rem; */
-  /* grid-template-columns: repeat(auto-fit, minmax(18.75rem, 3fr 1fr)); */
+  max-width: 87.5rem;
 }
 
 .test {
