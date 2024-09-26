@@ -1,6 +1,8 @@
 :root {
-  --bg-color: #090909;
-  --primary: white;
+  --bg-color: rgb(253, 255, 155);
+  --primary: rgb(0, 0, 0);
+  /* --bg-color: #ffffff;
+  --primary: white; */
   --secondary: #181818;
   --color1: #1d3383;
   --color2: #126743;
@@ -84,11 +86,11 @@ figcaption {
 } */
 
 a:link {
-  color: white;
+  color: var(--primary);
 }
 
 a:visited {
-  color: white;
+  color: var(--primary);
 }
 
 body {
@@ -165,7 +167,7 @@ picture {
 
 svg {
   fill: var(--primary);
-  stroke: none;
+  stroke: var(--primary);
 }
 
 figure {
@@ -212,7 +214,7 @@ blockquote {
 
 .tag {
   padding: .625rem;
-  border: .1875rem white solid;
+  border: .1875rem var(--primary) solid;
   border-radius: 1.25rem;
   -webkit-border-radius: 1.25rem;
   -moz-border-radius: 1.25rem;
@@ -465,8 +467,10 @@ blockquote {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-block: var(--space-m);
+  border-top: var(--primary) var(--line-weight) solid;
   justify-content: space-evenly;
-  width: 100%;
+  margin-inline: var(--space-s);
 }
 
 /* Content Styling */
@@ -544,7 +548,7 @@ blockquote {
 }
 
 .name:active {
-  color: white;
+  color: var(--primary);
 }
 
 .intro {
@@ -615,7 +619,7 @@ blockquote {
   /* margin: var(--space-s); */
   border-radius: .3125rem;
   width: 100%;
-  /* min-width: 275px; */
+  border: var(--primary) var(--thicc-line-weight) solid;
   -moz-border-radius: .3125rem;
   -ms-border-radius: .3125rem;
   -o-border-radius: .3125rem;
@@ -1023,7 +1027,7 @@ blockquote {
 }
 
 .toc h4 {
-  border-bottom: white 2px solid;
+  border-bottom: var(--primary) 2px solid;
   width: 100%;
 }
 
