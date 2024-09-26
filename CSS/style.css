@@ -7,7 +7,7 @@
   --color1: #1d3383;
   --color2: #126743;
   --color3: #cc3037;
-  --modal-time: 1s;
+  --modal-time: .4s;
   --button-height: 3.125rem;
   --basic-line-weight: 2px;
   --line-weight: .1875rem;
@@ -951,11 +951,11 @@ blockquote {
   -moz-transform: rotate(180deg);
   -ms-transform: rotate(180deg);
   -o-transform: rotate(180deg);
-  transition: all 1s cubic-bezier(0.11, 0, 0.5, 0);
-  -webkit-transition: all 1s cubic-bezier(0.11, 0, 0.5, 0);
-  -moz-transition: all 1s cubic-bezier(0.11, 0, 0.5, 0);
-  -ms-transition: all 1s cubic-bezier(0.11, 0, 0.5, 0);
-  -o-transition: all 1s cubic-bezier(0.11, 0, 0.5, 0);
+  transition: all var(--modal-time) cubic-bezier(0.11, 0, 0.5, 0);
+  -webkit-transition: all var(--modal-time) cubic-bezier(0.11, 0, 0.5, 0);
+  -moz-transition: all var(--modal-time) cubic-bezier(0.11, 0, 0.5, 0);
+  -ms-transition: all var(--modal-time) cubic-bezier(0.11, 0, 0.5, 0);
+  -o-transition: all var(--modal-time) cubic-bezier(0.11, 0, 0.5, 0);
 }
 
 .cs_Nav {
