@@ -43,7 +43,7 @@
         </a>
       </nav>
       <div class="modal_button">
-        <div class="hamburger_menu">
+        <div class="modal_menu_btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
             <g fill="none" stroke="currentColor" stroke-dasharray="16" stroke-dashoffset="16" stroke-linecap="none" stroke-linejoin="round" stroke-width="2">
               <path d="M5 5h14">
@@ -58,9 +58,9 @@
             </g>
           </svg>
         </div>
-        <div hidden class="modal_back">
+        <div class="modal_back_btn switch">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24">
-            <g stroke-width="1.45">
+            <g fill="none" stroke="" stroke-width="1.45">
               <path d="M5 5L12 5L19 5">
                 <animate fill="freeze" attributeName="d" dur="0.4s" values="M5 5L12 5L19 5;M5 5L12 12L19 5" />
               </path>
@@ -77,24 +77,18 @@
     </nav>
     <div class="modal collapsed">
       <nav class="modal_nav">
-        <a href="https://wkwooten.github.io/2024_Portfolio/projects">
-          <li class="modal_nav_button" id="nav2">
-            <h2>Projects</h2>
-          </li>
+        <a href="https://wkwooten.github.io/2024_Portfolio/projects" class="modal_nav_button" id="nav1">
+        <h2>PROJECTS</h2></a>
+        <a href="https://wkwooten.github.io/2024_Portfolio/about" class="modal_nav_button" id="nav2"><h2>ABOUT</h2>
         </a>
-        <a href="https://wkwooten.github.io/2024_Portfolio/about">
-          <li class="modal_nav_button" id="nav1">
-            <h2>About</h2>
-          </li>
+        <a href="" class="modal_nav_button" id="nav3">
+            <h2>RESUMÉ↗</h2>
         </a>
-        <li class="modal_nav_button" id="nav3">
-          <h2>RESUMÉ↗</h2>
-        </li>
       </nav>
       <div class="modal_contact">
         <div id="social_Container">
             <div id="Socials">
-              <a href="https://github.com/wkwooten class" class="social_1">
+              <a href="https://github.com/wkwooten" class="social_1">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="48"
@@ -159,8 +153,6 @@
       </div>
     </div>
   </header>
-  <div class="hamburger_menu">
-  </div>
   <div class="page_grid animate__animated animate__fadeIn">
    <section class="cs_Nav">
     <!-- <div id="backbutton">
@@ -361,6 +353,10 @@
    <section class="cs_section">
     <h2 class="section_header">
      3. Ideation
+     <div class="chev">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256">
+       <path d="m213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32" /> </svg>
+      </div>
     </h2>
     <div class="cs_section_content">
      <div class="flex_col">
@@ -369,7 +365,7 @@
       </h3>
       <div class="subsection_body">
        <figure>
-        <img alt="" src="Images\project_matrix1.png"/>
+        <img onclick="imgopen(this);" alt="" src="Images\project_matrix1.png"/>
        </figure>
        <p>
         By
@@ -414,39 +410,13 @@
    <section class="cs_section">
     <h2 class="section_header">
      4. Prototyping
+     <div class="chev">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256">
+       <path d="m213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32" />
+      </svg>
+      </div>
     </h2>
     <div class="cs_section_content">
-     <div class="flex_col">
-      <!-- <h3 class="subsection_header">
-       Paper Wireframing
-      </h3>
-      <div class="subsection_body">
-       <div class="cs_gallery">
-        <figure>
-         <img alt="Elvis's Wireframe'" src="Images\wireframe1.png"/>
-         <figcaption>
-          Elvis' Wireframe
-         </figcaption>
-        </figure>
-        <figure>
-         <img alt="My Wireframe" src="Images\wireframe2.png"/>
-         <figcaption>
-          My Wireframe
-         </figcaption>
-        </figure>
-        <figure>
-         <img alt="Sara's Wireframe'" src="Images\wireframe3.png"/>
-         <figcaption>
-          Sara's Wireframe
-         </figcaption>
-        </figure>
-       </div>
-      </div>
-     </div> -->
-     <!-- <div class="flex_col">
-            <h3 class="subsection_header">Style Guide</h3>
-            <p>.....</p>
-          </div> -->
      <div class="flex_col">
       <h3 class="subsection_header">
        Mid Fidelity Mockup
@@ -463,11 +433,15 @@
        </p>
       </div>
      </div>
-    </div>
-   </section>
+    </section>
    <section class="cs_section">
     <h2 class="section_header">
      5. Testing
+     <div class="chev">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256">
+       <path d="m213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32" />
+          </svg>
+    </div>
     </h2>
     <div class="cs_section_content">
      <div class="flex_col">
@@ -549,6 +523,11 @@
    <section class="cs_section">
     <h2 class="section_header">
      6. Conclusion
+     <div class="chev">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256">
+       <path d="m213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32" />
+          </svg>
+    </div>
     </h2>
     <div class="cs_section_content">
      <div class="flex_col">
@@ -595,7 +574,7 @@
    <div class="cs_end">
     <a class="cs_end_prev" href="">
      <h4>
-      &lt;- Prev. Case Study
+      ← Prev. Case Study
       <p>
        Case Study Name
       </p>
@@ -669,39 +648,11 @@
     </p>
    </div>
   </footer>
-  <div class="toc">
-   <div class="side_nav_container">
-    <h4>
-     Table of Contents
-    </h4>
-    <a>
-     Overview
-    </a>
-    <a>
-     Research
-    </a>
-    <a>
-     Ideation
-    </a>
-    <a>
-     Prototyping
-    </a>
-    <a>
-     Testing
-    </a>
-    <a>
-     Conclusion
-    </a>
-    <!-- </div>
-        <div class="side_nav_close">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 256 256">
-            <path fill="white" d="m180.24 132.24l-80 80a6 6 0 0 1-8.48-8.48L167.51 128L91.76 52.24a6 6 0 0 1 8.48-8.48l80 80a6 6 0 0 1 0 8.48" />
-          </svg>
-      </div> -->
-   </div>
    <!-- <script src="js/index.js"></script> -->
    <script src="js/testing.js">
    </script>
-  </div>
  </body>
+ <div class="cs_img_modal">
+  <div class="modal_image"></div>
+ </div>
 </html>
