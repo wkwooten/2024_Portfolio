@@ -3,11 +3,11 @@
   --primary: rgb(0, 0, 0);
   /* --bg-color: #ffffff;
   --primary: white; */
-  --secondary: #181818;
+  --secondary: #f0ead6;
   --color1: #1d3383;
   --color2: #126743;
   --color3: #cc3037;
-  --modal-time: .4s;
+  --modal-time: .65s;
   --button-height: 3.125rem;
   --basic-line-weight: 2px;
   --line-weight: .1875rem;
@@ -94,6 +94,7 @@ a:visited {
 }
 
 body {
+  scroll-behavior: smooth;
   /* display: block; */
   overflow-x: hidden;
   top: 0;
@@ -303,7 +304,7 @@ blockquote {
   height: var(--button-height);
   width: 15rem;
   color: var(--primary);
-  background: var(--bg-color);
+  background: var(--secondary);
   /*background: var(--secondary);
   */
   font-weight: 800;
@@ -393,6 +394,10 @@ blockquote {
   -o-transition: height var(--modal-time) ease;
 }
 
+.bounce {
+  animation-duration: .45s;
+}
+
 .switch {
   display: none;
 }
@@ -410,11 +415,11 @@ blockquote {
 .collapsed {
   overflow: hidden;
   height: 0;
-  transition: height var(--modal-time) ease;
-  -webkit-transition: height var(--modal-time) ease;
-  -moz-transition: height var(--modal-time) ease;
-  -ms-transition: height var(--modal-time) ease;
-  -o-transition: height var(--modal-time) ease;
+  transition: height var(--modal-time) ease-in;
+  -webkit-transition: height var(--modal-time) ease-in;
+  -moz-transition: height var(--modal-time) ease-in;
+  -ms-transition: height var(--modal-time) ease-in;
+  -o-transition: height var(--modal-time) ease-in;
 }
 
 .modal_nav {
@@ -429,7 +434,7 @@ blockquote {
 
 .modal_nav_button {
   display: flex;
-  filter: drop-shadow(2px 0px 4px #fcff61d5);
+  background: var(--secondary);
   align-items: center;
   width: 75%;
   height: 60px;
@@ -438,8 +443,6 @@ blockquote {
   color: var(--primary);
   /*margin-left: 10%;
   */
-  -webkit-filter: drop-shadow(2px 2px 4px #fffc61);
-  -webkit-filter: drop-shadow(2px 0px 4px #fcff61d5);
 }
 
 .modal_nav_button:hover {
@@ -452,18 +455,15 @@ blockquote {
 
 #nav1 {
   border-right: .625rem solid var(--color2);
-  background: var(--bg-color);
 }
 
 #nav2 {
   border-right: .625rem solid var(--color1);
-  background: var(--bg-color);
 }
 
 
 #nav3 {
   border-right: .625rem solid var(--color3);
-  background: var(--bg-color);
 }
 
 
@@ -531,15 +531,10 @@ blockquote {
   background-size: 110% 100%;
 }
 
-.decoration {
-  display: flex;
-  align-self: center;
-  justify-content: center;
-}
-
 .name {
   display: block;
-  /* -webkit-text-stroke: 1px white; */
+  /*-webkit-text-stroke: 1px white;
+  */
   font-style: normal;
   font-size: 4rem;
   justify-self: center;
@@ -552,13 +547,14 @@ blockquote {
   text-transform: uppercase;
   width: min-content;
   color: transparent;
-  /* margin: 5%; */
+  /*margin: 5%;
+  */
   background: linear-gradient(45deg, #00c971, #a02cff);
   background-color: var(--bg-color);
   background-size: 200% 200%;
-  animation: gradient 5s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   background-clip: text;
-  -webkit-animation: gradient 5s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
 }
 
 .indicator {
@@ -568,8 +564,12 @@ blockquote {
   -webkit-animation: gentle-hover 3s infinite;
 }
 
-.name:active {
+/* .name:active {
   color: var(--primary);
+} */
+
+.name:hover {
+  cursor: grab;
 }
 
 .intro {
@@ -909,6 +909,10 @@ blockquote {
   border-block: var(--beeg-line-weight) var(--primary) solid;
 }
 
+.section_header:hover {
+  cursor: pointer;
+}
+
 .cs_section_content {
   display: block;
   overflow: hidden;
@@ -939,10 +943,6 @@ blockquote {
 .chev {
   display: flex;
   align-items: center;
-}
-
-.chev :hover {
-  cursor: pointer;
 }
 
 .chev_rotate {
@@ -983,6 +983,12 @@ blockquote {
   align-items: center;
   gap: var(--space-s);
   max-width: 87.5rem;
+}
+
+.cs_hero_title {
+  border-block: var(--beeg-line-weight) var(--primary) solid;
+  padding: var(--space-s);
+  width: 100%;
 }
 
 .test {
@@ -1085,14 +1091,17 @@ footer svg:active {
 
 .social_1 svg:hover {
   fill: #2dba4e;
+  stroke: none;
 }
 
 .social_2 svg:hover {
   fill: #00a0dc;
+  stroke: none;
 }
 
 .social_3 svg:hover {
   fill: #0057ff;
+  stroke: none;
 }
 
 #sign {
@@ -1181,6 +1190,53 @@ footer svg:active {
     -moz-transform: translatey(0);
     -ms-transform: translatey(0);
     -o-transform: translatey(0);
+  }
+}
+
+@keyframes bounce {
+
+  0%,
+  20%,
+  40%,
+  60%,
+  80%,
+  to {
+    -webkit-animation-timing-function: cubic-bezier(.215, .61, .355, 1);
+    animation-timing-function: cubic-bezier(.215, .61, .355, 1)
+  }
+
+  0% {
+    -webkit-transform: scale3d(.3, .3, .3);
+    transform: scale3d(.3, .3, .3)
+  }
+
+  20% {
+    -webkit-transform: scale3d(1.1, 1.1, 1.1);
+    transform: scale3d(1.1, 1.1, 1.1)
+  }
+
+  40% {
+    -webkit-transform: scale3d(.9, .9, .9);
+    transform: scale3d(.9, .9, .9)
+  }
+
+  60% {
+    opacity: 1;
+    -webkit-transform: scale3d(1.03, 1.03, 1.03);
+    transform: scale3d(1.03, 1.03, 1.03);
+    -moz-transform: scale3d(1.03, 1.03, 1.03);
+    -ms-transform: scale3d(1.03, 1.03, 1.03);
+    -o-transform: scale3d(1.03, 1.03, 1.03);
+  }
+
+  80% {
+    -webkit-transform: scale3d(.97, .97, .97);
+    transform: scale3d(.97, .97, .97)
+  }
+
+  to {
+    -webkit-transform: scaleX(1);
+    transform: scaleX(1)
   }
 }
 

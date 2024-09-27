@@ -1,3 +1,7 @@
+u(".name").on('click', e => {
+  u('.name').toggleClass('bounce');
+});
+
 u(".indicator").on('click', e => {
   u('.projects').scroll();
 });
