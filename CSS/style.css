@@ -7,6 +7,7 @@
   --color1: #1d3383;
   --color2: #126743;
   --color3: #cc3037;
+  --vibes: linear-gradient(45deg, #00c971, #a02cff);
   --modal-time: .65s;
   --button-height: 3.125rem;
   --basic-line-weight: 2px;
@@ -277,6 +278,8 @@ blockquote {
   text-decoration: none;
 }
 
+.nav_button:active {}
+
 .nav_logo img {
   height: 4rem;
 }
@@ -311,11 +314,11 @@ blockquote {
   font-size: 1.25rem !important;
   text-indent: 1.25rem;
   margin-inline: 1.25rem;
-  transition: height ease-in 0.1s;
-  -webkit-transition: height ease-in 0.1s;
-  -moz-transition: height ease-in 0.1s;
-  -ms-transition: height ease-in 0.1s;
-  -o-transition: height ease-in 0.1s;
+  transition: all ease-in 0.1s;
+  -webkit-transition: all ease-in 0.1s;
+  -moz-transition: all ease-in 0.1s;
+  -ms-transition: all ease-in 0.1s;
+  -o-transition: all ease-in 0.1s;
 }
 
 .nav_button:hover {
@@ -323,9 +326,9 @@ blockquote {
   cursor: pointer;
 }
 
-.nav_button:active {
+/* .nav_button:active {
   height: 3.125rem;
-}
+} */
 
 .nav_button:disabled {
   cursor: default;
@@ -394,8 +397,9 @@ blockquote {
   -o-transition: height var(--modal-time) ease;
 }
 
-.bounce {
-  animation-duration: .45s;
+.name:active {
+  animation: bouncy 2s ease;
+  -webkit-animation: bouncy 2s ease;
 }
 
 .switch {
@@ -443,10 +447,6 @@ blockquote {
   color: var(--primary);
   /*margin-left: 10%;
   */
-}
-
-.modal_nav_button:hover {
-  cursor: pointer;
 }
 
 .modal_nav_button h2 {
@@ -535,6 +535,7 @@ blockquote {
   display: block;
   /*-webkit-text-stroke: 1px white;
   */
+  user-select: none;
   font-style: normal;
   font-size: 4rem;
   justify-self: center;
@@ -546,16 +547,21 @@ blockquote {
   letter-spacing: -0.135rem;
   text-transform: uppercase;
   width: min-content;
-  color: transparent;
+  color: black;
+  /* color: transparent; */
   /*margin: 5%;
   */
-  background: linear-gradient(45deg, #00c971, #a02cff);
-  background-color: var(--bg-color);
+  /* background: linear-gradient(45deg, #00c971, #a02cff); */
   background-size: 200% 200%;
   animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-  background-clip: text;
+  /* background-clip: text; */
   -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
 }
+
+.name:hover {
+  cursor: pointer;
+}
+
 
 .indicator {
   display: flex;
@@ -567,10 +573,6 @@ blockquote {
 /* .name:active {
   color: var(--primary);
 } */
-
-.name:hover {
-  cursor: grab;
-}
 
 .intro {
   /* min-width: fit-content; */
@@ -640,7 +642,7 @@ blockquote {
   /* margin: var(--space-s); */
   border-radius: .3125rem;
   width: 100%;
-  border: var(--primary) var(--thicc-line-weight) solid;
+  /* border: var(--primary) var(--thicc-line-weight) solid; */
   -moz-border-radius: .3125rem;
   -ms-border-radius: .3125rem;
   -o-border-radius: .3125rem;
@@ -648,11 +650,15 @@ blockquote {
   -moz-border-radius: .3125rem;
 }
 
-.project_card img:hover {
-  scale: 1.05;
-  animation: 10s ease-in(0.075, 0.82, 0.165, 1);
-  -webkit-animation: 10s ease-in(0.075, 0.82, 0.165, 1);
+/* #TM_project:hover {
+  filter: drop-shadow(0 0 1rem #D8575D);
+  -webkit-filter: drop-shadow(0 0 1rem #D8575D);
 }
+
+#UM_project:hover {
+  filter: drop-shadow(0 0 1rem #869247);
+  -webkit-filter: drop-shadow(0 0 1rem #869247);
+} */
 
 .button {
   display: flex;
@@ -917,6 +923,7 @@ blockquote {
   display: block;
   overflow: hidden;
   max-height: 100%;
+  margin-top: var(--space-xl);
   transition: max-height var(--modal-time) cubic-bezier(.39, .58, .57, 1);
   -webkit-transition: max-height var(--modal-time) cubic-bezier(.39, .58, .57, 1);
   -moz-transition: max-height var(--modal-time) cubic-bezier(.39, .58, .57, 1);
@@ -943,6 +950,11 @@ blockquote {
 .chev {
   display: flex;
   align-items: center;
+  transition: transform var(--modal-time) ease;
+  -webkit-transition: transform var(--modal-time) ease;
+  -moz-transition: transform var(--modal-time) ease;
+  -ms-transition: transform var(--modal-time) ease;
+  -o-transition: transform var(--modal-time) ease;
 }
 
 .chev_rotate {
@@ -1193,45 +1205,35 @@ footer svg:active {
   }
 }
 
-@keyframes bounce {
-
-  0%,
-  20%,
-  40%,
-  60%,
-  80%,
-  to {
-    -webkit-animation-timing-function: cubic-bezier(.215, .61, .355, 1);
-    animation-timing-function: cubic-bezier(.215, .61, .355, 1)
-  }
-
+@keyframes bouncy {
   0% {
-    -webkit-transform: scale3d(.3, .3, .3);
-    transform: scale3d(.3, .3, .3)
+    -webkit-transform: scaleX(1);
+    transform: scaleX(1)
   }
 
-  20% {
-    -webkit-transform: scale3d(1.1, 1.1, 1.1);
-    transform: scale3d(1.1, 1.1, 1.1)
+  30% {
+    -webkit-transform: scale3d(1.25, .75, 1);
+    transform: scale3d(1.25, .75, 1)
   }
 
   40% {
-    -webkit-transform: scale3d(.9, .9, .9);
-    transform: scale3d(.9, .9, .9)
+    -webkit-transform: scale3d(.75, 1.25, 1);
+    transform: scale3d(.75, 1.25, 1)
   }
 
-  60% {
-    opacity: 1;
-    -webkit-transform: scale3d(1.03, 1.03, 1.03);
-    transform: scale3d(1.03, 1.03, 1.03);
-    -moz-transform: scale3d(1.03, 1.03, 1.03);
-    -ms-transform: scale3d(1.03, 1.03, 1.03);
-    -o-transform: scale3d(1.03, 1.03, 1.03);
+  50% {
+    -webkit-transform: scale3d(1.15, .85, 1);
+    transform: scale3d(1.15, .85, 1)
   }
 
-  80% {
-    -webkit-transform: scale3d(.97, .97, .97);
-    transform: scale3d(.97, .97, .97)
+  65% {
+    -webkit-transform: scale3d(.95, 1.05, 1);
+    transform: scale3d(.95, 1.05, 1)
+  }
+
+  75% {
+    -webkit-transform: scale3d(1.05, .95, 1);
+    transform: scale3d(1.05, .95, 1)
   }
 
   to {
