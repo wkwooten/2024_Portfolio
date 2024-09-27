@@ -1,11 +1,6 @@
-// function toggle(el) {
-//   if (el.style.display == 'none') {
-//     el.style.display = '';
-//   } else {
-//     el.style.display = 'none';
-//   }
-// }
-
+u(".indicator").on('click', e => {
+  u('.projects').scroll();
+});
 
 u(".modal_button").on('click', e => {
   u(".modal").toggleClass("collapsed");

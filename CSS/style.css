@@ -182,7 +182,7 @@ figure {
 }
 
 figcaption {
-  font-weight: 200;
+  font-weight: 300;
   max-width: var(--fig-width);
   text-align: center;
 }
@@ -261,7 +261,7 @@ blockquote {
   flex-direction: row;
   justify-items: center;
   justify-content: space-between;
-  margin-top: 3.125rem;
+  margin-top: var(--space-l);
   align-items: end;
   width: 100%;
   /* max-width: var(--width); */
