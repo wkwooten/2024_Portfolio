@@ -273,19 +273,46 @@ blockquote {
 .nav_logo {
   font-weight: bold;
   font-size: 3rem;
+  color: var(--primary);
   /* align-items: center; */
   margin-inline: .3125rem;
   text-decoration: none;
 }
 
-.nav_button:active {}
+.nav_logo_home {
+  color: transparent !important;
+  background: var(--vibes);
+  background-size: 200% 200%;
+  animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  background-clip: text;
+  -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+}
+
+.nav_button:active {
+  color: transparent;
+  cursor: pointer;
+  background: var(--vibes);
+  background-size: 200% 200%;
+  animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  background-clip: text;
+  -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+}
 
 .nav_logo img {
   height: 4rem;
 }
 
 .nav_logo:hover {
+  color: transparent;
   cursor: pointer;
+  background: var(--vibes);
+  background-size: 200% 200%;
+  animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  background-clip: text;
+  -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
 }
 
 .menu_bar {
@@ -398,8 +425,8 @@ blockquote {
 }
 
 .name:active {
-  animation: bouncy 2s ease;
-  -webkit-animation: bouncy 2s ease;
+  animation: bouncy 1s ease;
+  -webkit-animation: bouncy 1s ease;
 }
 
 .switch {
@@ -468,6 +495,7 @@ blockquote {
 
 
 #nav1:active {
+  transition: all 1s ease;
   background: var(--color2);
 }
 
@@ -481,7 +509,12 @@ blockquote {
 }
 
 #nav3:active {
+  transition: all 1s ease;
   background: var(--color3);
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  -ms-transition: all 1s ease;
+  -o-transition: all 1s ease;
 }
 
 .modal_contact {
@@ -502,7 +535,7 @@ blockquote {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-bottom: 50%;
+  margin-bottom: 500px;
   /* padding-bottom: 12.5rem; */
   /* min-width: fit-content; */
   z-index: 0;
@@ -549,13 +582,12 @@ blockquote {
   width: min-content;
   color: black;
   /* color: transparent; */
-  /*margin: 5%;
-  */
-  /* background: linear-gradient(45deg, #00c971, #a02cff); */
+  /* background: linear-gradient(90deg, hsla(195, 86%, 50%, 1) 0%, hsla(236, 93%, 65%, 1) 100%);
   background-size: 200% 200%;
   animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-  /* background-clip: text; */
+  background-clip: text;
   -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite; */
 }
 
 .name:hover {
@@ -977,7 +1009,7 @@ blockquote {
   width: 100%;
   margin: var(--space-m);
   align-items: center;
-  text-align: right;
+  text-align: center;
   flex-flow: row;
   /* border-bottom: .125rem var(--primary) solid; */
 }
