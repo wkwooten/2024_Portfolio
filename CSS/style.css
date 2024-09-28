@@ -594,7 +594,7 @@ blockquote {
   letter-spacing: -0.135rem;
   text-transform: uppercase;
   width: min-content;
-  color: black;
+  color: var(--primary);
   /* color: transparent; */
   /* background: linear-gradient(90deg, hsla(195, 86%, 50%, 1) 0%, hsla(236, 93%, 65%, 1) 100%);
   background-size: 200% 200%;
