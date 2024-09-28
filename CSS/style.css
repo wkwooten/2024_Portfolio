@@ -38,6 +38,14 @@
   --fig-width: 50rem;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #090909;
+    --primary: rgb(255, 255, 255);
+    --secondary: #181818;
+  }
+}
+
 /* Basic reset for lists */
 ul,
 ol {
@@ -1342,5 +1350,14 @@ footer svg:active {
     /* display: flex; */
     justify-content: center;
     height: auto !important;
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce),
+(update: slow) {
+  body {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }
