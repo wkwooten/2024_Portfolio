@@ -9,6 +9,7 @@
   --color3: #cc3037;
   --vibes: linear-gradient(45deg, #00c971, #a02cff);
   --modal-time: .65s;
+  --accordion_time: 1s;
   --button-height: 3.125rem;
   --basic-line-weight: 2px;
   --line-weight: .1875rem;
@@ -298,6 +299,11 @@ blockquote {
   background-clip: text;
   -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  transition: all 1s ease;
+  -webkit-transition: all 1s ease;
+  -moz-transition: all 1s ease;
+  -ms-transition: all 1s ease;
+  -o-transition: all 1s ease;
 }
 
 .nav_logo img {
@@ -425,8 +431,8 @@ blockquote {
 }
 
 .name:active {
-  animation: bouncy 1s ease;
-  -webkit-animation: bouncy 1s ease;
+  animation: bouncy 2s ease;
+  -webkit-animation: bouncy 2s ease;
 }
 
 .switch {
@@ -446,11 +452,11 @@ blockquote {
 .collapsed {
   overflow: hidden;
   height: 0;
-  transition: height var(--modal-time) ease-in;
-  -webkit-transition: height var(--modal-time) ease-in;
-  -moz-transition: height var(--modal-time) ease-in;
-  -ms-transition: height var(--modal-time) ease-in;
-  -o-transition: height var(--modal-time) ease-in;
+  transition: height var(--modal-time) ease;
+  -webkit-transition: height var(--modal-time) ease;
+  -moz-transition: height var(--modal-time) ease;
+  -ms-transition: height var(--modal-time) ease;
+  -o-transition: height var(--modal-time) ease;
 }
 
 .modal_nav {
@@ -602,9 +608,13 @@ blockquote {
   -webkit-animation: gentle-hover 3s infinite;
 }
 
-/* .name:active {
-  color: var(--primary);
-} */
+.indicator:hover {
+  transform: scale(1.2);
+  -webkit-transform: scale(1.2);
+  -moz-transform: scale(1.2);
+  -ms-transform: scale(1.2);
+  -o-transform: scale(1.2);
+}
 
 .intro {
   /* min-width: fit-content; */
@@ -707,7 +717,11 @@ blockquote {
 }
 
 .button:hover {
-  text-decoration: underline;
+  transform: scale(1.08);
+  -webkit-transform: scale(1.08);
+  -moz-transform: scale(1.08);
+  -ms-transform: scale(1.08);
+  -o-transform: scale(1.08);
 }
 
 .button:active {
@@ -735,6 +749,7 @@ blockquote {
   margin-block: 50px;
   margin-inline: 20px;
   border: solid;
+  max-width: 300px;
   /* outline: solid; */
   /* border-radius: 1000px;
   -webkit-border-radius: 1000px;
@@ -947,20 +962,33 @@ blockquote {
   border-block: var(--beeg-line-weight) var(--primary) solid;
 }
 
-.section_header:hover {
+
+.cs_section_header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  /* width: 100%; */
+  padding-block: var(--space-s);
+  padding-inline: .3125rem;
+  border-block: var(--beeg-line-weight) var(--primary) solid;
+}
+
+.cs_section_header:hover {
   cursor: pointer;
 }
 
 .cs_section_content {
   display: block;
+  box-sizing: border-box;
   overflow: hidden;
   max-height: 100%;
   margin-top: var(--space-xl);
-  transition: max-height var(--modal-time) cubic-bezier(.39, .58, .57, 1);
-  -webkit-transition: max-height var(--modal-time) cubic-bezier(.39, .58, .57, 1);
-  -moz-transition: max-height var(--modal-time) cubic-bezier(.39, .58, .57, 1);
-  -ms-transition: max-height var(--modal-time) cubic-bezier(.39, .58, .57, 1);
-  -o-transition: max-height var(--modal-time) cubic-bezier(.39, .58, .57, 1);
+  transition: max-height var(--accordion_time) ease;
+  -webkit-transition: max-height var(--accordion_time) ease;
+  -moz-transition: max-height var(--accordion_time) ease;
+  -ms-transition: max-height var(--accordion_time) ease;
+  -o-transition: max-height var(--accordion_time) ease;
   margin-bottom: var(--space-l);
   margin-inline: var(--space-s);
 }
@@ -982,11 +1010,11 @@ blockquote {
 .chev {
   display: flex;
   align-items: center;
-  transition: transform var(--modal-time) ease;
-  -webkit-transition: transform var(--modal-time) ease;
-  -moz-transition: transform var(--modal-time) ease;
-  -ms-transition: transform var(--modal-time) ease;
-  -o-transition: transform var(--modal-time) ease;
+  transition: transform var(--accordion_time) ease;
+  -webkit-transition: transform var(--accordion_time) ease;
+  -moz-transition: transform var(--accordion_time) ease;
+  -ms-transition: transform var(--accordion_time) ease;
+  -o-transition: transform var(--accordion_time) ease;
 }
 
 .chev_rotate {
@@ -995,11 +1023,11 @@ blockquote {
   -moz-transform: rotate(180deg);
   -ms-transform: rotate(180deg);
   -o-transform: rotate(180deg);
-  transition: all var(--modal-time) cubic-bezier(0.11, 0, 0.5, 0);
-  -webkit-transition: all var(--modal-time) cubic-bezier(0.11, 0, 0.5, 0);
-  -moz-transition: all var(--modal-time) cubic-bezier(0.11, 0, 0.5, 0);
-  -ms-transition: all var(--modal-time) cubic-bezier(0.11, 0, 0.5, 0);
-  -o-transition: all var(--modal-time) cubic-bezier(0.11, 0, 0.5, 0);
+  transition: all var(--accordion_time) ease;
+  -webkit-transition: all var(--accordion_time) ease;
+  -moz-transition: all var(--accordion_time) ease;
+  -ms-transition: all var(--accordion_time) ease;
+  -o-transition: all var(--accordion_time) ease;
 }
 
 .cs_Nav {
