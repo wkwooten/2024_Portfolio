@@ -22,55 +22,6 @@ u(".name").on('click', e => {
   u('name').addClass('bounce');
 });
 
-// var acc = document.querySelectorAll('.cs_section_header');
-
-// for (let i = 0; i < acc.length; i++) {
-//   // Set initial state to expanded
-//   let content = acc[i].nextElementSibling;
-//   content.style.maxHeight = "100%"; // Start expanded
-
-//   // Add click event to each header
-//   acc[i].addEventListener('click', function() {
-//     let content = this.nextElementSibling;
-
-//     // Toggle the rotation of the arrow (chevron)
-//     this.querySelector('.chev').classList.toggle('chev_rotate');
-
-//     // Toggle between expanded and collapsed states
-//     if (content.style.maxHeight && content.style.maxHeight !== "0px") {
-//       content.style.maxHeight = "0px";
-//     } else {
-//       content.style.maxHeight = "100%";
-//     }
-//     // } else {
-//     //   content.style.maxHeight = content.scrollHeight + "px";
-//     // }
-//   });
-// }
-
-// document.addEventListener('DOMContentLoaded', function() {
-//   // Your accordion logic goes here
-//   var acc = document.querySelectorAll('.cs_section_header');
-
-//   for (let i = 0; i < acc.length; i++) {
-//     let content = acc[i].nextElementSibling;
-
-//     // Set initial maxHeight
-//     content.style.maxHeight = content.scrollHeight + "px";
-
-//     acc[i].addEventListener('click', function() {
-//       content.classList.toggle('open');
-//       this.querySelector('.chev').classList.toggle('chev_rotate');
-
-//       if (content.style.maxHeight && content.style.maxHeight !== "0px") {
-//         content.style.maxHeight = "0px"; // Collapse
-//       } else {
-//         content.style.maxHeight = content.scrollHeight + "px"; // Expand dynamically
-//       }
-//     });
-//   }
-// });
-
 // Switch to using window.onload
 window.onload = function() {
   // Your accordion logic goes here
@@ -99,3 +50,15 @@ window.onload = function() {
     });
   }
 };
+
+var modal = document.getElementById("img_modal");
+
+var modalImg = document.getElementById("modal_image");
+
+var images = document.querySelectorAll("img"); // You can adjust this selector to target specific images
+images.forEach(function(img) {
+  img.addEventListener("click", function() {
+    modal.style.display = "block"; // Display the modal
+    modalImg.src = this.src; // Set the modal image source to the clicked image's source
+  });
+});
