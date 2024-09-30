@@ -86,6 +86,10 @@ figcaption {
   font-size: var(--fs-0);
 }
 
+li {
+  width: 66ch;
+}
+
 /* a:not([class]) {
   text-decoration-skip-ink: auto;
   color: currentColor;
@@ -105,14 +109,10 @@ a:visited {
 
 body {
   scroll-behavior: smooth;
-  /* display: block; */
   overflow-x: hidden;
   top: 0;
   left: 0;
   margin: 0;
-  /* justify-self: center;
-  align-items: center;
-  justify-content: center; */
   color: var(--primary);
   font-family: "Overpass", "Helvetica", sans-serif;
   font-size: var(--fs-0);
@@ -176,6 +176,11 @@ picture {
   display: block;
 }
 
+iframe {
+  width: 100%;
+  aspect-ratio: 1;
+}
+
 svg {
   fill: var(--primary);
   stroke: var(--primary);
@@ -202,7 +207,6 @@ figure img {
   max-width: var(--fig-width);
   width: 100%;
   border-radius: .3125rem;
-  margin-block: var(--space-m);
   filter: drop-shadow(1px 1px 3px);
   -webkit-filter: drop-shadow(1px 1px 3px);
 }
@@ -547,8 +551,6 @@ blockquote {
   align-items: center;
   justify-content: center;
   margin-bottom: 500px;
-  /* padding-bottom: 12.5rem; */
-  /* min-width: fit-content; */
   z-index: 0;
 }
 
@@ -558,6 +560,12 @@ blockquote {
   align-items: center;
   justify-content: center;
   justify-items: center;
+  background-color: var(--bg-color);
+  border-radius: 20px;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  -ms-border-radius: 20px;
+  -o-border-radius: 20px;
 }
 
 /* .hero svg {
@@ -634,16 +642,6 @@ blockquote {
   /* border-bottom: .125rem var(--primary) solid; */
 }
 
-/* #intro_blurb2 {
-  padding-block: 1.25rem;
-} */
-
-
-#mail:hover {
-  text-decoration: underline;
-  -moz-text-decoration: underline;
-}
-
 /* Featured Projects Section */
 
 .projects {
@@ -698,8 +696,8 @@ blockquote {
 }
 
 .project_card_img:active {
-  animation: rotateOutUpRight 1s ease;
-  -webkit-animation: rotateOutUpRight 1s ease;
+  animation: card 1s ease;
+  -webkit-animation: card 1s ease;
 }
 
 /* #TM_project:hover {
@@ -1320,7 +1318,7 @@ footer svg:active {
   }
 }
 
-@keyframes rotateOutUpRight {
+@keyframes card {
   0% {
     opacity: 1
   }
@@ -1328,7 +1326,10 @@ footer svg:active {
   to {
     opacity: 0;
     -webkit-transform: rotate(90deg);
-    transform: rotate(90deg)
+    transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
   }
 }
 
