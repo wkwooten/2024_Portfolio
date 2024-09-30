@@ -87,7 +87,7 @@ figcaption {
 }
 
 li {
-  width: 66ch;
+  max-width: 66ch;
 }
 
 /* a:not([class]) {
