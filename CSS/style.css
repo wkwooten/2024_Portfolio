@@ -1108,7 +1108,7 @@ blockquote {
 }
 
 #tm_prototype {
-  aspect-ratio: 9/16;
+  aspect-ratio: .46;
   max-width: 400px;
 }
 
