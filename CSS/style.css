@@ -178,7 +178,7 @@ picture {
 
 iframe {
   width: 100%;
-  aspect-ratio: 1;
+  margin-block: var(--space-m);
 }
 
 svg {
@@ -201,6 +201,7 @@ figcaption {
   font-weight: 300;
   max-width: var(--fig-width);
   text-align: center;
+  padding-block: var(--space-s);
 }
 
 figure img {
@@ -680,7 +681,7 @@ blockquote {
   width: 100%;
 }
 
-.project_card_img img {
+.project_card_img {
   display: flex;
   justify-self: center;
   align-items: center;
@@ -695,20 +696,21 @@ blockquote {
   -moz-border-radius: .3125rem;
 }
 
-.project_card_img:active {
-  animation: card 1s ease;
-  -webkit-animation: card 1s ease;
+.project_card_img:hover {
+  transform: scale(1.05);
+  transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
+  animation: 8s all ease infinite;
+  -webkit-animation: 8s all ease infinite;
+  -webkit-transform: scale(1.05);
+  -moz-transform: scale(1.05);
+  -ms-transform: scale(1.05);
+  -o-transform: scale(1.05);
+  -webkit-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
+  -moz-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
+  -ms-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
+  -o-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* #TM_project:hover {
-  filter: drop-shadow(0 0 1rem #D8575D);
-  -webkit-filter: drop-shadow(0 0 1rem );
-} */
-
-/* #UM_project:hover {
-  filter: drop-shadow(0 0 2rem #869247);
-  -webkit-filter: drop-shadow(0 0 2rem #869247);
-} */
 
 .button {
   display: flex;
@@ -1101,6 +1103,15 @@ blockquote {
   width: 100%;
 }
 
+#ug_prototype {
+  aspect-ratio: 16/9;
+}
+
+#tm_prototype {
+  aspect-ratio: 9/16;
+  max-width: 400px;
+}
+
 .cs_end {
   display: flex;
   border-top: var(--line-weight) var(--primary) solid;
@@ -1318,20 +1329,19 @@ footer svg:active {
   }
 }
 
+
 @keyframes card {
   0% {
-    opacity: 1
+    filter: drop-shadow(0 0 1rem white);
+    -webkit-filter: drop-shadow(0 0 1rem white);
   }
 
-  to {
-    opacity: 0;
-    -webkit-transform: rotate(90deg);
-    transform: rotate(90deg);
-    -moz-transform: rotate(90deg);
-    -ms-transform: rotate(90deg);
-    -o-transform: rotate(90deg);
+  50% {
+    filter: drop-shadow(0 0 2rem white);
+    -webkit-filter: drop-shadow(0 0 2rem white);
   }
 }
+
 
 /* Mobile Styling  */
 
