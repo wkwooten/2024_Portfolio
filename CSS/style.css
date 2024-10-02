@@ -11,10 +11,10 @@
   --modal-time: 1s;
   --accordion_time: 1s;
   --button-height: 3.125rem;
-  --basic-line-weight: 2px;
-  --line-weight: .1875rem;
-  --beeg-line-weight: .2rem;
-  --thicc-line-weight: .25rem;
+  --basic-line-weight: 2.5px;
+  --line-weight: 3px;
+  --beeg-line-weight: 4px;
+  --thicc-line-weight: 5px;
   --section-spacing: 10%;
   --section-margin: 5%;
   --padding: 1.25rem;
@@ -644,8 +644,8 @@ blockquote {
 
 .project_container {
   display: grid;
-  gap: var(--space-xl);
-  padding: var(--space-s);
+  gap: var(--space-3xl);
+  padding: var(--space-l);
   margin-bottom: 10%;
 }
 
@@ -658,7 +658,7 @@ blockquote {
   gap: var(--space-m);
   text-decoration: none;
   margin-block: 10%;
-  border: var(--basic-line-weight) solid;
+  /* border: var(--basic-line-weight) double; */
   transition: all .68s ease;
   -webkit-transition: all .68s ease;
   -moz-transition: all .68s ease;
@@ -692,13 +692,13 @@ blockquote {
 
 #tm_card:hover {
   background-color: #2255b4;
-  border: var(--primary) thick solid;
+  border: #2255b4 thick ridge;
   color: white !important;
 }
 
 #ug_card:hover {
   background-color: #818d40;
-  border: var(--primary) thick solid;
+  border: #c0c79b thick solid;
   color: white !important;
 }
 
@@ -720,10 +720,8 @@ blockquote {
   display: flex;
   justify-self: center;
   align-items: center;
-  /* margin: var(--space-s); */
   border-radius: .3125rem;
   width: 100%;
-  /* border: var(--primary) var(--thicc-line-weight) solid; */
   -moz-border-radius: .3125rem;
   -ms-border-radius: .3125rem;
   -o-border-radius: .3125rem;
