@@ -887,10 +887,11 @@ blockquote {
 
 .works_container {
   display: flex;
-  flex-flow: row wrap;
+  /* flex-flow: row wrap; */
+  overflow-x: scroll;
   justify-content: start;
   align-items: center;
-  gap: var(--space-xl);
+  gap: var(--space-m);
   /* width: 100%; */
   padding: var(--space-l);
 }
@@ -899,9 +900,9 @@ blockquote {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min-content;
+  width: 100%;
   justify-content: center;
-  align-items: last baseline;
+  align-items: stretch;
   /* height: 600px; */
   border-radius: 25px;
   -webkit-border-radius: 25px;
@@ -949,10 +950,11 @@ blockquote {
 
 .works_illustration {
   display: flex;
+  max-width: 300px;
   flex-direction: column;
-  width: min-content;
   justify-content: center;
-  align-items: last baseline;
+  width: 100%;
+  align-items: center;
   /* height: 600px; */
   border-radius: 25px;
   -webkit-border-radius: 25px;
