@@ -889,11 +889,10 @@ blockquote {
   display: flex;
   /* flex-flow: row wrap; */
   overflow-x: scroll;
-  justify-content: start;
-  align-items: center;
+  align-items: baseline;
   gap: var(--space-m);
   /* width: 100%; */
-  padding: var(--space-l);
+  padding-block: var(--space-l);
 }
 
 .works_case_study {
@@ -901,6 +900,7 @@ blockquote {
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: 300px;
   justify-content: center;
   align-items: stretch;
   /* height: 600px; */
@@ -950,11 +950,10 @@ blockquote {
 
 .works_illustration {
   display: flex;
-  max-width: 300px;
   flex-direction: column;
   justify-content: center;
-  width: 100%;
-  align-items: center;
+  width: 400px;
+  align-items: baseline;
   /* height: 600px; */
   border-radius: 25px;
   -webkit-border-radius: 25px;
