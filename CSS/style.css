@@ -1,9 +1,9 @@
 :root {
-  --bg-color: #f0ead6;
+  --bg-color: #DED6CD;
   --primary: rgb(0, 0, 0);
   /* --bg-color: #ffffff;
   --primary: white; */
-  --secondary: #f0ead6;
+  --secondary: #DED6CD;
   --color1: #1d3383;
   --color2: #126743;
   --color3: #cc3037;
@@ -228,11 +228,10 @@ figure img:hover {
   animation-duration: .4s;
 }
 
-.focus-in-expand {
-  -webkit-animation: focus-in-expand 0.8s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-  animation: focus-in-expand 0.8s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+.text-pop-up-top {
+  -webkit-animation: text-pop-up-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+  animation: text-pop-up-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 }
-
 
 blockquote {
   display: flex;
@@ -296,7 +295,8 @@ blockquote {
   font-weight: bold;
   font-size: 3rem;
   color: var(--primary);
-  /* align-items: center; */
+  /*align-items: center;
+  */
   text-decoration: none;
 }
 
@@ -313,12 +313,22 @@ blockquote {
 .nav_logo:hover {
   color: transparent;
   cursor: pointer;
+  scale: 1.1;
+  transition: .3s ease;
   background: var(--vibes);
   background-size: 200% 200%;
   animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   background-clip: text;
   -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  -webkit-transition: .3s ease;
+  -moz-transition: .3s ease;
+  -ms-transition: .3s ease;
+  -o-transition: .3s ease;
+}
+
+.nav_logo:active {
+  scale: .95;
 }
 
 .menu_bar {
@@ -409,27 +419,6 @@ blockquote {
   background: var(--color3);
 }
 
-/* Modal Styling */
-
-.modal {
-  display: grid;
-  grid-template-rows: 2fr 1fr 1fr;
-  /*inset-block-start: 7.8125rem;
-  */
-  /*position: fixed;
-  */
-  overflow: hidden;
-  overscroll-behavior: none;
-  height: 100vh;
-  width: 100%;
-  /*z-index: 10;
-  */
-  transition: height var(--modal-time) ease;
-  -webkit-transition: height var(--modal-time) ease;
-  -moz-transition: height var(--modal-time) ease;
-  -ms-transition: height var(--modal-time) ease;
-  -o-transition: height var(--modal-time) ease;
-}
 
 .name:active {
   animation: bounce 1s ease;
@@ -454,7 +443,29 @@ blockquote {
   align-self: center;
 }
 
-/* Modal toggle */
+
+/* Modal Styling */
+
+.modal {
+  display: grid;
+  grid-template-rows: 2fr 1fr 1fr;
+  /*inset-block-start: 7.8125rem;
+  */
+  /*position: fixed;
+  */
+  overflow: hidden;
+  overscroll-behavior: none;
+  height: 100vh;
+  width: 100%;
+  /*z-index: 10;
+  */
+  transition: height var(--modal-time) ease;
+  -webkit-transition: height var(--modal-time) ease;
+  -moz-transition: height var(--modal-time) ease;
+  -ms-transition: height var(--modal-time) ease;
+  -o-transition: height var(--modal-time) ease;
+}
+
 .collapsed {
   overflow: hidden;
   height: 0;
@@ -544,7 +555,8 @@ blockquote {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-bottom: 500px;
+  gap: var(--space-m);
+  margin-bottom: 200px;
   z-index: 0;
 }
 
@@ -590,7 +602,7 @@ blockquote {
   letter-spacing: -0.135rem;
   text-transform: uppercase;
   width: min-content;
-  /* color: var(--bg-color); */
+  color: var(--primary);
   /* color: transparent; */
   /* background: linear-gradient(90deg, hsla(195, 86%, 50%, 1) 0%, hsla(236, 93%, 65%, 1) 100%);
   background-size: 200% 200%;
@@ -676,9 +688,9 @@ blockquote {
 .project_card:hover {
   border: thick var(--primary) solid;
   transition: border .4s ease;
+  border-radius: 4px;
   transform: scale(1.05);
   transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
-
   -webkit-transform: scale(1.05);
   -moz-transform: scale(1.05);
   -ms-transform: scale(1.05);
@@ -687,6 +699,10 @@ blockquote {
   -moz-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
   -ms-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
   -o-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
 }
 
 .project_card:active {
@@ -699,13 +715,13 @@ blockquote {
 
 #tm_card:hover {
   background-color: #2255b4;
-  border: #2255b4 thick groove;
+  border: #2255b4 thick solid;
   color: white !important;
 }
 
 #ug_card:hover {
   background-color: #818d40;
-  border: #c0c79b thick groove;
+  border: #c0c79b thick double;
   color: white !important;
 }
 
@@ -795,7 +811,7 @@ blockquote {
 }
 
 .about_pic {
-  max-width: 50%;
+  width: 100%;
   /* aspect-ratio: 4/3; */
   /* float: left; */
   /* margin-block: 50px; */
@@ -839,7 +855,7 @@ blockquote {
   /* margin-block: 10%; */
   text-align: justify;
   margin: 10%;
-  text-indent: 1rem;
+  text-indent: var(--space-m);
   line-height: 150%;
   /* font-size: clamp(1rem, 20%, 5rem); */
   /* line-height: 1.5; */
@@ -899,7 +915,6 @@ blockquote {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: 100%;
   max-width: 300px;
   justify-content: center;
   align-items: stretch;
@@ -918,6 +933,8 @@ blockquote {
 
 .works_overlay {
   position: absolute;
+  display: flex;
+  align-content: stretch;
   bottom: 0;
   left: 0;
   right: 0;
@@ -952,7 +969,9 @@ blockquote {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 400px;
+  max-width: 400px;
+  width: 100%;
+  margin-inline: var(--space-s);
   align-items: baseline;
   /* height: 600px; */
   border-radius: 25px;
@@ -962,6 +981,13 @@ blockquote {
   -o-border-radius: 25px;
 }
 
+.works_illustration:hover {
+  transform: scale(1.05);
+  -webkit-transform: scale(1.05);
+  -moz-transform: scale(1.05);
+  -ms-transform: scale(1.05);
+  -o-transform: scale(1.05);
+}
 
 /* Case Study Section */
 
@@ -1371,12 +1397,15 @@ footer svg:active {
 
   to {
     -webkit-transform: scaleX(1);
-    transform: scaleX(1)
+    transform: scaleX(1);
+    -moz-transform: scaleX(1);
+    -ms-transform: scaleX(1);
+    -o-transform: scaleX(1);
   }
 }
 
 /* ----------------------------------------------
- * Generated by Animista on 2024-10-1 21:13:6
+ * Generated by Animista on 2024-10-4 18:28:53
  * Licensed under FreeBSD License.
  * See http://animista.net/license for more info.
  * w: http://animista.net, t: @cssanimista
@@ -1384,38 +1413,45 @@ footer svg:active {
 
 /**
  * ----------------------------------------
- * animation focus-in-expand
+ * animation text-pop-up-top
  * ----------------------------------------
  */
-@-webkit-keyframes focus-in-expand {
+@-webkit-keyframes text-pop-up-top {
   0% {
-    letter-spacing: -0.5em;
-    -webkit-filter: blur(12px);
-    filter: blur(12px);
-    opacity: 0;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    text-shadow: none;
   }
 
   100% {
-    -webkit-filter: blur(0px);
-    filter: blur(0px);
-    opacity: 1;
+    -webkit-transform: translateY(-50px);
+    transform: translateY(-50px);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    text-shadow: 0 1px 0 #cccccc, 0 2px 0 #cccccc, 0 3px 0 #cccccc, 0 4px 0 #cccccc, 0 5px 0 #cccccc, 0 6px 0 #cccccc, 0 7px 0 #cccccc, 0 8px 0 #cccccc, 0 9px 0 #cccccc, 0 50px 30px rgba(0, 0, 0, 0.3);
   }
 }
 
-@keyframes focus-in-expand {
+@keyframes text-pop-up-top {
   0% {
-    letter-spacing: -0.5em;
-    -webkit-filter: blur(12px);
-    filter: blur(12px);
-    opacity: 0;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    text-shadow: none;
   }
 
   100% {
-    -webkit-filter: blur(0px);
-    filter: blur(0px);
-    opacity: 1;
+    -webkit-transform: translateY(-50px);
+    transform: translateY(-50px);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    text-shadow: 0 1px 0 #cccccc, 0 2px 0 #cccccc, 0 3px 0 #cccccc, 0 4px 0 #cccccc, 0 5px 0 #cccccc, 0 6px 0 #cccccc, 0 7px 0 #cccccc, 0 8px 0 #cccccc, 0 9px 0 #cccccc, 0 50px 30px rgba(0, 0, 0, 0.3);
   }
 }
+
 
 @keyframes card {
   0% {
