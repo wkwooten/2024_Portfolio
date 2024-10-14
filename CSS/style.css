@@ -217,17 +217,6 @@ figure img:hover {
   cursor: zoom-in;
 }
 
-.figure_modal {
-  margin: auto;
-  display: block;
-  width: 80%;
-}
-
-.figure_modal {
-  animation-name: zoom;
-  animation-duration: .4s;
-}
-
 .text-pop-up-top {
   -webkit-animation: text-pop-up-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
   animation: text-pop-up-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
@@ -295,8 +284,11 @@ blockquote {
   font-weight: bold;
   font-size: 3rem;
   color: var(--primary);
-  /*align-items: center;
-  */
+  transition: .3s ease;
+  -webkit-transition: .3s ease;
+  -moz-transition: .3s ease;
+  -ms-transition: .3s ease;
+  -o-transition: .3s ease;
   text-decoration: none;
 }
 
@@ -313,18 +305,13 @@ blockquote {
 .nav_logo:hover {
   color: transparent;
   cursor: pointer;
-  scale: 1.1;
-  transition: .3s ease;
+  opacity: .8;
   background: var(--vibes);
   background-size: 200% 200%;
   animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   background-clip: text;
   -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-  -webkit-transition: .3s ease;
-  -moz-transition: .3s ease;
-  -ms-transition: .3s ease;
-  -o-transition: .3s ease;
 }
 
 .nav_logo:active {
@@ -646,10 +633,37 @@ blockquote {
   /* border-bottom: .125rem var(--primary) solid; */
 }
 
-#mail {
-  background: var(--vibes);
-  background-clip: text;
-  -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+.contact {
+  display: flex;
+  flex-direction: column;
+  margin-block: var(--space-m);
+  gap: var(--space-s);
+  align-items: center;
+  justify-content: center;
+}
+
+.mail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  border: var(--basic-line-weight) var(--primary) solid;
+  border-radius: 800px;
+  width: 100%;
+  text-decoration: none;
+  /*background-clip: text;
+  */
+  /*-webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+   */
+  -webkit-border-radius: 800px;
+  -moz-border-radius: 800px;
+  -ms-border-radius: 800px;
+  -o-border-radius: 800px;
+}
+
+.mail:hover {
+  color: var(--bg-color) !important;
+  background: var(--primary);
 }
 
 /* Featured Projects Section */
@@ -677,7 +691,12 @@ blockquote {
   gap: var(--space-m);
   text-decoration: none;
   margin-block: 10%;
-  border: var(--beeg-line-weight) solid;
+  border-radius: 4px;
+  border: thick var(--primary) solid;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
   transition: all .68s ease;
   -webkit-transition: all .68s ease;
   -moz-transition: all .68s ease;
@@ -686,9 +705,8 @@ blockquote {
 }
 
 .project_card:hover {
-  border: thick var(--primary) solid;
   transition: border .4s ease;
-  border-radius: 4px;
+
   transform: scale(1.05);
   transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
   -webkit-transform: scale(1.05);
@@ -699,10 +717,6 @@ blockquote {
   -moz-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
   -ms-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
   -o-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
-  -webkit-border-radius: 4px;
-  -moz-border-radius: 4px;
-  -ms-border-radius: 4px;
-  -o-border-radius: 4px;
 }
 
 .project_card:active {
@@ -713,13 +727,17 @@ blockquote {
   -o-transform: scale(.95);
 }
 
-#tm_card:hover {
+.project_card hr {
+  border: white solid;
+}
+
+#tm_card {
   background-color: #2255b4;
   border: #2255b4 thick solid;
   color: white !important;
 }
 
-#ug_card:hover {
+#ug_card {
   background-color: #818d40;
   border: #c0c79b thick double;
   color: white !important;
@@ -737,10 +755,6 @@ blockquote {
 /* .project_card hr {
   border: white solid;
 } */
-
-.project_card:hover hr {
-  border: white solid;
-}
 
 .project_card_img {
   display: flex;
@@ -1199,23 +1213,23 @@ blockquote {
 
 /* css image modal */
 
-#img_modal {
+.image_modal_overlay {
   display: none;
   position: fixed;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
+  z-index: 1000;
   left: 0;
   top: 0;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, .5);
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
 }
 
-#modal_image {
+.image_modal_content {
   max-width: 80%;
   max-height: 80%;
-  display: block;
-  margin: auto;
+  object-fit: contain;
 }
 
 /*Footer*/

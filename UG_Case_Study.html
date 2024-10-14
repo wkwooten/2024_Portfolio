@@ -28,6 +28,9 @@
   </script>
  </head>
  <body>
+  <div id="img_modal" class="image_modal_overlay">
+    <img class="image_modal_content" id="modal_image">
+  </div>
   <header class="nav_full">
     <nav class="navbar">
       <a href="https://wkwooten.github.io/2024_Portfolio/" class="nav_logo"> KI</a>
@@ -376,7 +379,7 @@
       </h3>
       <div class="subsection_body">
        <figure>
-        <img onclick="imgopen(this);" alt="Feature Prioritization Matrix" src="Images\Untermyer Gardens\UG_matrix.png"/>
+        <img alt="Feature Prioritization Matrix" src="Images\Untermyer Gardens\UG_matrix.png"/>
        </figure>
        <p>
         The team decided to prioritize
@@ -545,7 +548,7 @@
       <h3 class="subsection_header">
        High Fidelity Mockup
       </h3>
-      <iframe id="ug_prototype" style="border: 1px solid rgba(0, 0, 0, 0.1);" src="https://embed.figma.com/proto/utb12H1BSue1K4tBBdypdL/Project-4-Group-1-Prototype?page-id=473%3A1025&node-id=473-1048&node-type=canvas&viewport=2020%2C1631%2C0.35&scaling=contain&content-scaling=responsive&starting-point-node-id=473%3A1185&embed-host=share" allowfullscreen></iframe>
+      <!-- <iframe id="ug_prototype" style="border: 1px solid rgba(0, 0, 0, 0.1);" src="https://embed.figma.com/proto/utb12H1BSue1K4tBBdypdL/Project-4-Group-1-Prototype?page-id=473%3A1025&node-id=473-1048&node-type=canvas&viewport=2020%2C1631%2C0.35&scaling=contain&content-scaling=responsive&starting-point-node-id=473%3A1185&embed-host=share" allowfullscreen></iframe> -->
       <div class="subsection_body">
        <figcaption>
         The prototype may load incorrectly on some devices. Using fullscreen might alleviate these issues.
@@ -664,7 +667,4 @@
    <script src="js/testing.js">
    </script>
  </body>
- <div id="img_modal">
-  <div id="modal_image"></div>
- </div>
 </html>

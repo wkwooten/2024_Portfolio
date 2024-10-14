@@ -51,14 +51,40 @@ window.onload = function() {
   }
 };
 
-var modal = document.getElementById("img_modal");
+// var modal = document.getElementById("img_modal");
 
-var modalImg = document.getElementById("modal_image");
+// var modalImg = document.getElementById("modal_image");
 
-var images = document.querySelectorAll("img"); // You can adjust this selector to target specific images
-images.forEach(function(img) {
-  img.addEventListener("click", function() {
-    modal.style.display = "block"; // Display the modal
-    modalImg.src = this.src; // Set the modal image source to the clicked image's source
+// var images = document.querySelectorAll("img"); // You can adjust this selector to target specific images
+// images.forEach(function(img) {
+//   img.addEventListener("click", function() {
+//     modal.style.display = "block"; // Display the modal
+//     modalImg.src = this.src; // Set the modal image source to the clicked image's source
+//   });
+// });
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Get the modal
+  const modal = document.getElementById("img_modal");
+
+  // Get the image and insert it inside the modal
+  const modalImg = document.getElementById("modal_image");
+
+  // Get all images in the document
+  const images = document.querySelectorAll('img');
+
+  // Attach click event to all images
+  images.forEach(function(img) {
+      img.addEventListener('click', function() {
+          modal.style.display = "flex";
+          modalImg.src = this.src;
+      });
+  });
+
+  // Close the modal when clicking outside the image
+  modal.addEventListener('click', function(event) {
+      if (event.target === modal) {
+          modal.style.display = "none";
+      }
   });
 });
