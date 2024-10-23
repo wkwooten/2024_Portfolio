@@ -1,5 +1,5 @@
 :root {
-  --bg-color: #DED6CD;
+  --bg-color: white;
   --primary: rgb(0, 0, 0);
   /* --bg-color: #ffffff;
   --primary: white; */
@@ -337,7 +337,7 @@ blockquote {
   height: var(--button-height);
   width: 15rem;
   color: var(--primary);
-  background: var(--secondary);
+  background: var(--bg-color);
   font-weight: 800;
   font-size: 1.25rem !important;
   text-indent: 1.25rem;
@@ -648,17 +648,25 @@ blockquote {
   justify-content: center;
   gap: var(--space-xs);
   border: var(--basic-line-weight) var(--primary) solid;
-  border-radius: 800px;
+  /*border-radius: 800px;
+  */
   width: 100%;
+  transition: ease .3s;
   text-decoration: none;
   /*background-clip: text;
   */
   /*-webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-   */
-  -webkit-border-radius: 800px;
+  */
+  /*-webkit-border-radius: 800px;
   -moz-border-radius: 800px;
   -ms-border-radius: 800px;
   -o-border-radius: 800px;
+  */
+  : ;
+  -webkit-transition: ease .3s;
+  -moz-transition: ease .3s;
+  -ms-transition: ease .3s;
+  -o-transition: ease .3s;
 }
 
 .mail:hover {
@@ -1191,12 +1199,20 @@ blockquote {
   width: 100%;
 }
 
+.frame_container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  /* width: 100%; */
+}
+
 #ug_prototype {
   aspect-ratio: 16/9;
 }
 
 #tm_prototype {
   aspect-ratio: .46;
+  justify-self: center;
   max-width: 400px;
 }
 
