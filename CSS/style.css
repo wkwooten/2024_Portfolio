@@ -543,6 +543,7 @@ blockquote {
   align-items: center;
   justify-content: center;
   gap: var(--space-m);
+  width: 100%;
   margin-bottom: 200px;
   z-index: 0;
 }
@@ -569,6 +570,7 @@ blockquote {
   margin: 10%;
   aspect-ratio: var(--pretentious-ratio);
   align-items: center;
+  background-color: var(--primary);
   background-position: center;
   background-size: 110% 100%;
 }
@@ -589,7 +591,7 @@ blockquote {
   letter-spacing: -0.135rem;
   text-transform: uppercase;
   width: min-content;
-  color: var(--primary);
+  color: var(--bg-color);
   /* color: transparent; */
   /* background: linear-gradient(90deg, hsla(195, 86%, 50%, 1) 0%, hsla(236, 93%, 65%, 1) 100%);
   background-size: 200% 200%;
@@ -833,7 +835,8 @@ blockquote {
 }
 
 .about_pic {
-  width: 100%;
+  max-width: 66ch;
+  /* width: 100%; */
   /* aspect-ratio: 4/3; */
   /* float: left; */
   /* margin-block: 50px; */
@@ -875,7 +878,7 @@ blockquote {
   flex-direction: column;
   justify-content: center;
   /* margin-block: 10%; */
-  text-align: justify;
+  /* text-align: justify; */
   margin: 10%;
   text-indent: var(--space-m);
   line-height: 150%;
@@ -925,8 +928,7 @@ blockquote {
 
 .works_container {
   display: flex;
-  /* flex-flow: row wrap; */
-  overflow-x: scroll;
+  flex-flow: row wrap;
   align-items: baseline;
   gap: var(--space-m);
   /* width: 100%; */
