@@ -835,15 +835,14 @@ blockquote {
 }
 
 .about_pic {
-  max-width: 66ch;
-  /* width: 100%; */
-  /* aspect-ratio: 4/3; */
-  /* float: left; */
-  /* margin-block: 50px; */
-  border: solid;
-  /* max-width: 300px; */
-  align-content: center;
+  display: flex;
   justify-content: center;
+  width: 100%;
+}
+
+.about_pic_image {
+  max-width: 400px;
+  border: solid;
 }
 
 .about_intro {
