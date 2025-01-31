@@ -88,3 +88,49 @@ document.addEventListener('DOMContentLoaded', function() {
       }
   });
 });
+
+// Illustration Modal Functionality
+const modal = document.querySelector('.illustration_modal');
+const modalImage = modal.querySelector('.illustration_modal_image');
+const modalTitle = modal.querySelector('.illustration_modal_title');
+const modalText = modal.querySelector('.illustration_modal_text');
+const modalClose = modal.querySelector('.illustration_modal_close');
+
+// Open modal when clicking on an illustration
+document.querySelectorAll('.works_illustration').forEach(illustration => {
+  illustration.addEventListener('click', () => {
+    const img = illustration.querySelector('img');
+    const title = illustration.getAttribute('data-title');
+    const description = illustration.getAttribute('data-description');
+
+    modalImage.src = img.src;
+    modalImage.alt = img.alt;
+    modalTitle.textContent = title;
+    modalText.textContent = description;
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+  });
+});
+
+// Close modal when clicking the close button
+modalClose.addEventListener('click', () => {
+  modal.classList.remove('active');
+  document.body.style.overflow = ''; // Restore scrolling
+});
+
+// Close modal when clicking outside the content
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+});
+
+// Close modal with escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modal.classList.contains('active')) {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+});

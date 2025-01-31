@@ -591,13 +591,24 @@ blockquote {
   text-transform: uppercase;
   width: min-content;
   color: var(--primary);
-  /* color: transparent; */
-  /* background: linear-gradient(90deg, hsla(195, 86%, 50%, 1) 0%, hsla(236, 93%, 65%, 1) 100%);
+}
+
+.char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(2rem);
+  animation: cascade-in 0.5s ease forwards;
+  transition: transform 0.2s ease;
+}
+
+.char:hover {
+  transform: translateY(-0.5rem);
+  color: transparent;
+  background: var(--vibes);
   background-size: 200% 200%;
   animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   background-clip: text;
   -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-  -webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite; */
 }
 
 .name:hover {
@@ -696,26 +707,13 @@ blockquote {
   -moz-border-radius: 4px;
   -ms-border-radius: 4px;
   -o-border-radius: 4px;
-  transition: all .68s ease;
-  -webkit-transition: all .68s ease;
-  -moz-transition: all .68s ease;
-  -ms-transition: all .68s ease;
-  -o-transition: all .68s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .project_card:hover {
-  transition: border .4s ease;
-
-  transform: scale(1.05);
-  transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
-  -webkit-transform: scale(1.05);
-  -moz-transform: scale(1.05);
-  -ms-transform: scale(1.05);
-  -o-transform: scale(1.05);
-  -webkit-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
-  -moz-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
-  -ms-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
-  -o-transition: .4s all cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
 .project_card:active {
@@ -751,23 +749,57 @@ blockquote {
   max-width: 31.25rem;
 }
 
-/* .project_card hr {
-  border: white solid;
-} */
-
-.project_card_img {
-  display: flex;
-  justify-self: center;
-  align-items: center;
-  border-radius: .3125rem;
-  width: 100%;
-  -moz-border-radius: .3125rem;
-  -ms-border-radius: .3125rem;
-  -o-border-radius: .3125rem;
-  -webkit-border-radius: .3125rem;
-  -moz-border-radius: .3125rem;
+.project_card_content h1 {
+  font-size: var(--fs-4);
+  margin-bottom: var(--space-xs);
+  line-height: 1.2;
 }
 
+.project_card_desc {
+  font-size: var(--fs-1);
+  line-height: 1.6;
+  margin: var(--space-s) 0;
+  /* Ensure consistent height */
+  min-height: 4.8em;
+}
+
+/* Style the "Read Case Study" text */
+.project_card_content p:last-child {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.project_card_img {
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+  /* Add subtle shadow to make image pop */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* Ensure consistent image ratio */
+  aspect-ratio: 16/9;
+  object-fit: cover;
+}
+
+.project_card:hover .project_card_img {
+  transform: scale(1.02);
+}
+
+.project_tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: var(--space-s) 0;
+}
+
+.project_tags .tag {
+  font-size: var(--fs-0);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: inherit;
+  border: none;
+}
 
 .button {
   display: flex;
@@ -935,16 +967,17 @@ blockquote {
 }
 
 .works_section {
-  margin: var(--space-l);
+  padding: var(--space-xl) var(--section-spacing);
+  margin-bottom: var(--space-2xl);
 }
 
 .works_container {
   display: flex;
-  flex-flow: row wrap;
-  align-items: baseline;
-  gap: var(--space-m);
-  /* width: 100%; */
-  padding-block: var(--space-l);
+  flex-wrap: wrap;
+  gap: var(--space-xl);
+  padding-top: var(--space-l);
+  justify-content: center;
+  width: 100%;
 }
 
 .works_case_study {
@@ -1002,27 +1035,30 @@ blockquote {
 }
 
 .works_illustration {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  max-width: 400px;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  max-width: min(400px, 90vw);
   width: 100%;
-  margin-inline: var(--space-s);
-  align-items: baseline;
-  /* height: 600px; */
-  border-radius: 25px;
-  -webkit-border-radius: 25px;
-  -moz-border-radius: 25px;
-  -ms-border-radius: 25px;
-  -o-border-radius: 25px;
+}
+
+.works_illustration img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: filter 0.3s ease;
 }
 
 .works_illustration:hover {
-  transform: scale(1.05);
-  -webkit-transform: scale(1.05);
-  -moz-transform: scale(1.05);
-  -ms-transform: scale(1.05);
-  -o-transform: scale(1.05);
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.works_illustration h3 {
+  margin-top: var(--space-s);
+  text-align: center;
 }
 
 /* Case Study Section */
@@ -1541,6 +1577,15 @@ footer svg:active {
   #sign {
     text-align: center;
   }
+
+  .works_container {
+    gap: var(--space-l);
+  }
+
+  .illustration_modal_content {
+    max-width: 95%;
+    padding: var(--space-m);
+  }
 }
 
 @media screen and (max-height: 62.5rem) {
@@ -1558,4 +1603,151 @@ footer svg:active {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+}
+
+/* Illustration Modal Styles */
+.illustration_modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.illustration_modal.active {
+  display: flex;
+  opacity: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.illustration_modal_content {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(200px, 2fr) minmax(200px, 1fr);
+  gap: var(--space-l);
+  background: var(--bg-color);
+  padding: var(--space-l);
+  border-radius: 8px;
+  width: min(1200px, 95vw);
+  height: min(800px, 90vh);
+  overflow: hidden;
+  transform: scale(0.7);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.illustration_modal_image_container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.illustration_modal_image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.illustration_modal_text_content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+  padding-right: var(--space-m);
+}
+
+.illustration_modal_title {
+  font-size: var(--fs-4);
+  font-weight: 700;
+  margin-bottom: var(--space-xs);
+  color: var(--primary);
+}
+
+.illustration_modal_text {
+  font-size: var(--fs-1);
+  line-height: 1.6;
+  color: var(--primary);
+}
+
+.illustration_modal_close {
+  position: absolute;
+  top: var(--space-s);
+  right: var(--space-s);
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: var(--fs-4);
+  cursor: pointer;
+  padding: var(--space-xs);
+  transition: transform 0.2s ease;
+  z-index: 2;
+}
+
+.illustration_modal_close:hover {
+  transform: scale(1.1);
+}
+
+/* Modal Responsive Design */
+@media screen and (max-width: 768px) {
+  .illustration_modal_content {
+    grid-template-columns: 1fr;
+    gap: var(--space-m);
+    padding: var(--space-m);
+    margin: var(--space-s);
+    height: min(95vh, 100%);
+    overflow-y: auto;
+  }
+
+  .illustration_modal_image_container {
+    max-height: 50vh;
+  }
+
+  .illustration_modal_text_content {
+    padding-right: 0;
+  }
+}
+
+.illustration_modal_details {
+  margin-top: auto;
+  padding-top: var(--space-m);
+  border-top: var(--basic-line-weight) solid var(--primary);
+  opacity: 0.8;
+}
+
+.illustration_modal_details p {
+  font-size: var(--fs-0);
+  margin-bottom: var(--space-xs);
+  color: var(--primary);
+}
+
+.illustration_modal.active .illustration_modal_content {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* Improve modal animations */
+.illustration_modal_image_container,
+.illustration_modal_text_content {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.4s ease;
+  transition-delay: 0.2s;
+}
+
+.illustration_modal.active .illustration_modal_image_container,
+.illustration_modal.active .illustration_modal_text_content {
+  opacity: 1;
+  transform: translateY(0);
 }
