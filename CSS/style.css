@@ -570,7 +570,6 @@ blockquote {
   margin: 10%;
   aspect-ratio: var(--pretentious-ratio);
   align-items: center;
-  background-color: var(--primary);
   background-position: center;
   background-size: 110% 100%;
 }
@@ -591,7 +590,7 @@ blockquote {
   letter-spacing: -0.135rem;
   text-transform: uppercase;
   width: min-content;
-  color: var(--bg-color);
+  color: var(--primary);
   /* color: transparent; */
   /* background: linear-gradient(90deg, hsla(195, 86%, 50%, 1) 0%, hsla(236, 93%, 65%, 1) 100%);
   background-size: 200% 200%;
@@ -650,21 +649,9 @@ blockquote {
   justify-content: center;
   gap: var(--space-xs);
   border: var(--basic-line-weight) var(--primary) solid;
-  /*border-radius: 800px;
-  */
   width: 100%;
   transition: ease .3s;
   text-decoration: none;
-  /*background-clip: text;
-  */
-  /*-webkit-animation: gradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-  */
-  /*-webkit-border-radius: 800px;
-  -moz-border-radius: 800px;
-  -ms-border-radius: 800px;
-  -o-border-radius: 800px;
-  */
-  : ;
   -webkit-transition: ease .3s;
   -moz-transition: ease .3s;
   -ms-transition: ease .3s;
@@ -689,11 +676,13 @@ blockquote {
   display: grid;
   gap: var(--space-3xl);
   padding: var(--space-l);
+  justify-content: center;
   margin-bottom: 10%;
 }
 
 .project_card {
   display: grid;
+  max-width: 500px;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   justify-content: center;
   align-items: center;
@@ -914,11 +903,35 @@ blockquote {
 .skillCard {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin: var(--space-l);
+  align-items: flex-start;
+  padding: var(--space-m);
+  margin: var(--space-s);
   width: 18.75rem;
-  gap: 1.25rem;
-  font-size: 1.25rem, 150%, 12.5rem;
+  border: var(--basic-line-weight) var(--primary) solid;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.skillCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.skillCard h3 {
+  margin-bottom: var(--space-s);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.skillCard ul {
+  width: 100%;
+  padding-left: var(--space-s);
+}
+
+.skillCard li {
+  margin-bottom: var(--space-xs);
+  color: var(--primary);
+  font-size: var(--fs-0);
 }
 
 .works_section {
@@ -1109,8 +1122,11 @@ blockquote {
 
 .subsection_header {
   width: 100%;
-  border-bottom: var(--primary) var(--basic-line-weight) solid;
-  padding-block: var(--space-s);
+  margin-bottom: var(--space-l);
+  padding-bottom: var(--space-xs);
+  border-bottom: var(--basic-line-weight) solid var(--primary);
+  text-align: center;
+  color: var(--primary);
 }
 
 .subsection_body {
