@@ -538,32 +538,29 @@ blockquote {
 
 .hero_full {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: var(--space-m);
   width: 100%;
-  margin-bottom: 200px;
+  margin-bottom: var(--space-3xl);
   z-index: 0;
 }
 
 .hero {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(275px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   align-items: center;
   justify-content: center;
   justify-items: center;
-  border-radius: 20px;
-  -webkit-border-radius: 20px;
-  -moz-border-radius: 20px;
-  -ms-border-radius: 20px;
-  -o-border-radius: 20px;
+  width: 100%;
+  padding: 0 var(--space-s);
+  gap: var(--space-m);
+  box-sizing: border-box;
 }
 
 .frame {
-  /* background-color: var(--primary); */
-  /* border: 1rem double var(--primary); */
   display: flex;
   width: min-content;
   padding: 6.25rem 1.875rem;
@@ -576,17 +573,13 @@ blockquote {
 
 .name {
   display: block;
-  /*-webkit-text-stroke: 1px white;
-  */
   user-select: none;
-  font-style: normal;
-  font-size: 4rem;
+  font-size: clamp(3rem, 5vw, 4rem);
   justify-self: center;
   align-items: center;
   min-height: fit-content;
   font-weight: 900;
   line-height: 150%;
-  word-spacing: 1.875rem;
   letter-spacing: -0.135rem;
   text-transform: uppercase;
   width: min-content;
@@ -686,7 +679,7 @@ blockquote {
 .project_container {
   display: grid;
   gap: var(--space-3xl);
-  padding: var(--space-l);
+  /* padding: var(--space-l); */
   justify-content: center;
   margin-bottom: 10%;
 }
