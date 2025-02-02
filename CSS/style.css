@@ -855,7 +855,8 @@ blockquote {
 }
 
 .about_pic_image {
-  max-width: 400px;
+  max-width: 300px;
+  margin-block: var(--space-m);
   border: solid;
 }
 
@@ -931,7 +932,7 @@ blockquote {
   align-items: flex-start;
   padding: var(--space-m);
   margin: var(--space-s);
-  width: 18.75rem;
+  /* width: 18.75rem; */
   border: var(--basic-line-weight) var(--primary) solid;
   border-radius: 8px;
   transition: transform 0.3s ease;
@@ -990,7 +991,6 @@ blockquote {
 
 .works_case_study img {
   width: 100%;
-  min-width: 300px;
 }
 
 .works_overlay {
