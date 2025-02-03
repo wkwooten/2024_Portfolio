@@ -654,17 +654,23 @@ blockquote {
   gap: var(--space-xs);
   border: var(--basic-line-weight) var(--primary) solid;
   width: 100%;
-  transition: ease .3s;
+  transition: all 0.3s ease;
   text-decoration: none;
-  -webkit-transition: ease .3s;
-  -moz-transition: ease .3s;
-  -ms-transition: ease .3s;
-  -o-transition: ease .3s;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
 }
 
 .mail:hover {
   color: var(--bg-color) !important;
   background: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.mail:active {
+  transform: translateY(0);
 }
 
 /* Featured Projects Section */
@@ -1328,7 +1334,7 @@ footer svg:active {
   opacity: .8;
 }
 
-#social_Container {
+.social_Container {
   display: flex;
   flex-flow: row wrap;
   gap: 1.875rem;
@@ -1351,7 +1357,7 @@ footer svg:active {
   stroke: none;
 }
 
-#sign {
+.sign {
   display: flex;
   font-weight: 300;
   align-items: center;
@@ -1359,7 +1365,7 @@ footer svg:active {
   /* font-size: 1.875rem; */
 }
 
-#Socials {
+.Socials {
   display: flex;
   /* flex-flow: row wrap; */
   width: min-content;
@@ -1415,29 +1421,9 @@ footer svg:active {
 }
 
 @keyframes gentle-hover {
-  from {
-    transform: translatey(0);
-    -webkit-transform: translatey(0);
-    -moz-transform: translatey(0);
-    -ms-transform: translatey(0);
-    -o-transform: translatey(0);
-  }
-
-  50% {
-    transform: translatey(10px);
-    -webkit-transform: translatey(10px);
-    -moz-transform: translatey(10px);
-    -ms-transform: translatey(10px);
-    -o-transform: translatey(10px);
-  }
-
-  to {
-    transform: translatey(0);
-    -webkit-transform: translatey(0);
-    -moz-transform: translatey(0);
-    -ms-transform: translatey(0);
-    -o-transform: translatey(0);
-  }
+  from { transform: translatey(0); }
+  50% { transform: translatey(10px); }
+  to { transform: translatey(0); }
 }
 
 @keyframes bouncy {
@@ -1571,9 +1557,14 @@ footer svg:active {
     text-align: center;
   }
 
+  .subsection_header {
+    text-align: left;
+  }
+
   .works_container {
     gap: var(--space-l);
   }
+
 
   .illustration_modal_content {
     max-width: 95%;
@@ -1589,12 +1580,14 @@ footer svg:active {
   }
 }
 
-@media screen and (prefers-reduced-motion: reduce),
-(update: slow) {
-  body {
-    animation-duration: 0.001ms !important;
+@media screen and (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -1690,6 +1683,10 @@ footer svg:active {
 
 .illustration_modal_close:hover {
   transform: scale(1.1);
+  -webkit-transform: scale(1.1);
+  -moz-transform: scale(1.1);
+  -ms-transform: scale(1.1);
+  -o-transform: scale(1.1);
 }
 
 /* Modal Responsive Design */
@@ -1743,4 +1740,23 @@ footer svg:active {
 .illustration_modal.active .illustration_modal_text_content {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Add this new keyframe animation */
+@keyframes cascade-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Add this to make each letter animate in sequence */
+.char:nth-child(1) { animation-delay: 0.1s; }
+.char:nth-child(2) { animation-delay: 0.15s; }
+.char:nth-child(3) { animation-delay: 0.2s; }
+/* ... and so on */
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
 }
