@@ -666,7 +666,7 @@ blockquote {
   color: var(--bg-color) !important;
   background: var(--primary);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .mail:active {
@@ -829,14 +829,11 @@ blockquote {
 } */
 
 .button:hover {
-  transform: scale(1.05);
-  -webkit-transform: scale(1.05);
-  -moz-transform: scale(1.05);
-  -ms-transform: scale(1.05);
-  -o-transform: scale(1.05);
+  text-decoration: underline;
 }
 
 .button:active {
+
   transform: scale(.95);
   -webkit-transform: scale(.95);
   -moz-transform: scale(.95);
@@ -1421,9 +1418,17 @@ footer svg:active {
 }
 
 @keyframes gentle-hover {
-  from { transform: translatey(0); }
-  50% { transform: translatey(10px); }
-  to { transform: translatey(0); }
+  from {
+    transform: translatey(0);
+  }
+
+  50% {
+    transform: translatey(10px);
+  }
+
+  to {
+    transform: translatey(0);
+  }
 }
 
 @keyframes bouncy {
@@ -1581,6 +1586,7 @@ footer svg:active {
 }
 
 @media screen and (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -1740,23 +1746,4 @@ footer svg:active {
 .illustration_modal.active .illustration_modal_text_content {
   opacity: 1;
   transform: translateY(0);
-}
-
-/* Add this new keyframe animation */
-@keyframes cascade-in {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Add this to make each letter animate in sequence */
-.char:nth-child(1) { animation-delay: 0.1s; }
-.char:nth-child(2) { animation-delay: 0.15s; }
-.char:nth-child(3) { animation-delay: 0.2s; }
-/* ... and so on */
-
-@keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
 }
