@@ -192,7 +192,7 @@ figcaption {
   max-width: var(--fig-width);
   width: 100%;
   text-align: center;
-  padding: var(--space-s);
+  /* padding: var(--space-s); */
   margin: 0 auto;
 }
 
@@ -236,7 +236,7 @@ blockquote {
 .page_grid {
   display: grid;
   justify-content: center;
-  margin-inline: var(--space-xs);
+  margin-inline: var(--space-3xs);
 }
 
 .tag {
@@ -261,6 +261,11 @@ blockquote {
   overflow: hidden;
   width: 100%;
   z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+.nav_hidden {
+  transform: translateY(-100%);
 }
 
 .navbar {
@@ -1255,6 +1260,10 @@ blockquote {
   from {
     opacity: 0;
     transform: translateY(20px);
+    -webkit-transform: translateY(20px);
+    -moz-transform: translateY(20px);
+    -ms-transform: translateY(20px);
+    -o-transform: translateY(20px);
   }
 
   to {
@@ -1326,10 +1335,10 @@ blockquote {
   box-sizing: border-box;
 }
 
-.subsection_header {
-  font-size: var(--fs-3);
-  margin-bottom: var(--space-m);
-  padding-bottom: var(--space-xs);
+.section_header {
+  font-size: var(--fs-4);
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-s);
   border-bottom: var(--basic-line-weight) solid var(--primary);
   color: var(--primary);
   text-transform: capitalize;
@@ -1797,4 +1806,14 @@ footer svg:active {
   aspect-ratio: 16/9;
   border: none;
   margin-block: var(--space-m);
+}
+
+.subsection_header {
+  font-size: var(--fs-3);
+  margin-bottom: var(--space-m);
+  padding-bottom: var(--space-xs);
+  border-bottom: var(--basic-line-weight) solid var(--primary);
+  color: var(--primary);
+  text-transform: capitalize;
+  font-weight: 600;
 }
