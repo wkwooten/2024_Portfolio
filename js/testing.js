@@ -1,5 +1,8 @@
 u(".name").on('click', e => {
-  u('.name').toggleClass('bounce');
+  u('.name').addClass('clicked');
+  setTimeout(() => {
+    u('.name').removeClass('clicked');
+  }, 1000); // Adjust timing to match animation duration
 });
 
 u(".indicator").on('click', e => {
