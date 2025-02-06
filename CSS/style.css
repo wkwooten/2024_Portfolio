@@ -1002,20 +1002,32 @@ blockquote {
   overflow: hidden;
   height: 100%;
   opacity: 0;
-  transition: 400ms ease;
+  transition: all 0.4s ease;
   background-color: var(--bg-color);
-  -webkit-transition: 400ms ease;
-  -moz-transition: 400ms ease;
-  -ms-transition: 400ms ease;
-  -o-transition: 400ms ease;
+  -webkit-transition: all 0.4s ease;
+  -moz-transition: all 0.4s ease;
+  -ms-transition: all 0.4s ease;
+  -o-transition: all 0.4s ease;
 }
 
 .works_overlay a {
   text-decoration: none;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  -webkit-transition: all 0.3s ease;
+  -moz-transition: all 0.3s ease;
+  -ms-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
 }
 
 .works_case_study:hover .works_overlay {
   opacity: 100%;
+}
+
+.works_case_study:hover .works_overlay a {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .works_desc {
