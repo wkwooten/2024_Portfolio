@@ -1051,7 +1051,6 @@ blockquote {
   height: auto;
   aspect-ratio: 16/9;
   object-fit: cover;
-  border-radius: 8px;
   transition: transform 0.3s ease, filter 0.3s ease;
 }
 
@@ -1066,9 +1065,6 @@ blockquote {
   transition: color 0.3s ease;
 }
 
-.works_illustration:hover h3 {
-  color: var(--color1);
-}
 
 /* Illustration Modal Styles */
 .illustration_modal {
