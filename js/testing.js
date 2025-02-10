@@ -69,26 +69,40 @@ window.onload = function() {
 document.addEventListener('DOMContentLoaded', function() {
   // Get the modal
   const modal = document.getElementById("img_modal");
-
-  // Get the image and insert it inside the modal
   const modalImg = document.getElementById("modal_image");
-
-  // Get all images in the document
-  const images = document.querySelectorAll('img');
+  const images = document.querySelectorAll('img:not(.modal img)'); // Exclude modal images
 
   // Attach click event to all images
   images.forEach(function(img) {
-      img.addEventListener('click', function() {
-          modal.style.display = "flex";
-          modalImg.src = this.src;
-      });
+    img.addEventListener('click', function() {
+      modal.style.display = "flex";
+      modalImg.src = this.src;
+      // Add active class after a brief delay to trigger transition
+      setTimeout(() => {
+        modal.classList.add('active');
+      }, 10);
+    });
   });
 
   // Close the modal when clicking outside the image
   modal.addEventListener('click', function(event) {
-      if (event.target === modal) {
-          modal.style.display = "none";
-      }
+    if (event.target === modal) {
+      modal.classList.remove('active');
+      // Wait for transition to complete before hiding
+      setTimeout(() => {
+        modal.style.display = "none";
+      }, 300);
+    }
+  });
+
+  // Close modal with escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.style.display === "flex") {
+      modal.classList.remove('active');
+      setTimeout(() => {
+        modal.style.display = "none";
+      }, 300);
+    }
   });
 });
 

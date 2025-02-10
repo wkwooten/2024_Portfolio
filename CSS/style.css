@@ -1043,6 +1043,7 @@ blockquote {
   cursor: pointer;
   max-width: min(400px, 90vw);
   width: 100%;
+  overflow: hidden;
 }
 
 .works_illustration img {
@@ -1051,17 +1052,22 @@ blockquote {
   aspect-ratio: 16/9;
   object-fit: cover;
   border-radius: 8px;
-  transition: filter 0.3s ease;
+  transition: transform 0.3s ease, filter 0.3s ease;
 }
 
-.works_illustration:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+.works_illustration:hover img {
+  transform: scale(1.05);
+  filter: brightness(1.1);
 }
 
 .works_illustration h3 {
   margin-top: var(--space-s);
   text-align: center;
+  transition: color 0.3s ease;
+}
+
+.works_illustration:hover h3 {
+  color: var(--color1);
 }
 
 /* Illustration Modal Styles */
@@ -1223,13 +1229,35 @@ blockquote {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease;
+}
+
+.image_modal_overlay.active {
+  display: flex;
+  opacity: 1;
 }
 
 .image_modal_content {
-  margin: auto;
-  display: block;
   max-width: 90%;
   max-height: 90vh;
+  margin: auto;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 0.3s ease;
+  object-fit: contain;
+  border-radius: 4px;
+  -webkit-transform: scale(0.95);
+  -moz-transform: scale(0.95);
+  -ms-transform: scale(0.95);
+  -o-transform: scale(0.95);
+}
+
+.image_modal_overlay.active .image_modal_content {
+  opacity: 1;
+  transform: scale(1);
 }
 
 /* Case Study Section Styles */
