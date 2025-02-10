@@ -734,6 +734,10 @@ blockquote {
   color: #818d40 !important;
 }
 
+#ug_card hr {
+  border: #818d40 solid;
+}
+
 .project_card_content {
   display: flex;
   flex-grow: 1;
@@ -741,6 +745,7 @@ blockquote {
   justify-self: center;
   align-self: center;
   max-width: 31.25rem;
+
 }
 
 .project_card_content h1 {
