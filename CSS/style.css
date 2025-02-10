@@ -729,9 +729,9 @@ blockquote {
 }
 
 #ug_card {
-  background-color: #818d40;
+  background-color: white;
   border: #c0c79b thick double;
-  color: white !important;
+  color: #818d40 !important;
 }
 
 .project_card_content {
@@ -790,7 +790,7 @@ blockquote {
   font-size: var(--fs-0);
   padding: 0.25rem 0.75rem;
   border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.);
   color: inherit;
   border: none;
 }
