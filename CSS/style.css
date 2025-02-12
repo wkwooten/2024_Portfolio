@@ -512,7 +512,29 @@ blockquote {
   gap: var(--space-m);
   width: 100%;
   margin-bottom: var(--space-xl);
+  z-index: 1;
+  position: relative;
+  overflow: visible;
+}
+
+#grid-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+#grid-canvas canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: block;
 }
 
 .hero {
@@ -525,6 +547,8 @@ blockquote {
   padding: 0 var(--space-s);
   gap: var(--space-m);
   box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 .frame {
@@ -612,6 +636,9 @@ blockquote {
 }
 
 .intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: var(--space-m);
   aspect-ratio: var(--pretentious-ratio);
 }
@@ -619,15 +646,21 @@ blockquote {
 #intro_blurb1 {
   display: flex;
   text-transform: capitalize;
+  width: 100%;
+}
+
+#intro_blurb2 {
+  width: 100%;
 }
 
 .contact {
   display: flex;
-  flex-direction: column;
   margin-block: var(--space-m);
   gap: var(--space-s);
   align-items: center;
   justify-content: center;
+  width: 100%;
+  align-self: center;
 }
 
 .mail {
@@ -637,7 +670,8 @@ blockquote {
   gap: var(--space-xs);
   border: var(--basic-line-weight) var(--primary) solid;
   width: 100%;
-  padding: var(--space-xs) var(--space-s);
+  max-width: 100%;
+  padding: var(--space-xs) var(--space-m);
   border-radius: 4px;
   text-decoration: none;
   position: relative;
@@ -647,6 +681,10 @@ blockquote {
   -moz-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   -ms-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   -o-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
 }
 
 .mail::before {
@@ -663,6 +701,10 @@ blockquote {
   opacity: 0;
   z-index: -1;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  -moz-transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  -ms-transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  -o-transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .mail:hover {
@@ -737,7 +779,7 @@ blockquote {
   padding: var(--space-l) var(--space-m);
   gap: var(--space-m);
   text-decoration: none;
-  margin-block: 10%;
+  margin: 10% var(--space-s);
   border-radius: 4px;
   border: thick var(--primary) solid;
   -webkit-border-radius: 4px;
