@@ -9,7 +9,9 @@
   --color1: #1d3383;
   --color2: #126743;
   --color3: #cc3037;
-  --vibes: linear-gradient(45deg, #FB8B24, #E36414);
+  --gradient_color1: #FB8B24;
+  --gradient_color2: #E36414;
+  --vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
 
   /* Animation Timings */
   --modal-time: 1s;
@@ -54,7 +56,12 @@
     --bg-color: #090909;
     --primary: rgb(255, 255, 255);
     --secondary: #090909;
-    --vibes: linear-gradient(45deg, #00c971, #a02cff);
+    --color1: #1d3383;
+    --color2: #126743;
+    --color3: #cc3037;
+    --gradient_color1: #00c971;
+    --gradient_color2: #a02cff;
+    --vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
   }
 }
 
@@ -197,6 +204,7 @@ figcaption {
   font-weight: 300;
   max-width: var(--fig-width);
   width: 100%;
+  padding: var(--space-s);
   text-align: center;
   margin: 0 auto;
 }
@@ -563,24 +571,25 @@ blockquote {
 }
 
 .name {
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
   user-select: none;
   font-size: clamp(3rem, 5vw, 4rem);
-  justify-self: center;
-  align-items: center;
+  justify-content: left;
+  align-items: left;
   min-height: fit-content;
   font-weight: 900;
   line-height: 150%;
   letter-spacing: -0.135rem;
   text-transform: uppercase;
   text-shadow: 1px 2px 2px rgb(91, 91, 91);
-  width: min-content;
   color: var(--primary);
-
+  position: relative;
 }
 
-.name {
-  position: relative;
+.name span {
+  display: inline-block;
 }
 
 .name::after {
