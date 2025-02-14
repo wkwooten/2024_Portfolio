@@ -207,6 +207,10 @@ figcaption {
   padding: var(--space-s);
   text-align: center;
   margin: 0 auto;
+  text-wrap: pretty;
+  text-wrap: stable;
+  max-width: 66ch;
+  font-size: var(--fs-0);
 }
 
 figure img {
@@ -612,7 +616,7 @@ blockquote {
   margin: 10%;
   aspect-ratio: var(--pretentious-ratio);
   align-items: center;
-  gradient background-position: center;
+  background-position: center;
   background-size: 110% 100%;
 }
 
@@ -1896,6 +1900,21 @@ footer svg:active {
     width: 100%;
     padding: var(--space-m) var(--space-s);
     align-items: flex-start;
+  }
+
+  figcaption {
+    text-align: center;
+    padding: var(--space-s) var(--space-m);
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  figure {
+    margin: var(--space-l) auto;
+  }
+
+  figure img {
+    max-width: 100%;
   }
 }
 
