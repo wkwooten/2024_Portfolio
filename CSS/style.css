@@ -1187,6 +1187,12 @@ blockquote {
   transition: color 0.3s ease;
 }
 
+.works_case_study h2 {
+  font-size: var(--fs-3);
+  margin-top: var(--space-s);
+  transition: color 0.3s ease;
+}
+
 /* ==========================================================================
    Case Study Styles
    ========================================================================== */
