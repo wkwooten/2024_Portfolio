@@ -4,24 +4,13 @@
 :root {
   /* Colors */
   --bg-color: #e0f7ff;
-  /* A soft blue reflecting the sky */
-  --primary: #4a4a4a;
-  /* A metallic gray for text */
+  --primary: #14175c;
   --secondary: #f0f0f0;
-  /* A lighter gray or white */
   --color1: #007bff;
-  /* A vibrant blue */
-  /* A bright blue */
   --color2: #28a745;
-  /* A bright green */
-  /* A medium gray */
   --color3: #ff5733;
-  /* A vivid orange */
-  /* A light gray */
   --gradient_color1: #1a73e8;
-  /* A bright blue */
   --gradient_color2: #1fbf54;
-  /* A metallic gray */
   --vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
 
   /* Animation Timings */
@@ -559,12 +548,12 @@ blockquote {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: var(--space-m);
   width: 100%;
-  margin: 0;
+  margin-bottom: var(--space-xl);
   z-index: 1;
   position: relative;
   overflow: visible;
-  padding: 0;
   box-sizing: border-box;
 }
 
@@ -586,6 +575,34 @@ blockquote {
   width: 100vw !important;
   height: 100vh !important;
   display: block;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
+  width: 100%;
+  max-width: 1200px;
+  padding: var(--space-m) var(--space-s);
+  gap: var(--space-m);
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  border-radius: 10px;
+  background: linear-gradient(0deg,
+      rgba(45, 199, 251, 0.281),
+      rgba(12, 246, 67, 0.1));
+  box-shadow: 0 0 20px rgba(27, 54, 93, 0.05);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  margin: 0 auto;
+}
+
+.hero:hover {
+  box-shadow: 0 0 30px rgba(27, 54, 93, 0.1);
 }
 
 .frame {
