@@ -1958,3 +1958,55 @@ footer svg:active {
     margin: auto;
   }
 }
+
+.cs_top_nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-xs) var(--space-m);
+  margin-bottom: var(--space-s);
+  border-bottom: var(--basic-line-weight) solid var(--primary);
+}
+
+.cs_top_nav a {
+  text-decoration: none;
+  transition: transform 0.3s ease;
+  width: auto;
+}
+
+.cs_top_nav a:hover {
+  transform: translateY(-2px);
+}
+
+.cs_top_nav h4 {
+  font-size: var(--fs-1);
+  margin-bottom: 0;
+}
+
+.cs_top_nav_prev {
+  text-align: left;
+}
+
+.cs_top_nav_next {
+  text-align: right;
+}
+
+@media screen and (max-width: 768px) {
+  .cs_top_nav {
+    flex-direction: column;
+    gap: var(--space-2xs);
+    padding: var(--space-2xs) var(--space-s);
+    text-align: center;
+    align-items: center;
+  }
+
+  .cs_top_nav a {
+    width: 100%;
+    text-align: center;
+  }
+
+  .cs_top_nav_prev,
+  .cs_top_nav_next {
+    text-align: center;
+  }
+}
