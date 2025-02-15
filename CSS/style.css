@@ -1947,12 +1947,6 @@ footer svg:active {
   }
 }
 
-@media screen and (max-height: 800px) {
-  .hero_full {
-    padding-top: var(--space-2xl);
-  }
-}
-
 @media screen and (min-height: 1000px) {
   .hero {
     margin: auto;
