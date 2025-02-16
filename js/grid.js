@@ -1,3 +1,5 @@
+// Please note this entirely ai generated code. While I directed the ai to make this, I do not have the javascript knowledge to do it myself. I'm using it as a reference to learn how to make my own grid.
+
 class Point {
   constructor(x, y, baseZ) {
     this.x = x;
@@ -23,11 +25,12 @@ class Grid {
     this.perspective = 1000;
     this.rotationX = -77;
     this.rotationZ = 0;
-    this.maxDist = 400; // Increased interaction radius
-    this.maxForce = 100; // Reduced maximum force
+    this.maxDist = 300; // Increased interaction radius
+    this.maxForce = 75; // Reduced maximum force
     this.animate = this.animate.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleResize = this.handleResize.bind(this);
+    this.updateColor = this.updateColor.bind(this);
 
     // Performance optimizations
     this.projectedPoints = [];
@@ -35,8 +38,10 @@ class Grid {
     this.frameCount = 0;
     this.resizeTimeout = null;
 
-    // Create gradients
-    this.createGradients();
+    // Initialize color and add color scheme listener
+    this.updateColor();
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(this.updateColor);
+
     this.init();
 
     window.addEventListener('mousemove', this.handleMouseMove);
@@ -44,21 +49,11 @@ class Grid {
     requestAnimationFrame(this.animate);
   }
 
-  createGradients() {
-    // Get computed styles to access CSS variables
+  updateColor() {
     const styles = getComputedStyle(document.documentElement);
-    const vibesGradient = styles.getPropertyValue('--vibes').trim();
-
-    // Parse the linear-gradient to get colors
-    const colorMatch = vibesGradient.match(/linear-gradient\(45deg,\s*([^,]+),\s*([^)]+)\)/);
-    if (colorMatch) {
-      this.color1 = colorMatch[1].trim();
-      this.color2 = colorMatch[2].trim();
-    } else {
-      // Fallback colors if CSS variable isn't available
-      this.color1 = '#FB8B24';
-      this.color2 = '#E36414';
-    }
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Use gradient_color2 from CSS variables for each mode
+    this.color = isDarkMode ? '#a02cff' : '#1a73e8';
   }
 
   init() {
@@ -88,11 +83,27 @@ class Grid {
   }
 
   project(point) {
+    // Add fluid-like wave transformation
+    const time = performance.now() * 0.0003; // Slower time factor for more fluid motion
+
+    // Primary wave components with phase differences
+    const phase1 = Math.sin(point.x * 0.006 + point.y * 0.004 + time) * 30;
+    const phase2 = Math.cos(point.x * 0.004 - point.y * 0.006 + time * 1.3) * 25;
+
+    // Create circular ripple effect
+    const distance = Math.sqrt(point.x * point.x + point.y * point.y);
+    const ripple = Math.sin(distance * 0.01 - time * 2) * 20 * Math.exp(-distance * 0.001);
+
+    // Combine waves with fluid-like interaction
+    const fluidMotion = phase1 + phase2 + ripple;
+    const waveX = fluidMotion * Math.sin(point.x * 0.003);
+    const waveY = fluidMotion * Math.cos(point.y * 0.003);
+
     // Apply rotation around X axis
     const cosX = Math.cos(this.rotationX * Math.PI / 180);
     const sinX = Math.sin(this.rotationX * Math.PI / 180);
-    const y1 = point.y * cosX - point.z * sinX;
-    const z1 = point.y * sinX + point.z * cosX;
+    const y1 = (point.y + waveY) * cosX - (point.z + waveX) * sinX;
+    const z1 = (point.y + waveY) * sinX + (point.z + waveX) * cosX;
 
     // Apply rotation around Z axis
     const cosZ = Math.cos(this.rotationZ * Math.PI / 180);
@@ -121,15 +132,11 @@ class Grid {
       const dist = Math.sqrt(dx * dx + dy * dy);
 
       if (dist < this.maxDist) {
-        // Smoother easing function for force calculation
         const normalizedDist = dist / this.maxDist;
         const easeOutQuad = 1 - normalizedDist * normalizedDist;
         const force = easeOutQuad * this.maxForce;
-
-        // Apply force with distance-based dampening
         point.z = point.baseZ + force * Math.exp(-dist / (this.maxDist * 0.5));
       } else {
-        // Smooth transition back to base position
         const returnForce = (point.z - point.baseZ) * 0.1;
         point.z = point.z - returnForce;
       }
@@ -140,7 +147,7 @@ class Grid {
     // Draw connections
     this.ctx.lineWidth = 1;
 
-    // Batch similar opacity connections to reduce gradient creation
+    // Batch similar opacity connections
     const opacityBatches = new Map();
 
     for (let i = 0; i < this.rows; i++) {
@@ -169,7 +176,6 @@ class Grid {
           });
         }
 
-        // Similar batching for vertical lines...
         if (i < this.rows - 1) {
           const bottomPoint = this.points[idx + this.cols];
           const projectedBottom = this.projectedPoints[idx + this.cols];
@@ -195,7 +201,7 @@ class Grid {
     // Draw batched lines
     for (const [opacity, lines] of opacityBatches) {
       const hex = Math.floor(opacity * 255).toString(16).padStart(2, '0');
-      this.ctx.strokeStyle = `${this.color1}${hex}`;
+      this.ctx.strokeStyle = `${this.color}${hex}`;
       this.ctx.beginPath();
 
       for (const line of lines) {
@@ -230,7 +236,7 @@ class Grid {
     for (const [key, points] of pointBatches) {
       const [size, opacity] = key.split('_').map(Number);
       const hex = Math.floor(opacity * 255).toString(16).padStart(2, '0');
-      this.ctx.fillStyle = `${this.color1}${hex}`;
+      this.ctx.fillStyle = `${this.color}${hex}`;
 
       this.ctx.beginPath();
       for (const point of points) {

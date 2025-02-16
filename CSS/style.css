@@ -539,12 +539,6 @@ blockquote {
   margin: 0;
 }
 
-.hero:hover {
-  background: linear-gradient(135deg,
-      rgba(26, 115, 232, 0.1),
-      rgba(31, 191, 84, 0.1));
-  box-shadow: 0 0 30px rgba(27, 54, 93, 0.1);
-}
 
 .hero_full {
   display: flex;
@@ -1936,14 +1930,14 @@ footer svg:active {
     background: linear-gradient(135deg,
         rgba(0, 201, 113, 0.1),
         rgba(160, 44, 255, 0.1));
-    box-shadow: 0 0 20px rgba(0, 201, 113, 0.1);
+    box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
   }
 
   .hero:hover {
     background: linear-gradient(135deg,
         rgba(0, 201, 113, 0.15),
         rgba(160, 44, 255, 0.15));
-    box-shadow: 0 0 30px rgba(0, 201, 113, 0.15);
+    box-shadow: 0 0 30px rgba(208, 10, 145, 0.15);
   }
 }
 
