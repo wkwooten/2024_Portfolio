@@ -22,11 +22,13 @@ class Grid {
     this.cols = 0;
     this.mouseX = 0;
     this.mouseY = 0;
-    this.perspective = 1000;
+    this.perspective = 2500;
     this.rotationX = -77;
     this.rotationZ = 0;
-    this.maxDist = 300; // Increased interaction radius
-    this.maxForce = 75; // Reduced maximum force
+    this.maxDist = 400;     // Increased for wider effect area
+    this.maxForce = 100;    // Increased for more pronounced waves
+    this.dampening = 0.15;  // New: controls how quickly points return
+    this.waveSpeed = 0.08;  // New: controls wave movement speed
     this.animate = this.animate.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleResize = this.handleResize.bind(this);
@@ -65,17 +67,24 @@ class Grid {
     this.canvas.height = height * dpr;
     this.ctx.scale(dpr, dpr);
 
-    this.cols = Math.floor(width / this.spacing) + 4;
-    this.rows = Math.floor(height / this.spacing) + 4;
+    // Add extra columns to ensure coverage
+    this.cols = Math.floor(width / this.spacing) + 8;  // Increased from 6 to 8
+    this.rows = Math.floor(height / this.spacing) + 6;
+
+    // Calculate the total grid width and height
+    const totalWidth = this.cols * this.spacing;
+    const totalHeight = this.rows * this.spacing;
+
+    // Adjust offsets to better center the grid
+    const offsetX = -(totalWidth / 2) + this.spacing;  // Add spacing offset
+    const offsetY = -(totalHeight / 2) + this.spacing * 2;  // Add more vertical offset
 
     this.points = [];
-    const offsetX = -this.spacing * 2;
-    const offsetY = -this.spacing * 2;
 
     for (let i = 0; i < this.rows; i++) {
       for (let j = 0; j < this.cols; j++) {
-        const x = (j * this.spacing + offsetX) - width / 2;
-        const y = height / 2 - (i * this.spacing + offsetY);
+        const x = j * this.spacing + offsetX;
+        const y = i * this.spacing + offsetY;
         const z = 0;
         this.points.push(new Point(x, y, z));
       }
@@ -84,7 +93,7 @@ class Grid {
 
   project(point) {
     // Add fluid-like wave transformation
-    const time = performance.now() * 0.0003; // Slower time factor for more fluid motion
+    const time = performance.now() * 0.0003;
 
     // Primary wave components with phase differences
     const phase1 = Math.sin(point.x * 0.006 + point.y * 0.004 + time) * 30;
@@ -111,9 +120,9 @@ class Grid {
     const x2 = point.x * cosZ - y1 * sinZ;
     const y2 = point.x * sinZ + y1 * cosZ;
 
-    // Apply perspective
+    // Apply perspective with adjusted centering
     const scale = this.perspective / (this.perspective + z1);
-    const x3 = x2 * scale + this.canvas.width / 2;
+    const x3 = x2 * scale + this.canvas.width / 2 + this.spacing / 2;  // Add half spacing offset
     const y3 = y2 * scale + this.canvas.height / 2;
 
     return { x: x3, y: y3, scale, z: z1 };
@@ -133,19 +142,23 @@ class Grid {
 
       if (dist < this.maxDist) {
         const normalizedDist = dist / this.maxDist;
-        const easeOutQuad = 1 - normalizedDist * normalizedDist;
+        // Smoother easing function
+        const easeOutQuad = Math.cos(normalizedDist * Math.PI) * 0.5 + 0.5;
         const force = easeOutQuad * this.maxForce;
-        point.z = point.baseZ + force * Math.exp(-dist / (this.maxDist * 0.5));
+        // Smoother force application
+        const targetZ = point.baseZ + force;
+        point.z += (targetZ - point.z) * this.waveSpeed;
       } else {
-        const returnForce = (point.z - point.baseZ) * 0.1;
-        point.z = point.z - returnForce;
+        // Gentler return to base position
+        const returnForce = (point.z - point.baseZ) * this.dampening;
+        point.z -= returnForce;
       }
 
       return projected;
     });
 
     // Draw connections
-    this.ctx.lineWidth = 1;
+    this.ctx.lineWidth = 2;
 
     // Batch similar opacity connections
     const opacityBatches = new Map();
@@ -162,8 +175,17 @@ class Grid {
 
           const zFactor = (point.z + rightPoint.z) / 800;
           const avgZ = (projected.z + projectedRight.z) / 2;
+
+          // Enhanced distance fade calculation
+          const centerX = (projected.x + projectedRight.x) / 2;
+          const centerY = (projected.y + projectedRight.y) / 2;
+          const normalizedY = Math.abs(centerY - this.canvas.height) / this.canvas.height;
+          const normalizedX = Math.abs(centerX - this.canvas.width / 2) / (this.canvas.width / 2);
+          const distanceFromTop = Math.sqrt(normalizedY * normalizedY + normalizedX * normalizedX * 0.3);
           const distanceFade = Math.max(0, Math.pow(1 - (avgZ + this.perspective) / (this.perspective * 1.8), 1.2));
-          const baseOpacity = Math.min(0.4, 0.28 + zFactor * 1.1) * distanceFade;
+          const topFade = Math.max(0, 1 - Math.pow(distanceFromTop, 3));
+
+          const baseOpacity = Math.min(0.4, 0.28 + zFactor * 1.1) * distanceFade * topFade;
 
           const roundedOpacity = Math.round(baseOpacity * 25) / 25;
 
@@ -182,8 +204,17 @@ class Grid {
 
           const zFactor = (point.z + bottomPoint.z) / 800;
           const avgZ = (projected.z + projectedBottom.z) / 2;
+
+          // Enhanced distance fade calculation for vertical lines
+          const centerX = (projected.x + projectedBottom.x) / 2;
+          const centerY = (projected.y + projectedBottom.y) / 2;
+          const normalizedY = Math.abs(centerY - this.canvas.height) / this.canvas.height;
+          const normalizedX = Math.abs(centerX - this.canvas.width / 2) / (this.canvas.width / 2);
+          const distanceFromTop = Math.sqrt(normalizedY * normalizedY + normalizedX * normalizedX * 0.3);
           const distanceFade = Math.max(0, Math.pow(1 - (avgZ + this.perspective) / (this.perspective * 1.8), 1.2));
-          const baseOpacity = Math.min(0.4, 0.28 + zFactor * 1.1) * distanceFade;
+          const topFade = Math.max(0, 1 - Math.pow(distanceFromTop, 3));
+
+          const baseOpacity = Math.min(0.4, 0.28 + zFactor * 1.1) * distanceFade * topFade;
 
           const roundedOpacity = Math.round(baseOpacity * 25) / 25;
 
@@ -218,9 +249,16 @@ class Grid {
     this.projectedPoints.forEach((projected, idx) => {
       const point = this.points[idx];
       const zFactor = (point.z + 400) / 600;
+
+      // Enhanced distance fade calculation for points
+      const normalizedY = Math.abs(projected.y - this.canvas.height) / this.canvas.height;
+      const normalizedX = Math.abs(projected.x - this.canvas.width / 2) / (this.canvas.width / 2);
+      const distanceFromTop = Math.sqrt(normalizedY * normalizedY + normalizedX * normalizedX * 0.3);
       const distanceFade = Math.max(0, Math.pow(1 - (projected.z + this.perspective) / (this.perspective * 1.5), 1.5));
+      const topFade = Math.max(0, 1 - Math.pow(distanceFromTop, 3));
+
       const size = Math.max(2, projected.scale * 3 * (1 + zFactor * 0.6));
-      const opacity = Math.min(0.45, 0.35 + zFactor * 0.3) * distanceFade;
+      const opacity = Math.min(0.45, 0.35 + zFactor * 0.3) * distanceFade * topFade;
 
       const roundedSize = Math.round(size);
       const roundedOpacity = Math.round(opacity * 30) / 30;
@@ -309,3 +347,13 @@ document.addEventListener('DOMContentLoaded', () => {
     console.error('Error initializing grid:', error);
   }
 });
+
+function getMousePos(canvas, evt) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return {
+        x: (evt.clientX - rect.left) * scaleX,
+        y: (evt.clientY - rect.top) * scaleY
+    };
+}

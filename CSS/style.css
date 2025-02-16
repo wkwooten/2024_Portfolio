@@ -515,31 +515,6 @@ blockquote {
 /* ==========================================================================
    Hero Section
    ========================================================================== */
-.hero {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  align-items: center;
-  justify-content: center;
-  justify-items: center;
-  width: 100%;
-  min-height: 100vh;
-  max-width: 100%;
-  padding: var(--space-m) var(--space-s);
-  gap: var(--space-m);
-  box-sizing: border-box;
-  position: relative;
-  z-index: 1;
-  background: linear-gradient(135deg,
-      rgba(26, 115, 232, 0.05),
-      rgba(31, 191, 84, 0.05));
-  box-shadow: 0 0 20px rgba(27, 54, 93, 0.05);
-  transition: all 0.3s ease;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  margin: 0;
-}
-
-
 .hero_full {
   display: flex;
   min-height: 100vh;
@@ -592,16 +567,13 @@ blockquote {
   background: linear-gradient(0deg,
       rgba(45, 199, 251, 0.281),
       rgba(12, 246, 67, 0.1));
-  box-shadow: 0 0 20px rgba(27, 54, 93, 0.05);
+  box-shadow: 0 0 20px 5px rgba(27, 54, 93, 0.05);
   transition: all 0.3s ease;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   margin: 0 auto;
 }
 
-.hero:hover {
-  box-shadow: 0 0 30px rgba(27, 54, 93, 0.1);
-}
 
 .frame {
   display: flex;
@@ -1928,17 +1900,17 @@ footer svg:active {
 @media (prefers-color-scheme: dark) {
   .hero {
     background: linear-gradient(135deg,
-        rgba(0, 201, 113, 0.1),
-        rgba(160, 44, 255, 0.1));
+        rgba(0, 201, 113, 0.3),
+        rgba(160, 44, 255, 0.3));
     box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
   }
 
-  .hero:hover {
+  /* .hero:hover {
     background: linear-gradient(135deg,
         rgba(0, 201, 113, 0.15),
         rgba(160, 44, 255, 0.15));
     box-shadow: 0 0 30px rgba(208, 10, 145, 0.15);
-  }
+  } */
 }
 
 @media screen and (min-height: 1000px) {
