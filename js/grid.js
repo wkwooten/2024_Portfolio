@@ -330,6 +330,13 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
+  // Check if screen width is greater than 62.5rem (1000px)
+  if (window.innerWidth <= 1000) {
+    console.log('Screen size too small for grid, disabling...');
+    container.style.display = 'none';
+    return;
+  }
+
   console.log('Container found, creating canvas...');
   const canvas = document.createElement('canvas');
 

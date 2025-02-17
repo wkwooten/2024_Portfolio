@@ -63,6 +63,13 @@
     --gradient_color2: #a02cff;
     --vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
   }
+
+  .hero {
+    background: linear-gradient(135deg,
+        rgba(0, 201, 113, 0.3),
+        rgba(160, 44, 255, 0.3));
+    box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
+  }
 }
 
 /* ==========================================================================
@@ -237,7 +244,7 @@ blockquote {
 .page_grid {
   display: grid;
   justify-content: center;
-  margin-inline: var(--space-3xs);
+  /* margin-inline: var(--space-3xs); */
 }
 
 .tag {
@@ -528,6 +535,36 @@ blockquote {
   position: relative;
   overflow: hidden;
   box-sizing: border-box;
+  background: transparent;
+}
+
+@media screen and (max-width: 62.5rem) {
+  .hero {
+    background: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .hero_full {
+    background: linear-gradient(-15deg,
+        rgba(45, 199, 251, 0.05),
+        rgba(12, 246, 67, 0.08),
+        rgba(45, 199, 251, 0.05));
+    background-size: 200% 200%;
+    animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .hero_full {
+      background: linear-gradient(05deg,
+          rgba(0, 201, 113, 0.15),
+          rgba(160, 44, 255, 0.18),
+          rgba(0, 201, 114, 0));
+      background-size: 200% 200%;
+      animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+    }
+  }
 }
 
 #grid-canvas {
@@ -564,9 +601,10 @@ blockquote {
   position: relative;
   z-index: 1;
   border-radius: 10px;
-  background: linear-gradient(0deg,
-      rgba(45, 199, 251, 0.281),
-      rgba(12, 246, 67, 0.1));
+  background: linear-gradient(135deg,
+      rgba(45, 199, 251, 0.281) 0%,
+      rgba(12, 246, 67, 0.1) 50%,
+      rgba(45, 199, 251, 0.281) 100%);
   box-shadow: 0 0 20px 5px rgba(27, 54, 93, 0.05);
   transition: all 0.3s ease;
   backdrop-filter: blur(8px);
@@ -574,6 +612,15 @@ blockquote {
   margin: 0 auto;
 }
 
+@media (prefers-color-scheme: dark) {
+  .hero {
+    background: linear-gradient(135deg,
+        rgba(0, 201, 113, 0.3) 0%,
+        rgba(160, 44, 255, 0.3) 50%,
+        rgba(0, 201, 113, 0.3) 100%);
+    box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
+  }
+}
 
 .frame {
   display: flex;
@@ -1166,7 +1213,7 @@ blockquote {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: var(--space-xl) var(--space-l);
+  padding: var(--space-xl) var(--space-s);
   opacity: 0;
   transform: translateY(20px);
   animation: fadeInUp 0.6s ease forwards;
@@ -1219,6 +1266,8 @@ blockquote {
   box-sizing: border-box;
   overflow: hidden;
   max-height: 100%;
+  justify-content: center;
+  padding-inline: var(--space-m);
   opacity: 1;
   transform: translateY(0);
   transition: all var(--accordion_time) ease;
@@ -1969,5 +2018,214 @@ footer svg:active {
   .cs_top_nav_prev,
   .cs_top_nav_next {
     text-align: center;
+  }
+}
+
+@keyframes heroGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ==========================================================================
+   Media Queries
+   ========================================================================== */
+
+/* Dark Mode Styles
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #090909;
+    --primary: rgb(255, 255, 255);
+    --secondary: #090909;
+    --color1: #1d3383;
+    --color2: #126743;
+    --color3: #cc3037;
+    --gradient_color1: #00c971;
+    --gradient_color2: #a02cff;
+    --vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
+  }
+
+  .hero {
+    background: linear-gradient(135deg,
+        rgba(0, 201, 113, 0.3),
+        rgba(160, 44, 255, 0.3));
+    box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
+  }
+}
+
+/* Responsive Layout & Components
+   ========================================================================== */
+@media screen and (max-width: 62.5rem) {
+
+  /* Navigation */
+  .menu_bar {
+    display: none !important;
+  }
+
+  .modal_button {
+    display: flex !important;
+    align-self: center;
+  }
+
+  .modal_button:hover {
+    cursor: pointer;
+  }
+
+  /* Typography */
+  .side_nav {
+    font-size: 1.125rem !important;
+  }
+
+  #sign {
+    text-align: center;
+  }
+
+  .subsection_header {
+    text-align: left;
+  }
+
+  /* Layout */
+  .works_container {
+    gap: var(--space-l);
+  }
+
+  .illustration_modal_content {
+    max-width: 95%;
+    padding: var(--space-m);
+  }
+
+  /* Hero Section Mobile Styles */
+  .hero {
+    background: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .hero_full {
+    background: linear-gradient(-15deg,
+        rgba(45, 199, 251, 0.05),
+        rgba(12, 246, 67, 0.08),
+        rgba(45, 199, 251, 0.05));
+    background-size: 200% 200%;
+    animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+  }
+}
+
+@media screen and (max-width: 768px) {
+
+  /* Navigation */
+  .cs_end,
+  .cs_top_nav {
+    flex-direction: column;
+    gap: var(--space-l);
+    text-align: center;
+  }
+
+  .cs_end_prev,
+  .cs_end_next,
+  .cs_top_nav_prev,
+  .cs_top_nav_next {
+    text-align: center;
+  }
+
+  .cs_top_nav {
+    gap: var(--space-2xs);
+    padding: var(--space-2xs) var(--space-s);
+  }
+
+  .cs_top_nav a {
+    width: 100%;
+  }
+
+  /* Hero Section */
+  .hero {
+    grid-template-columns: 1fr;
+    gap: var(--space-s);
+  }
+
+  .name {
+    width: min-content;
+  }
+
+  .frame {
+    width: 100%;
+    padding: var(--space-xl) var(--space-m);
+    margin: 0;
+    justify-content: center;
+  }
+
+  .intro {
+    width: 100%;
+    padding: var(--space-m) var(--space-s);
+    align-items: flex-start;
+  }
+
+  /* Figure & Images */
+  figcaption {
+    text-align: center;
+    padding: var(--space-s) var(--space-m);
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  figure {
+    margin: var(--space-l) auto;
+  }
+
+  figure img {
+    max-width: 100%;
+  }
+}
+
+/* Height-based Adjustments
+   ========================================================================== */
+@media screen and (max-height: 62.5rem) {
+  .hero_full {
+    justify-content: center;
+    align-items: center;
+    height: auto !important;
+  }
+}
+
+@media screen and (min-height: 1000px) {
+  .hero {
+    margin: auto;
+  }
+}
+
+/* Motion Preferences
+   ========================================================================== */
+@media screen and (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Dark Mode Mobile Gradient
+   ========================================================================== */
+@media (prefers-color-scheme: dark) and (max-width: 62.5rem) {
+  .hero_full {
+    background: linear-gradient(135deg,
+        rgba(0, 201, 113, 0.15),
+        rgba(160, 44, 255, 0.18),
+        rgba(0, 201, 114, 0));
+    background-size: 200% 200%;
+    animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   }
 }
