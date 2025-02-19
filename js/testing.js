@@ -151,3 +151,44 @@ document.addEventListener('keydown', (e) => {
     document.body.style.overflow = '';
   }
 });
+
+// Case Study Navigation
+document.addEventListener('DOMContentLoaded', function() {
+  // Get all navigation links
+  const navLinks = document.querySelectorAll('.cs_nav a');
+
+  // Add click event listener to each link
+  navLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      // Get the target section id from the href
+      const targetId = this.getAttribute('href').substring(1);
+      const targetSection = document.getElementById(targetId);
+
+      if (targetSection) {
+        // Scroll to the target section smoothly
+        targetSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+
+        // Update URL without page reload
+        history.pushState(null, '', `#${targetId}`);
+      }
+    });
+  });
+
+  // Handle initial hash in URL
+  if (window.location.hash) {
+    const targetSection = document.querySelector(window.location.hash);
+    if (targetSection) {
+      setTimeout(() => {
+        targetSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
+    }
+  }
+});
