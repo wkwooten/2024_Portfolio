@@ -27,44 +27,94 @@ u(".name").on('click', e => {
 
 // Switch to using window.onload
 window.onload = function() {
-  // Your accordion logic goes here
-
   // Select all section headers (accordions)
   var acc = document.querySelectorAll('.cs_section_header');
+  var sections = {};  // Store references to sections and their elements
 
   // Loop through each accordion header
   for (let i = 0; i < acc.length; i++) {
     let content = acc[i].nextElementSibling;
+    let chevron = acc[i].querySelector('.chev');
+    let sectionId = acc[i].parentElement.id;
 
-    // Set initial max-height after all content is loaded
-    content.style.maxHeight = content.scrollHeight + "px"; // Fully expanded by default
+    // Store references for easy access
+    sections[sectionId] = {
+      content: content,
+      chevron: chevron
+    };
+
+    // Set initial state - expanded
+    content.style.maxHeight = content.scrollHeight + "px";
+    chevron.classList.add('chev_rotate');
 
     // Add click event listener to toggle accordion
     acc[i].addEventListener('click', function() {
       // Toggle the rotation of the arrow (chevron)
-      this.querySelector('.chev').classList.toggle('chev_rotate');
+      chevron.classList.toggle('chev_rotate');
 
       // Toggle between expanded and collapsed states
       if (content.style.maxHeight && content.style.maxHeight !== "0px") {
-        content.style.maxHeight = "0px"; // Collapse
+        content.classList.add('fade-out');
+        setTimeout(() => {
+          content.style.maxHeight = "0px"; // Collapse
+        }, 50);
       } else {
-        content.style.maxHeight = content.scrollHeight + "px"; // Expand dynamically
+        content.classList.remove('fade-out');
+        content.style.maxHeight = content.scrollHeight + "px"; // Expand
       }
     });
   }
+
+  // Handle navigation clicks
+  const navLinks = document.querySelectorAll('.cs_nav a');
+  navLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+
+      // Get the target section id from the href
+      const targetId = this.getAttribute('href').substring(1);
+      const targetSection = document.getElementById(targetId);
+
+      if (targetSection && sections[targetId]) {
+        // Expand the section if it's collapsed
+        const { content, chevron } = sections[targetId];
+        content.classList.remove('fade-out');
+        content.style.maxHeight = content.scrollHeight + "px";
+        chevron.classList.add('chev_rotate');
+
+        // Scroll to the target section smoothly
+        targetSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+
+        // Update URL without page reload
+        history.pushState(null, '', `#${targetId}`);
+      }
+    });
+  });
+
+  // Handle initial hash in URL
+  if (window.location.hash) {
+    const targetId = window.location.hash.substring(1);
+    const targetSection = document.getElementById(targetId);
+
+    if (targetSection && sections[targetId]) {
+      const { content, chevron } = sections[targetId];
+
+      // Ensure section is expanded
+      content.style.maxHeight = content.scrollHeight + "px";
+      chevron.classList.add('chev_rotate');
+
+      setTimeout(() => {
+        targetSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 100);
+    }
+  }
 };
-
-// var modal = document.getElementById("img_modal");
-
-// var modalImg = document.getElementById("modal_image");
-
-// var images = document.querySelectorAll("img"); // You can adjust this selector to target specific images
-// images.forEach(function(img) {
-//   img.addEventListener("click", function() {
-//     modal.style.display = "block"; // Display the modal
-//     modalImg.src = this.src; // Set the modal image source to the clicked image's source
-//   });
-// });
 
 document.addEventListener('DOMContentLoaded', function() {
   // Get the modal
@@ -167,6 +217,15 @@ document.addEventListener('DOMContentLoaded', function() {
       const targetSection = document.getElementById(targetId);
 
       if (targetSection) {
+        // Get the section content and chevron
+        const sectionHeader = targetSection.querySelector('.cs_section_header');
+        const content = sectionHeader.nextElementSibling;
+        const chevron = sectionHeader.querySelector('.chev');
+
+        // Always expand the section when navigating to it
+        content.style.maxHeight = content.scrollHeight + "px";
+        chevron.classList.add('chev_rotate');
+
         // Scroll to the target section smoothly
         targetSection.scrollIntoView({
           behavior: 'smooth',
@@ -183,6 +242,15 @@ document.addEventListener('DOMContentLoaded', function() {
   if (window.location.hash) {
     const targetSection = document.querySelector(window.location.hash);
     if (targetSection) {
+      // Get the section content and chevron
+      const sectionHeader = targetSection.querySelector('.cs_section_header');
+      const content = sectionHeader.nextElementSibling;
+      const chevron = sectionHeader.querySelector('.chev');
+
+      // Ensure section is expanded
+      content.style.maxHeight = content.scrollHeight + "px";
+      chevron.classList.add('chev_rotate');
+
       setTimeout(() => {
         targetSection.scrollIntoView({
           behavior: 'smooth',

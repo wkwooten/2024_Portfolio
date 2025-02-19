@@ -1291,6 +1291,15 @@ blockquote {
   transform: translateY(-10px);
 }
 
+.cs_section_content > * {
+  opacity: 1;
+  transition: opacity var(--accordion_time) ease;
+}
+
+.cs_section_content.fade-out > * {
+  opacity: 0;
+}
+
 .chev {
   display: flex;
   align-items: center;
@@ -2400,7 +2409,7 @@ footer svg:active {
     position: sticky;
     top: 0;
     margin-top: 0;
-    border-top: var(--basic-line-weight) solid var(--primary);
+    /* border-top: var(--basic-line-weight) solid var(--primary); */
   }
 }
 
