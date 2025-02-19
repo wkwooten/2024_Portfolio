@@ -50,6 +50,10 @@
   --fs-5: clamp(1.802rem, 1.7415rem + 0.3027vw, 2.0745rem);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* Dark Mode */
 @media (prefers-color-scheme: dark) {
   :root {
@@ -2040,6 +2044,7 @@ footer svg:active {
 
 .cs_top_nav_prev {
   text-align: left;
+  align-self: center;
 }
 
 .cs_top_nav_next {
@@ -2057,6 +2062,12 @@ footer svg:active {
 
   .cs_top_nav a {
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cs_top_nav h4 {
     text-align: center;
   }
 
@@ -2084,31 +2095,7 @@ footer svg:active {
    Media Queries
    ========================================================================== */
 
-/* Dark Mode Styles
-   ========================================================================== */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #090909;
-    --primary: rgb(255, 255, 255);
-    --secondary: #090909;
-    --color1: #1d3383;
-    --color2: #126743;
-    --color3: #cc3037;
-    --gradient_color1: #00c971;
-    --gradient_color2: #a02cff;
-    --vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
-  }
-
-  .hero {
-    background: linear-gradient(135deg,
-        rgba(0, 201, 113, 0.3),
-        rgba(160, 44, 255, 0.3));
-    box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
-  }
-}
-
-/* Responsive Layout & Components
-   ========================================================================== */
+/* Tablet and Mobile Styles (≤ 62.5rem / 1000px) */
 @media screen and (max-width: 62.5rem) {
 
   /* Navigation */
@@ -2164,8 +2151,21 @@ footer svg:active {
     background-size: 200% 200%;
     animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   }
+
+  /* Dark mode specific styles for this breakpoint */
+  @media (prefers-color-scheme: dark) {
+    .hero_full {
+      background: linear-gradient(135deg,
+          rgba(0, 201, 113, 0.15),
+          rgba(160, 44, 255, 0.18),
+          rgba(0, 201, 114, 0));
+      background-size: 200% 200%;
+      animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+    }
+  }
 }
 
+/* Mobile Styles (≤ 768px) */
 @media screen and (max-width: 768px) {
 
   /* Navigation */
@@ -2230,10 +2230,73 @@ footer svg:active {
   figure img {
     max-width: 100%;
   }
+
+  /* Case Study Navigation */
+  .cs_nav {
+    padding: 0;
+    position: sticky;
+    top: 0;
+    margin-top: 0;
+  }
+
+  .cs_nav .nav_list {
+    padding: var(--space-s);
+    justify-content: flex-start;
+  }
+
+  .cs_nav .nav_number {
+    width: 2rem;
+    height: 2rem;
+    font-size: var(--fs-1);
+  }
+
+  .cs_nav .nav_label {
+    font-size: 0.9em;
+  }
 }
 
-/* Height-based Adjustments
-   ========================================================================== */
+/* Tablet and Large Mobile Styles (≤ 900px) */
+@media screen and (max-width: 900px) {
+
+  /* Table Styles */
+  .subsection_body table {
+    min-width: 100%;
+    display: block;
+    width: 100%;
+  }
+
+  .subsection_body thead {
+    display: none;
+  }
+
+  .subsection_body tbody tr {
+    display: block;
+    margin-bottom: var(--space-m);
+  }
+
+  .subsection_body td {
+    display: block;
+    padding: var(--space-xs) var(--space-s);
+    padding-left: 45%;
+    position: relative;
+    border-bottom: none;
+  }
+
+  .subsection_body td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: var(--space-s);
+    width: 40%;
+    font-weight: 600;
+  }
+
+  .subsection_body tr.category td {
+    padding-left: var(--space-s);
+    margin-top: var(--space-m);
+  }
+}
+
+/* Height-based Adjustments */
 @media screen and (max-height: 62.5rem) {
   .hero_full {
     justify-content: center;
@@ -2248,8 +2311,7 @@ footer svg:active {
   }
 }
 
-/* Motion Preferences
-   ========================================================================== */
+/* Motion Preferences */
 @media screen and (prefers-reduced-motion: reduce) {
 
   *,
@@ -2262,16 +2324,29 @@ footer svg:active {
   }
 }
 
-/* Dark Mode Mobile Gradient
-   ========================================================================== */
-@media (prefers-color-scheme: dark) and (max-width: 62.5rem) {
-  .hero_full {
+/* Dark Mode Styles */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #090909;
+    --primary: rgb(255, 255, 255);
+    --secondary: #090909;
+    --color1: #1d3383;
+    --color2: #126743;
+    --color3: #cc3037;
+    --gradient_color1: #00c971;
+    --gradient_color2: #a02cff;
+    --vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
+  }
+
+  .hero {
     background: linear-gradient(135deg,
-        rgba(0, 201, 113, 0.15),
-        rgba(160, 44, 255, 0.18),
-        rgba(0, 201, 114, 0));
-    background-size: 200% 200%;
-    animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+        rgba(0, 201, 113, 0.3),
+        rgba(160, 44, 255, 0.3));
+    box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
+  }
+
+  .cs_nav {
+    background: var(--bg-color);
   }
 }
 
@@ -2417,4 +2492,17 @@ footer svg:active {
 .cs_content_wrapper {
   width: 100%;
   overflow-x: hidden;
+}
+
+/* Add specific styling for overview gallery */
+#overview_gallery {
+  height: auto;
+  padding: var(--space-s) 0;
+}
+
+#overview_gallery img {
+  aspect-ratio: auto;
+  height: 600px;
+  width: auto;
+  object-fit: contain;
 }
