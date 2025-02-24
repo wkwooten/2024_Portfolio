@@ -1368,10 +1368,13 @@ blockquote {
   width: 100%;
   min-width: 800px;
   border-collapse: collapse;
-  margin: var(--space-m) 0;
+  margin: var(--space-m) var(--space-s);
   display: block;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  /* background: white; */
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .subsection_body th {
@@ -1388,12 +1391,56 @@ blockquote {
   vertical-align: top;
 }
 
-.subsection_body tr.category td {
-  font-weight: 600;
-  border-bottom: var(--basic-line-weight) solid var(--primary);
-  padding-top: var(--space-m);
+/* Ensure the first row's top corners are rounded */
+.subsection_body thead tr:first-child th:first-child {
+  border-top-left-radius: 8px;
 }
 
+.subsection_body thead tr:first-child th:last-child {
+  border-top-right-radius: 8px;
+}
+
+/* Ensure the last row's bottom corners are rounded */
+.subsection_body tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 8px;
+}
+
+.subsection_body tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 8px;
+}
+
+#bumble {
+  border-left: 4px solid #ffc629;
+  background: rgba(255, 198, 41, 0.1);
+  color: var(--primary);
+}
+
+#tinder {
+  border-left: 4px solid #fe3c72;
+  background: rgba(254, 60, 114, 0.1);
+  color: var(--primary);
+}
+
+#hinge {
+  border-left: 4px solid #1A1A1A;
+  background: rgba(26, 26, 26, 0.1);
+  color: var(--primary);
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  #bumble {
+    background: rgba(255, 198, 41, 0.15);
+  }
+
+  #tinder {
+    background: rgba(254, 60, 114, 0.15);
+  }
+
+  #hinge {
+    background: rgba(26, 26, 26, 0.2);
+  }
+}
 
 .cs_gallery {
   display: flex;
@@ -2257,10 +2304,15 @@ footer svg:active {
 
 /* Tablet and Large Mobile Styles (≤ 900px) */
 @media screen and (max-width: 900px) {
-
-  /* Table Styles */
   .subsection_body table {
-    min-width: 100%;
+    display: block;
+    width: 100%;
+    margin: var(--space-m) 0;
+    min-width: unset;
+    overflow-x: hidden;
+  }
+
+  .subsection_body tbody {
     display: block;
     width: 100%;
   }
@@ -2272,27 +2324,44 @@ footer svg:active {
   .subsection_body tbody tr {
     display: block;
     margin-bottom: var(--space-m);
+    border-radius: 8px;
+    overflow: hidden;
   }
 
   .subsection_body td {
-    display: block;
+    display: grid;
+    grid-template-columns: minmax(120px, 30%) 1fr;
+    width: 100%;
     padding: var(--space-xs) var(--space-s);
-    padding-left: 45%;
-    position: relative;
-    border-bottom: none;
+    align-items: start;
+    gap: var(--space-s);
+    box-sizing: border-box;
   }
 
   .subsection_body td::before {
     content: attr(data-label);
-    position: absolute;
-    left: var(--space-s);
-    width: 40%;
     font-weight: 600;
+    min-width: 120px;
   }
 
-  .subsection_body tr.category td {
-    padding-left: var(--space-s);
-    margin-top: var(--space-m);
+  .subsection_body td ul {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .subsection_body td li {
+    margin-bottom: var(--space-xs);
+    width: 100%;
+  }
+
+  /* Adjust company-specific styles for mobile */
+  #bumble,
+  #tinder,
+  #hinge {
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 
@@ -2353,7 +2422,14 @@ footer svg:active {
 /* Mobile & Tablet Styles */
 @media screen and (max-width: 900px) {
   .subsection_body table {
-    min-width: 100%;
+    display: block;
+    width: 100%;
+    margin: var(--space-m) 0;
+    min-width: unset;
+    overflow-x: hidden;
+  }
+
+  .subsection_body tbody {
     display: block;
     width: 100%;
   }
@@ -2365,27 +2441,36 @@ footer svg:active {
   .subsection_body tbody tr {
     display: block;
     margin-bottom: var(--space-m);
+    border-radius: 8px;
+    overflow: hidden;
   }
 
   .subsection_body td {
-    display: block;
+    display: grid;
+    grid-template-columns: minmax(120px, 30%) 1fr;
+    width: 100%;
     padding: var(--space-xs) var(--space-s);
-    padding-left: 45%;
-    position: relative;
-    border-bottom: none;
+    align-items: start;
+    gap: var(--space-s);
+    box-sizing: border-box;
   }
 
   .subsection_body td::before {
     content: attr(data-label);
-    position: absolute;
-    left: var(--space-s);
-    width: 40%;
     font-weight: 600;
+    min-width: 120px;
   }
 
-  .subsection_body tr.category td {
-    padding-left: var(--space-s);
-    margin-top: var(--space-m);
+  .subsection_body td ul {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .subsection_body td li {
+    margin-bottom: var(--space-xs);
+    width: 100%;
   }
 }
 

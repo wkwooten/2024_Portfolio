@@ -249,7 +249,7 @@
         <div class="subsection_body">
          <p>This project was developed through Columbia Engineering's UX/UI Program, where our team identified and addressed <strong>a significant gap in the dating app market</strong>. Working under real-world constraints and deadlines, we followed a comprehensive product development cycle from research to high-fidelity prototyping.</p>
          <h3>Timeline:</h3>
-         <p><strong>8-week design sprint</strong></p>
+         <p><strong>3-week design sprint</strong></p>
          <h3>Team Structure:</h3>
          <p><strong>- Led a cross-functional team of 5 designers</strong></p>
          <p><strong>- Managed research, design, and testing phases</strong></p>
@@ -310,104 +310,115 @@
      <div class="cs_sub_section">
       <h3 class="subsection_header">Competitive Analysis</h3>
       <div class="subsection_body">
+        <p>We analyzed leading dating apps to understand their strengths, unique value propositions, and potential gaps in serving sports enthusiasts. This analysis focused on both direct competitors in the dating space and how they approach interest-based matching.</p>
+
         <table>
           <thead>
             <tr>
               <th>Company</th>
-              <th>Features</th>
-              <th>Competitive Advantage</th>
+              <th>Target Audience</th>
+              <th>Key Features</th>
               <th>Strengths</th>
               <th>Weaknesses</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <tr id="bumble">
               <td data-label="Company"><strong>Bumble</strong></td>
-              <td data-label="Features">
+              <td data-label="Target Audience">
                 <ul>
-                  <li>Location-based matching</li>
-                  <li>Interest tags</li>
+                  <li>Women-focused</li>
+                  <li>25-35 age range</li>
+                  <li>Relationship-oriented</li>
+                </ul>
+              </td>
+              <td data-label="Key Features">
+                <ul>
+                  <li>Women message first</li>
+                  <li>Multi-mode dating (BFF, Bizz)</li>
+                  <li>Advanced filters</li>
                   <li>Video chat</li>
                 </ul>
               </td>
-              <td data-label="Competitive Advantage">
+              <td data-label="Strengths">
                 <ul>
                   <li>Strong brand recognition</li>
-                  <li>Large user base</li>
-                </ul>
-              </td>
-              <td data-label="Strengths">
-                <ul>
-                  <li>Inclusive and user-friendly design</li>
-                  <li>Many features</li>
-                  <li>User-friendly and inclusive platform</li>
+                  <li>60M+ active users</li>
+                  <li>Safety-focused design</li>
+                  <li>Higher-end brand image</li>
                 </ul>
               </td>
               <td data-label="Weaknesses">
                 <ul>
-                  <li>Can feel cluttered with too many features</li>
-                  <li>High competition</li>
-                  <li>App stability issues</li>
+                  <li>Feature overload</li>
+                  <li>High subscription cost</li>
+                  <li>Limited interest-based matching</li>
                 </ul>
               </td>
             </tr>
-            <tr>
+            <tr id="tinder">
               <td data-label="Company"><strong>Tinder</strong></td>
-              <td data-label="Features">
+              <td data-label="Target Audience">
                 <ul>
-                  <li>Swipe-based matching</li>
-                  <li>Super likes</li>
-                  <li>Boosts</li>
+                  <li>Gen Z & Millennials</li>
+                  <li>18-25 primary</li>
+                  <li>Casual dating focus</li>
                 </ul>
               </td>
-              <td data-label="Competitive Advantage">
+              <td data-label="Key Features">
                 <ul>
-                  <li>Global reach</li>
-                  <li>High visibility</li>
+                  <li>Swipe matching</li>
+                  <li>Location-based</li>
+                  <li>Passport feature</li>
+                  <li>Super Likes</li>
                 </ul>
               </td>
               <td data-label="Strengths">
                 <ul>
-                  <li>Simple, easy-to-use interface</li>
-                  <li>Large, diverse user base</li>
-                  <li>Simple and effective platform</li>
+                  <li>75M+ active users</li>
+                  <li>Industry-standard UX</li>
+                  <li>Strong brand awareness</li>
+                  <li>Global presence</li>
                 </ul>
               </td>
               <td data-label="Weaknesses">
                 <ul>
-                  <li>Reputation for casual dating</li>
-                  <li>Limited profile customization</li>
-                  <li>Tendency for shallow connections</li>
+                  <li>Limited filtering</li>
+                  <li>Basic profiles</li>
+                  <li>Casual reputation</li>
                 </ul>
               </td>
             </tr>
-            <tr>
+            <tr id="hinge">
               <td data-label="Company"><strong>Hinge</strong></td>
-              <td data-label="Features">
+              <td data-label="Target Audience">
                 <ul>
-                  <li>Prompts to start conversations</li>
-                  <li>Detailed profiles</li>
-                  <li>Limited likes</li>
+                  <li>Young professionals</li>
+                  <li>25-35 age range</li>
+                  <li>Relationship-focused</li>
                 </ul>
               </td>
-              <td data-label="Competitive Advantage">
+              <td data-label="Key Features">
                 <ul>
-                  <li>Focus on serious relationships</li>
-                  <li>Quality over quantity</li>
+                  <li>Conversation prompts</li>
+                  <li>Voice messages</li>
+                  <li>Most Compatible feature</li>
+                  <li>Video prompts</li>
                 </ul>
               </td>
               <td data-label="Strengths">
                 <ul>
-                  <li>High-quality matches</li>
-                  <li>Encourages thoughtful interactions</li>
-                  <li>Creates thoughtful and meaningful connections</li>
+                  <li>Quality-focused matching</li>
+                  <li>Deep profile options</li>
+                  <li>Engagement-driven design</li>
+                  <li>Growing user base</li>
                 </ul>
               </td>
               <td data-label="Weaknesses">
                 <ul>
                   <li>Slower matching process</li>
-                  <li>Limited visibility for new users</li>
-                  <li>Slow to build initial momentum</li>
+                  <li>Limited reach</li>
+                  <li>Higher barrier to entry</li>
                 </ul>
               </td>
             </tr>
@@ -416,12 +427,18 @@
 
         <h4>Key Market Insights</h4>
         <ol>
-          <li><strong>Market Gap:</strong> While existing dating apps offer interest-based matching, none specifically cater to sports enthusiasts who prioritize shared game schedules and team affiliations.</li>
-          <li><strong>Competitive Landscape:</strong> Analysis of both dating apps and indirect competitors reveals an opportunity to combine efficient matching with community-focused sports features.</li>
-          <li><strong>Differentiation Strategy:</strong> TeamMate can establish its niche by creating an experience tailored to sports fans' unique dating preferences and scheduling needs.</li>
+          <li><strong>Market Gap:</strong> Despite the maturity of the dating app market, there remains a significant opportunity in interest-based matching, particularly for sports enthusiasts who prioritize shared game schedules and team affiliations.</li>
+          <li><strong>Competitive Landscape:</strong> While existing apps offer basic interest tagging, none provide deep integration of sports preferences or lifestyle matching. This creates an opportunity to combine efficient matching mechanics with specialized sports-focused features.</li>
+          <li><strong>Differentiation Strategy:</strong> TeamMate can establish its niche by focusing on three key areas:
+            <ul>
+              <li>Sports-specific matching algorithms</li>
+              <li>Game schedule compatibility</li>
+              <li>Sports venue date planning</li>
+            </ul>
+          </li>
         </ol>
 
-        <p>This analysis revealed a clear opportunity to create a focused dating platform that addresses the specific needs of sports enthusiasts, while incorporating successful elements from both dating and community-building platforms.</p>
+        <p>This analysis revealed that while the dating app market is crowded, there's a clear opportunity to create a focused platform that deeply integrates sports interests into the matching process, rather than treating them as surface-level preferences.</p>
       </div>
      </div>
      <div class="cs_sub_section">
@@ -646,7 +663,25 @@
      <div class="cs_sub_section">
       <h3 class="subsection_header">Key Takeaways</h3>
       <div class="subsection_body">
-       <p>[Add key takeaways and lessons learned]</p>
+        <h4>Project Insights</h4>
+        <ul>
+         <li>[Insight about sports-focused dating market opportunity and user needs]</li>
+         <li>[Insight about the importance of specialized features vs. general dating app features]</li>
+         <li>[Insight about user behavior patterns or preferences discovered]</li>
+        </ul>
+
+        <h4>Key Learnings</h4>
+        <ul>
+         <li>Prioritizing core functionality and familiar dating app conventions while integrating sports-specific features created an intuitive yet specialized experience</li>
+         <li>Complex prototyping challenges with Figma's advanced features enhanced our technical capabilities and design process</li>
+         <li>Earlier implementation of quantitative research and comprehensive documentation would have strengthened our design decisions</li>
+        </ul>
+
+        <h4>Future Development</h4>
+        <ul>
+         <li><strong>Community Features:</strong> Expanding beyond dating to facilitate fan communities and local event discovery</li>
+         <li><strong>Enhanced Experience:</strong> Implementing team-based UI themes and integrated live-streaming for shared game viewing</li>
+        </ul>
       </div>
      </div>
     </div>
