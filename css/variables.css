@@ -1,0 +1,53 @@
+/* ==========================================================================
+   CSS Variables and Root Properties
+   ========================================================================== */
+:root {
+	/* Colors */
+	--bg-color: #e0f7ff;
+	--bg-color-rgb: 224, 247, 255;
+	/* RGB values for #e0f7ff */
+	--primary: #14175c;
+	--secondary: #f0f0f0;
+	--color1: #007bff;
+	--color2: #28a745;
+	--color3: #ff5733;
+	--gradient_color1: #1a73e8;
+	--gradient_color2: #1fbf54;
+	--vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
+
+	/* Animation Timings */
+	--modal-time: 1s;
+	--accordion_time: 1s;
+
+	/* Sizes and Weights */
+	--button-height: 3.125rem;
+	--basic-line-weight: 2.5px;
+	--line-weight: 3px;
+	--beeg-line-weight: 4px;
+	--thicc-line-weight: 5px;
+	--section-spacing: 10%;
+	--section-margin: 5%;
+	--padding: 1.25rem;
+	--fun-ratio1: 1.85;
+	--pretentious-ratio: 1.618033988749894;
+	--fig-width: 50rem;
+
+	/* Spacing Scale */
+	--space-3xs: clamp(0.3125rem, 0.3125rem + 0vw, 0.3125rem);
+	--space-2xs: clamp(0.5625rem, 0.5408rem + 0.1087vw, 0.625rem);
+	--space-xs: clamp(0.875rem, 0.8533rem + 0.1087vw, 0.9375rem);
+	--space-s: clamp(1.125rem, 1.0815rem + 0.2174vw, 1.25rem);
+	--space-m: clamp(1.6875rem, 1.6223rem + 0.3261vw, 1.875rem);
+	--space-l: clamp(2.25rem, 2.163rem + 0.4348vw, 2.5rem);
+	--space-xl: clamp(3.375rem, 3.2446rem + 0.6522vw, 3.75rem);
+	--space-2xl: clamp(4.5rem, 4.3261rem + 0.8696vw, 5rem);
+	--space-3xl: clamp(6.75rem, 6.4891rem + 1.3043vw, 7.5rem);
+
+	/* Font Sizes */
+	--fs-0: clamp(1rem, 0.8889rem + 0.5556vw, 1.5rem);
+	--fs-1: clamp(1.125rem, 1.0193rem + 0.5283vw, 1.6005rem);
+	--fs-2: clamp(1.2656rem, 1.1674rem + 0.4912vw, 1.7077rem);
+	--fs-3: clamp(1.4238rem, 1.3353rem + 0.4426vw, 1.8222rem);
+	--fs-4: clamp(1.6018rem, 1.5257rem + 0.3805vw, 1.9442rem);
+	--fs-5: clamp(1.802rem, 1.7415rem + 0.3027vw, 2.0745rem);
+}

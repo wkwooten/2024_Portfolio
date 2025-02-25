@@ -1,0 +1,203 @@
+/* ==========================================================================
+   Base Styles and Typography
+   ========================================================================== */
+
+/* Base Styles */
+html {
+	scroll-behavior: smooth;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	text-wrap: balance;
+}
+
+h1 {
+	font-weight: bold;
+	font-size: var(--fs-5);
+	text-transform: uppercase;
+}
+
+h2 {
+	font-weight: 700;
+	font-size: var(--fs-4);
+	text-transform: capitalize;
+}
+
+h3 {
+	font-weight: 600;
+	font-size: var(--fs-3);
+	text-transform: capitalize;
+}
+
+h4 {
+	font-weight: 500;
+	text-transform: capitalize;
+	font-size: var(--fs-2);
+}
+
+h5 {
+	font-weight: 500;
+	font-size: var(--fs-1);
+}
+
+h6 {
+	font-weight: 500;
+}
+
+p,
+li,
+figcaption {
+	text-wrap: pretty;
+	text-wrap: stable;
+	max-width: 66ch;
+	font-size: var(--fs-0);
+}
+
+p {
+	line-height: 1.75;
+	font-size: var(--fs-0);
+}
+
+/* Lists */
+ul,
+ol {
+	display: block;
+	list-style-position: inside;
+	font-size: var(--fs-0);
+	line-height: 2;
+	margin: 0;
+	padding: 0;
+}
+
+ul {
+	list-style-type: square;
+}
+
+ol {
+	list-style-type: decimal;
+}
+
+li {
+	max-width: 66ch;
+}
+
+/* Links */
+a:link,
+a:visited {
+	color: var(--primary);
+}
+
+/* Base Elements */
+body {
+	scroll-behavior: smooth;
+	overflow-x: hidden;
+	top: 0;
+	left: 0;
+	margin: 0;
+	color: var(--primary);
+	font-family: "Overpass", "Helvetica", sans-serif;
+	font-size: var(--fs-0);
+	background: var(--bg-color);
+}
+
+hr {
+	border: var(--basic-line-weight) solid var(--primary);
+	width: 100%;
+}
+
+/* Media Elements */
+img,
+picture {
+	max-width: 100%;
+	display: block;
+}
+
+iframe {
+	width: 100%;
+	margin-block: var(--space-m);
+	aspect-ratio: 16/9;
+}
+
+svg {
+	fill: var(--primary);
+	stroke: var(--primary);
+}
+
+/* Figures */
+figure {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	margin: var(--space-xl) auto;
+	width: 100%;
+}
+
+figcaption {
+	font-weight: 300;
+	max-width: var(--fig-width);
+	width: 100%;
+	padding: var(--space-s);
+	text-align: center;
+	margin: 0 auto;
+	text-wrap: pretty;
+	text-wrap: stable;
+	max-width: 66ch;
+	font-size: var(--fs-0);
+}
+
+figure img {
+	max-width: var(--fig-width);
+	width: 100%;
+	border-radius: .3125rem;
+	cursor: zoom-in;
+	filter: drop-shadow(1px 1px 3px);
+	-webkit-filter: drop-shadow(1px 1px 3px);
+}
+
+/* Quotes */
+blockquote {
+	display: flex;
+	margin: var(--space-m);
+	justify-content: center;
+	font-size: var(--fs-3);
+	font-weight: 450;
+}
+
+/* Layout Components */
+.page_grid {
+	display: grid;
+	justify-content: center;
+	width: 100%;
+	max-width: 100vw;
+	margin: 0 auto;
+	box-sizing: border-box;
+	position: relative;
+	z-index: 1;
+}
+
+.tag {
+	padding: .625rem;
+	border: .1875rem var(--primary) solid;
+	border-radius: 1.25rem;
+	-webkit-border-radius: 1.25rem;
+	-moz-border-radius: 1.25rem;
+	-ms-border-radius: 1.25rem;
+	-o-border-radius: 1.25rem;
+}
+
+/* Utility Classes */
+.text-pop-up-top {
+	-webkit-animation: text-pop-up-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+	animation: text-pop-up-top 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+
+.stop_scroll {
+	overflow: hidden;
+}
