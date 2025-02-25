@@ -707,7 +707,7 @@ footer svg:active {
 	padding: var(--space-l);
 	border-radius: 8px;
 	width: min(1200px, 95vw);
-	height: min(800px, 90vh);
+	height: min(800px, 85vh);
 	overflow: hidden;
 	transform: scale(0.7);
 	opacity: 0;
@@ -722,6 +722,7 @@ footer svg:active {
 	align-items: center;
 	justify-content: center;
 	overflow: hidden;
+	transition: all 0.3s ease;
 }
 
 .illustration_modal_image {
@@ -738,20 +739,50 @@ footer svg:active {
 	flex-direction: column;
 	gap: var(--space-m);
 	padding-right: var(--space-m);
-	overflow-y: auto;
-	max-height: 100%;
+	height: 100%;
 }
 
 .illustration_modal_title {
 	font-size: var(--fs-4);
 	font-weight: 700;
-	margin-bottom: var(--space-xs);
 	color: var(--primary);
 }
 
 .illustration_modal_text {
 	font-size: var(--fs-1);
 	line-height: 1.6;
+	color: var(--primary);
+	overflow-y: auto;
+	height: 250px;
+	/* Fixed height for scrollable area */
+	padding-right: var(--space-xs);
+}
+
+/* Styling scrollbar for the description */
+.illustration_modal_text::-webkit-scrollbar {
+	width: 6px;
+}
+
+.illustration_modal_text::-webkit-scrollbar-track {
+	background: var(--bg-color);
+	border-radius: 3px;
+}
+
+.illustration_modal_text::-webkit-scrollbar-thumb {
+	background: var(--primary);
+	border-radius: 3px;
+	opacity: 0.5;
+}
+
+.illustration_modal_details {
+	padding-top: var(--space-m);
+	border-top: var(--basic-line-weight) solid var(--primary);
+	opacity: 0.8;
+}
+
+.illustration_modal_details p {
+	font-size: var(--fs-0);
+	margin-bottom: var(--space-xs);
 	color: var(--primary);
 }
 
@@ -771,19 +802,6 @@ footer svg:active {
 
 .illustration_modal_close:hover {
 	transform: scale(1.1);
-}
-
-.illustration_modal_details {
-	margin-top: auto;
-	padding-top: var(--space-m);
-	border-top: var(--basic-line-weight) solid var(--primary);
-	opacity: 0.8;
-}
-
-.illustration_modal_details p {
-	font-size: var(--fs-0);
-	margin-bottom: var(--space-xs);
-	color: var(--primary);
 }
 
 .illustration_modal.active .illustration_modal_content {

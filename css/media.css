@@ -106,6 +106,44 @@
 	.illustration_modal_content {
 		max-width: 95%;
 		padding: var(--space-m);
+		grid-template-columns: 1fr;
+		grid-template-rows: auto auto 1fr;
+		height: min(800px, 85vh);
+	}
+
+	.illustration_modal_text_content {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-m);
+		padding-right: 0;
+	}
+
+	.illustration_modal_image_container {
+		order: -1;
+		height: 40vh;
+		width: 100%;
+		margin-bottom: var(--space-m);
+	}
+
+	.illustration_modal_image {
+		max-height: 100%;
+		object-fit: contain;
+	}
+
+	.illustration_modal_title {
+		order: 1;
+	}
+
+	.illustration_modal_text {
+		order: 2;
+		height: 150px;
+		/* Smaller fixed height for mobile */
+		overflow-y: auto;
+	}
+
+	.illustration_modal_details {
+		order: 3;
+		margin-top: var(--space-s);
 	}
 
 	/* Hero Section Mobile Styles */

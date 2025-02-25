@@ -126,6 +126,8 @@ const modal = document.querySelector('.illustration_modal');
 const modalImage = modal.querySelector('.illustration_modal_image');
 const modalTitle = modal.querySelector('.illustration_modal_title');
 const modalText = modal.querySelector('.illustration_modal_text');
+const modalDate = modal.querySelector('.illustration_modal_date');
+const modalTools = modal.querySelector('.illustration_modal_tools');
 const modalClose = modal.querySelector('.illustration_modal_close');
 
 // Open modal when clicking on an illustration
@@ -134,11 +136,15 @@ document.querySelectorAll('.works_illustration').forEach(illustration => {
     const img = illustration.querySelector('img');
     const title = illustration.getAttribute('data-title');
     const description = illustration.getAttribute('data-description');
+    const year = illustration.getAttribute('data-year');
+    const tools = illustration.getAttribute('data-tools');
 
     modalImage.src = img.src;
     modalImage.alt = img.alt;
     modalTitle.textContent = title;
     modalText.textContent = description;
+    modalDate.textContent = `Created: ${year}`;
+    modalTools.textContent = `Tools: ${tools}`;
 
     modal.classList.add('active');
     document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
