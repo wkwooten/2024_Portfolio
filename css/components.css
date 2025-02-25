@@ -737,15 +737,17 @@ footer svg:active {
 .illustration_modal_text_content {
 	display: flex;
 	flex-direction: column;
-	gap: var(--space-m);
+	gap: var(--space-s);
 	padding-right: var(--space-m);
 	height: 100%;
+	overflow: hidden;
 }
 
 .illustration_modal_title {
 	font-size: var(--fs-4);
 	font-weight: 700;
 	color: var(--primary);
+	margin-bottom: var(--space-2xs);
 }
 
 .illustration_modal_text {
@@ -753,8 +755,8 @@ footer svg:active {
 	line-height: 1.6;
 	color: var(--primary);
 	overflow-y: auto;
-	height: 250px;
-	/* Fixed height for scrollable area */
+	-webkit-overflow-scrolling: touch;
+	flex: 1;
 	padding-right: var(--space-xs);
 }
 
@@ -775,14 +777,15 @@ footer svg:active {
 }
 
 .illustration_modal_details {
-	padding-top: var(--space-m);
+	padding-top: var(--space-s);
 	border-top: var(--basic-line-weight) solid var(--primary);
 	opacity: 0.8;
+	margin-top: auto;
 }
 
 .illustration_modal_details p {
 	font-size: var(--fs-0);
-	margin-bottom: var(--space-xs);
+	margin-bottom: var(--space-2xs);
 	color: var(--primary);
 }
 

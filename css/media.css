@@ -108,21 +108,25 @@
 		padding: var(--space-m);
 		grid-template-columns: 1fr;
 		grid-template-rows: auto auto 1fr;
-		height: min(800px, 85vh);
+		height: 90vh;
+		max-height: -webkit-fill-available;
+		overflow-y: auto;
 	}
 
 	.illustration_modal_text_content {
 		display: flex;
 		flex-direction: column;
-		gap: var(--space-m);
+		gap: var(--space-xs);
 		padding-right: 0;
+		height: 100%;
+		overflow: hidden;
 	}
 
 	.illustration_modal_image_container {
 		order: -1;
-		height: 40vh;
+		height: 30vh;
 		width: 100%;
-		margin-bottom: var(--space-m);
+		margin-bottom: var(--space-s);
 	}
 
 	.illustration_modal_image {
@@ -132,18 +136,23 @@
 
 	.illustration_modal_title {
 		order: 1;
+		margin-bottom: var(--space-2xs);
 	}
 
 	.illustration_modal_text {
 		order: 2;
-		height: 150px;
-		/* Smaller fixed height for mobile */
+		flex: 1;
 		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+		padding-right: var(--space-xs);
+		margin-bottom: var(--space-s);
 	}
 
 	.illustration_modal_details {
 		order: 3;
-		margin-top: var(--space-s);
+		border-top: var(--basic-line-weight) solid var(--primary);
+		padding-top: var(--space-s);
+		margin-top: auto;
 	}
 
 	/* Hero Section Mobile Styles */
@@ -157,12 +166,10 @@
 	}
 
 	.hero_full {
-		background: linear-gradient(-15deg,
-				rgba(45, 199, 251, 0.05),
-				rgba(12, 246, 67, 0.08),
-				rgba(45, 199, 251, 0.05));
+		background: linear-gradient(-15deg, rgba(45, 199, 251, 0.00), rgba(12, 246, 67, 0.08), rgba(45, 199, 251, 0.0));
 		background-size: 200% 200%;
 		animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+		-webkit-animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
 	}
 
 	/* Navigation Components */
