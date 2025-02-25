@@ -74,6 +74,22 @@ html {
         rgba(160, 44, 255, 0.3));
     box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
   }
+
+  .cs_nav {
+    background: var(--bg-color);
+  }
+
+  #bumble {
+    background: rgba(255, 198, 41, 0.15);
+  }
+
+  #tinder {
+    background: rgba(254, 60, 114, 0.15);
+  }
+
+  #hinge {
+    background: rgba(26, 26, 26, 0.2);
+  }
 }
 
 /* ==========================================================================
@@ -572,7 +588,7 @@ blockquote {
 
   @media (prefers-color-scheme: dark) {
     .hero_full {
-      background: linear-gradient(05deg,
+      background: linear-gradient(135deg,
           rgba(0, 201, 113, 0.15),
           rgba(160, 44, 255, 0.18),
           rgba(0, 201, 114, 0));
@@ -1506,6 +1522,121 @@ blockquote {
   border-top: var(--basic-line-weight) solid var(--primary);
 }
 
+.cs_end {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-xl) var(--space-l);
+  margin-top: var(--space-2xl);
+  border-top: var(--basic-line-weight) solid var(--primary);
+}
+
+.cs_end a {
+  text-decoration: none;
+  transition: transform 0.3s ease;
+}
+
+.cs_end a:hover {
+  transform: translateY(-5px);
+}
+
+.cs_end h4 {
+  margin-bottom: var(--space-xs);
+}
+
+.cs_end p {
+  opacity: 0.7;
+  margin: 0;
+}
+
+.cs_end_prev {
+  text-align: left;
+}
+
+.cs_end_next {
+  text-align: right;
+}
+
+.cs_nav {
+  position: sticky;
+  top: 0;
+  background: var(--bg-color);
+  z-index: 200;
+  width: 100%;
+  border-bottom: var(--basic-line-weight) solid var(--primary);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+.cs_nav .nav_list {
+  display: flex;
+  list-style: none;
+  padding: var(--space-m);
+  gap: var(--space-m);
+  margin: 0;
+  min-width: max-content;
+  justify-content: center;
+}
+
+.cs_nav .nav_item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  padding: 0 var(--space-xs);
+}
+
+.cs_nav .nav_number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: var(--basic-line-weight) solid var(--primary);
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: var(--fs-2);
+  transition: all 0.3s ease;
+}
+
+.cs_nav .nav_label {
+  font-size: var(--fs-0);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cs_nav .nav_item:hover .nav_number {
+  background-color: var(--primary);
+  color: var(--bg-color);
+  transform: translateY(-2px);
+}
+
+.cs_page .nav_full {
+  z-index: 100;
+}
+
+/* Create a wrapper for scrollable content */
+.cs_content_wrapper {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Add specific styling for overview gallery */
+#overview_gallery {
+  height: auto;
+  padding: var(--space-s) 0;
+}
+
+#overview_gallery img {
+  aspect-ratio: auto;
+  height: 600px;
+  width: auto;
+  object-fit: contain;
+}
+
 /* ==========================================================================
    Modal and Overlay Styles
    ========================================================================== */
@@ -1906,40 +2037,7 @@ footer svg:active {
   }
 }
 
-.cs_end {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--space-xl) var(--space-l);
-  margin-top: var(--space-2xl);
-  border-top: var(--basic-line-weight) solid var(--primary);
-}
 
-.cs_end a {
-  text-decoration: none;
-  transition: transform 0.3s ease;
-}
-
-.cs_end a:hover {
-  transform: translateY(-5px);
-}
-
-.cs_end h4 {
-  margin-bottom: var(--space-xs);
-}
-
-.cs_end p {
-  opacity: 0.7;
-  margin: 0;
-}
-
-.cs_end_prev {
-  text-align: left;
-}
-
-.cs_end_next {
-  text-align: right;
-}
 
 /* Mobile Styling */
 @media screen and (max-width: 62.5rem) {
@@ -2098,32 +2196,6 @@ footer svg:active {
   text-align: right;
 }
 
-@media screen and (max-width: 768px) {
-  .cs_top_nav {
-    flex-direction: column;
-    gap: var(--space-2xs);
-    padding: var(--space-2xs) var(--space-s);
-    text-align: center;
-    align-items: center;
-  }
-
-  .cs_top_nav a {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .cs_top_nav h4 {
-    text-align: center;
-  }
-
-  .cs_top_nav_prev,
-  .cs_top_nav_next {
-    text-align: center;
-  }
-}
-
 @keyframes heroGradient {
   0% {
     background-position: 0% 50%;
@@ -2142,7 +2214,73 @@ footer svg:active {
    Media Queries
    ========================================================================== */
 
-/* Tablet and Mobile Styles (≤ 62.5rem / 1000px) */
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #090909;
+    --primary: rgb(255, 255, 255);
+    --secondary: #090909;
+    --color1: #1d3383;
+    --color2: #126743;
+    --color3: #cc3037;
+    --gradient_color1: #00c971;
+    --gradient_color2: #a02cff;
+    --vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
+  }
+
+  .hero {
+    background: linear-gradient(135deg,
+        rgba(0, 201, 113, 0.3),
+        rgba(160, 44, 255, 0.3));
+    box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
+  }
+
+  .cs_nav {
+    background: var(--bg-color);
+  }
+
+  #bumble {
+    background: rgba(255, 198, 41, 0.15);
+  }
+
+  #tinder {
+    background: rgba(254, 60, 114, 0.15);
+  }
+
+  #hinge {
+    background: rgba(26, 26, 26, 0.2);
+  }
+}
+
+/* Motion Preferences */
+@media screen and (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Height-based Media Queries */
+@media screen and (max-height: 62.5rem) {
+  .hero_full {
+    justify-content: center;
+    align-items: center;
+    height: auto !important;
+  }
+}
+
+@media screen and (min-height: 1000px) {
+  .hero {
+    margin: auto;
+  }
+}
+
+/* Width-based Media Queries - Large Screens to Small */
 @media screen and (max-width: 62.5rem) {
 
   /* Navigation */
@@ -2188,6 +2326,8 @@ footer svg:active {
     box-shadow: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+    grid-template-columns: 1fr;
+    gap: var(--space-s);
   }
 
   .hero_full {
@@ -2199,23 +2339,7 @@ footer svg:active {
     animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
   }
 
-  /* Dark mode specific styles for this breakpoint */
-  @media (prefers-color-scheme: dark) {
-    .hero_full {
-      background: linear-gradient(135deg,
-          rgba(0, 201, 113, 0.15),
-          rgba(160, 44, 255, 0.18),
-          rgba(0, 201, 114, 0));
-      background-size: 200% 200%;
-      animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-    }
-  }
-}
-
-/* Mobile Styles (≤ 768px) */
-@media screen and (max-width: 768px) {
-
-  /* Navigation */
+  /* Navigation Components */
   .cs_end,
   .cs_top_nav {
     flex-direction: column;
@@ -2237,14 +2361,16 @@ footer svg:active {
 
   .cs_top_nav a {
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
-  /* Hero Section */
-  .hero {
-    grid-template-columns: 1fr;
-    gap: var(--space-s);
+  .cs_top_nav h4 {
+    text-align: center;
   }
 
+  /* Hero Components */
   .name {
     width: min-content;
   }
@@ -2300,127 +2426,24 @@ footer svg:active {
   .cs_nav .nav_label {
     font-size: 0.9em;
   }
+
+  /* Dark mode specific styles for this breakpoint */
+  @media (prefers-color-scheme: dark) {
+    .hero_full {
+      background: linear-gradient(135deg,
+          rgba(0, 201, 113, 0.15),
+          rgba(160, 44, 255, 0.18),
+          rgba(0, 201, 114, 0));
+      background-size: 200% 200%;
+      animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+    }
+  }
 }
 
-/* Tablet and Large Mobile Styles (≤ 900px) */
+/* Tablet and Medium Screen Styles */
 @media screen and (max-width: 900px) {
-  .subsection_body table {
-    display: block;
-    width: 100%;
-    margin: var(--space-m) 0;
-    min-width: unset;
-    overflow-x: hidden;
-  }
 
-  .subsection_body tbody {
-    display: block;
-    width: 100%;
-  }
-
-  .subsection_body thead {
-    display: none;
-  }
-
-  .subsection_body tbody tr {
-    display: block;
-    margin-bottom: var(--space-m);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .subsection_body td {
-    display: grid;
-    grid-template-columns: minmax(120px, 30%) 1fr;
-    width: 100%;
-    padding: var(--space-xs) var(--space-s);
-    align-items: start;
-    gap: var(--space-s);
-    box-sizing: border-box;
-  }
-
-  .subsection_body td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    min-width: 120px;
-  }
-
-  .subsection_body td ul {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .subsection_body td li {
-    margin-bottom: var(--space-xs);
-    width: 100%;
-  }
-
-  /* Adjust company-specific styles for mobile */
-  #bumble,
-  #tinder,
-  #hinge {
-    width: 100%;
-    box-sizing: border-box;
-  }
-}
-
-/* Height-based Adjustments */
-@media screen and (max-height: 62.5rem) {
-  .hero_full {
-    justify-content: center;
-    align-items: center;
-    height: auto !important;
-  }
-}
-
-@media screen and (min-height: 1000px) {
-  .hero {
-    margin: auto;
-  }
-}
-
-/* Motion Preferences */
-@media screen and (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* Dark Mode Styles */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #090909;
-    --primary: rgb(255, 255, 255);
-    --secondary: #090909;
-    --color1: #1d3383;
-    --color2: #126743;
-    --color3: #cc3037;
-    --gradient_color1: #00c971;
-    --gradient_color2: #a02cff;
-    --vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
-  }
-
-  .hero {
-    background: linear-gradient(135deg,
-        rgba(0, 201, 113, 0.3),
-        rgba(160, 44, 255, 0.3));
-    box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
-  }
-
-  .cs_nav {
-    background: var(--bg-color);
-  }
-}
-
-/* Mobile & Tablet Styles */
-@media screen and (max-width: 900px) {
+  /* Table Styles */
   .subsection_body table {
     display: block;
     width: 100%;
@@ -2474,120 +2497,6 @@ footer svg:active {
   }
 }
 
-.cs_nav {
-  position: sticky;
-  top: 0;
-  background: var(--bg-color);
-  z-index: 200;
-  width: 100%;
-  border-bottom: var(--basic-line-weight) solid var(--primary);
-  margin-top: var(--space-xl);
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  box-sizing: border-box;
-}
-
-.cs_nav .nav_list {
-  display: flex;
-  list-style: none;
-  padding: var(--space-m);
-  gap: var(--space-m);
-  margin: 0;
-  min-width: max-content;
-  justify-content: center;
-}
-
-.cs_nav .nav_item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xs);
-  text-decoration: none;
-  transition: all 0.3s ease;
-  padding: 0 var(--space-xs);
-}
-
-.cs_nav .nav_number {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: var(--basic-line-weight) solid var(--primary);
-  border-radius: 50%;
-  font-weight: 600;
-  font-size: var(--fs-2);
-  transition: all 0.3s ease;
-}
-
-.cs_nav .nav_label {
-  font-size: var(--fs-0);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.cs_nav .nav_item:hover .nav_number {
-  background-color: var(--primary);
-  color: var(--bg-color);
-  transform: translateY(-2px);
-}
-
-@media screen and (max-width: 768px) {
-  .cs_nav {
-    padding: 0;
-  }
-
-  .cs_nav .nav_list {
-    padding: var(--space-s);
-    justify-content: flex-start;
-  }
-
-  .cs_nav .nav_number {
-    width: 2rem;
-    height: 2rem;
-    font-size: var(--fs-1);
-  }
-
-  .cs_nav .nav_label {
-    font-size: 0.9em;
-  }
-}
-
-/* Dark mode support for nav background */
-@media (prefers-color-scheme: dark) {
-  .cs_nav {
-    background: var(--bg-color);
-  }
-}
-
-.cs_page .nav_full {
-  z-index: 100;
-}
-
-@media screen and (max-width: 768px) {
-  .cs_nav {
-    position: sticky;
-    top: 0;
-    margin-top: 0;
-    /* border-top: var(--basic-line-weight) solid var(--primary); */
-  }
-}
-
-/* Create a wrapper for scrollable content */
-.cs_content_wrapper {
-  width: 100%;
-  overflow-x: hidden;
-}
-
-/* Add specific styling for overview gallery */
-#overview_gallery {
-  height: auto;
-  padding: var(--space-s) 0;
-}
-
-#overview_gallery img {
-  aspect-ratio: auto;
-  height: 600px;
-  width: auto;
-  object-fit: contain;
-}
+/* ==========================================================================
+   Case Study Navigation Styles
+   ========================================================================== */
