@@ -689,6 +689,7 @@ footer svg:active {
 	background-color: rgba(0, 0, 0, 0.9);
 	opacity: 0;
 	transition: opacity 0.3s ease;
+	overflow: hidden;
 }
 
 .illustration_modal.active {
@@ -712,6 +713,7 @@ footer svg:active {
 	transform: scale(0.7);
 	opacity: 0;
 	transition: all 0.3s ease;
+	will-change: transform, opacity;
 }
 
 .illustration_modal_image_container {
@@ -722,7 +724,7 @@ footer svg:active {
 	align-items: center;
 	justify-content: center;
 	overflow: hidden;
-	transition: all 0.3s ease;
+	transition: opacity 0.3s ease;
 }
 
 .illustration_modal_image {
@@ -732,6 +734,7 @@ footer svg:active {
 	height: auto;
 	object-fit: contain;
 	border-radius: 4px;
+	transition: opacity 0.3s ease;
 }
 
 .illustration_modal_text_content {

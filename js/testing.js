@@ -122,53 +122,84 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Illustration Modal Functionality
-const modal = document.querySelector('.illustration_modal');
-const modalImage = modal.querySelector('.illustration_modal_image');
-const modalTitle = modal.querySelector('.illustration_modal_title');
-const modalText = modal.querySelector('.illustration_modal_text');
-const modalDate = modal.querySelector('.illustration_modal_date');
-const modalTools = modal.querySelector('.illustration_modal_tools');
-const modalClose = modal.querySelector('.illustration_modal_close');
+document.addEventListener('DOMContentLoaded', function() {
+  const modal = document.querySelector('.illustration_modal');
+  if (!modal) return; // Exit if modal doesn't exist on this page
 
-// Open modal when clicking on an illustration
-document.querySelectorAll('.works_illustration').forEach(illustration => {
-  illustration.addEventListener('click', () => {
-    const img = illustration.querySelector('img');
-    const title = illustration.getAttribute('data-title');
-    const description = illustration.getAttribute('data-description');
-    const year = illustration.getAttribute('data-year');
-    const tools = illustration.getAttribute('data-tools');
+  const modalImage = modal.querySelector('.illustration_modal_image');
+  const modalTitle = modal.querySelector('.illustration_modal_title');
+  const modalText = modal.querySelector('.illustration_modal_text');
+  const modalDate = modal.querySelector('.illustration_modal_date');
+  const modalTools = modal.querySelector('.illustration_modal_tools');
+  const modalClose = modal.querySelector('.illustration_modal_close');
 
-    modalImage.src = img.src;
-    modalImage.alt = img.alt;
-    modalTitle.textContent = title;
-    modalText.textContent = description;
-    modalDate.textContent = `Created: ${year}`;
-    modalTools.textContent = `Tools: ${tools}`;
-
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+  // Preload images to avoid delay
+  document.querySelectorAll('.works_illustration img').forEach(img => {
+    const preloadImage = new Image();
+    preloadImage.src = img.src;
   });
-});
 
-// Close modal when clicking the close button
-modalClose.addEventListener('click', () => {
-  modal.classList.remove('active');
-  document.body.style.overflow = ''; // Restore scrolling
-});
+  // Open modal when clicking on an illustration
+  document.querySelectorAll('.works_illustration').forEach(illustration => {
+    illustration.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevent default behavior
 
-// Close modal when clicking outside the content
-modal.addEventListener('click', (e) => {
-  if (e.target === modal) {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
+      const img = illustration.querySelector('img');
+      const title = illustration.getAttribute('data-title');
+      const description = illustration.getAttribute('data-description');
+      const year = illustration.getAttribute('data-year');
+      const tools = illustration.getAttribute('data-tools');
+
+      // Set modal content
+      modalTitle.textContent = title || '';
+      modalText.textContent = description || '';
+      modalDate.textContent = year ? `Created: ${year}` : '';
+      modalTools.textContent = tools ? `Tools: ${tools}` : '';
+
+      // Show modal first with a loading state
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Prevent scrolling
+
+      // Load image after modal is visible
+      modalImage.style.opacity = '0';
+      modalImage.onload = function() {
+        modalImage.style.opacity = '1';
+      };
+      modalImage.onerror = function() {
+        console.error('Failed to load image:', img.src);
+        modalImage.src = ''; // Clear source on error
+        modalImage.alt = 'Image failed to load';
+      };
+
+      // Set image source after setting up handlers
+      modalImage.src = img.src;
+      modalImage.alt = img.alt || title || 'Illustration';
+    });
+  });
+
+  // Close modal when clicking the close button
+  if (modalClose) {
+    modalClose.addEventListener('click', (e) => {
+      e.preventDefault();
+      modal.classList.remove('active');
+      document.body.style.overflow = ''; // Restore scrolling
+    });
   }
-});
 
-// Close modal with escape key
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modal.classList.contains('active')) {
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-  }
+  // Close modal when clicking outside the content
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      e.preventDefault();
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
+
+  // Close modal with escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  });
 });

@@ -111,6 +111,23 @@
 		height: 90vh;
 		max-height: -webkit-fill-available;
 		overflow-y: auto;
+		transform: scale(1) !important;
+		will-change: opacity;
+	}
+
+	.illustration_modal_image_container {
+		order: -1;
+		height: 30vh;
+		width: 100%;
+		margin-bottom: var(--space-s);
+		opacity: 1 !important;
+		transform: translateY(0) !important;
+	}
+
+	.illustration_modal_image {
+		max-height: 100%;
+		object-fit: contain;
+		transition: opacity 0.3s ease;
 	}
 
 	.illustration_modal_text_content {
@@ -120,18 +137,8 @@
 		padding-right: 0;
 		height: 100%;
 		overflow: hidden;
-	}
-
-	.illustration_modal_image_container {
-		order: -1;
-		height: 30vh;
-		width: 100%;
-		margin-bottom: var(--space-s);
-	}
-
-	.illustration_modal_image {
-		max-height: 100%;
-		object-fit: contain;
+		opacity: 1 !important;
+		transform: translateY(0) !important;
 	}
 
 	.illustration_modal_title {
@@ -146,6 +153,7 @@
 		-webkit-overflow-scrolling: touch;
 		padding-right: var(--space-xs);
 		margin-bottom: var(--space-s);
+		-webkit-overflow-scrolling: touch;
 	}
 
 	.illustration_modal_details {
