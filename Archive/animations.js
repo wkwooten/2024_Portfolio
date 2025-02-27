@@ -52,3 +52,44 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Browser does not support native lazy loading');
     }
 });
+
+// Image Modal Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Get the modal
+    const modal = document.getElementById('img_modal');
+    const modalImg = document.getElementById('modal_image');
+
+    // Get all images that should be clickable
+    const clickableImages = document.querySelectorAll('.about_pic_image, .sketch_img, .lucky_img');
+
+    // Add click event to each image
+    clickableImages.forEach(img => {
+        img.style.cursor = 'pointer'; // Change cursor to indicate clickable
+        img.addEventListener('click', function() {
+            modal.classList.add('active');
+            modalImg.src = this.src;
+            modalImg.alt = this.alt;
+
+            // Prevent scrolling when modal is open
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    // Close the modal when clicking outside the image
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.classList.remove('active');
+            // Re-enable scrolling
+            document.body.style.overflow = '';
+        }
+    });
+
+    // Close on escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && modal.classList.contains('active')) {
+            modal.classList.remove('active');
+            // Re-enable scrolling
+            document.body.style.overflow = '';
+        }
+    });
+});

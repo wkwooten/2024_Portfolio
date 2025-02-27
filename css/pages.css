@@ -463,20 +463,6 @@ blockquote::before {
 	line-height: 1.6;
 }
 
-/* Responsive layout for smaller screens */
-@media (max-width: 768px) {
-	.lucky_feature {
-		flex-direction: column;
-		text-align: center;
-	}
-
-	.lucky_img_container {
-		flex: 0 0 auto;
-		width: 60%;
-		margin-bottom: var(--space-m);
-	}
-}
-
 /* Works Page Styles */
 .works_section {
 	padding: var(--space-xl) var(--section-spacing);
@@ -668,9 +654,38 @@ blockquote::before {
 	box-sizing: border-box;
 }
 
+.cs_section_header h2 {
+	margin: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+}
+
 .cs_section_header:hover {
 	cursor: pointer;
 	background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Accordion Chevron Styling */
+.chev {
+	transition: transform var(--accordion_time) ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	margin-right: 8px;
+}
+
+.chev svg {
+	width: 32px;
+	height: 32px;
+	display: block;
+}
+
+.chev_rotate {
+	transform: rotate(180deg);
 }
 
 .cs_sub_section {
@@ -1053,52 +1068,3 @@ section {
 	margin-bottom: var(--space-xl);
 }
 
-/* Improved responsive layout */
-@media (min-width: 992px) {
-	.about_bio {
-		flex-direction: row;
-		align-items: flex-start;
-		gap: var(--space-xl);
-	}
-
-	.about_pic {
-		flex: 0 0 350px;
-	}
-
-	.journey_timeline {
-		flex: 1;
-		margin-top: 0;
-	}
-}
-
-/* Responsive adjustments for smaller screens */
-@media (max-width: 768px) {
-
-	.about_bio,
-	.skills,
-	.personal {
-		padding: 0 var(--space-s);
-	}
-
-	blockquote {
-		padding: var(--space-m);
-		margin: var(--space-l) auto;
-	}
-
-	.journey_timeline::before {
-		display: none;
-	}
-
-	.journey_item {
-		padding-left: 0;
-	}
-
-	.journey_item::before {
-		display: none;
-	}
-
-	.section_header,
-	.subsection_header {
-		font-size: calc(var(--fs-3) + 0.2rem);
-	}
-}

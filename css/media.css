@@ -341,40 +341,82 @@
 /* Mobile Styles */
 @media screen and (max-width: 768px) {
 	.hero {
-		grid-template-columns: 1fr;
-		gap: var(--space-s);
+		padding: var(--space-s);
+		margin: var(--space-s);
 	}
 
 	.name {
-		width: min-content;
+		font-size: clamp(2rem, 5vw, 3rem);
 	}
 
 	.frame {
-		width: 100%;
-		padding: var(--space-xl) var(--space-m);
-		margin: 0;
-		justify-content: center;
+		padding: 3.125rem 0.9375rem;
+		margin: 5%;
 	}
 
 	.intro {
-		width: 100%;
-		padding: var(--space-m) var(--space-s);
-		align-items: flex-start;
+		padding: var(--space-s);
 	}
 
 	figcaption {
-		text-align: center;
-		padding: var(--space-s) var(--space-m);
-		max-width: 100%;
-		box-sizing: border-box;
+		font-size: var(--fs-0);
 	}
 
 	figure {
-		margin: var(--space-l) auto;
+		margin: var(--space-s) 0;
 	}
 
 	figure img {
-		max-width: 100%;
+		margin-bottom: var(--space-xs);
+	}
+
+	.lucky_feature {
+		flex-direction: column;
+		padding: var(--space-m);
+	}
+
+	.lucky_img_container {
+		width: 100%;
+		margin-bottom: var(--space-m);
+	}
+
+	/* Gallery adjustments for tablets */
+	.gallery_container {
+		justify-content: center;
+	}
+
+	.gallery_item {
+		flex: 0 0 calc(50% - var(--space-m));
+		min-width: 200px;
+	}
+
+	/* About page responsive adjustments */
+	.about_bio,
+	.skills,
+	.personal {
+		padding: 0 var(--space-s);
+	}
+
+	blockquote {
+		padding: var(--space-m);
+		margin: var(--space-l) auto;
+	}
+
+	.journey_timeline::before {
+		display: none;
+	}
+
+	.journey_item {
+		padding-left: 0;
+	}
+
+	.journey_item::before {
+		display: none;
+	}
+
+	.section_header,
+	.subsection_header {
+		font-size: calc(var(--fs-3) + 0.2rem);
 	}
 }
 
@@ -475,5 +517,83 @@
 
 	50% {
 		filter: drop-shadow(0 0 2rem white);
+	}
+}
+
+@media screen and (max-width: 480px) {
+
+	/* Gallery and skill card adjustments */
+	.gallery_item,
+	.skillCard {
+		flex: 1 1 100%;
+		margin-left: 0;
+		margin-right: 0;
+		margin-bottom: var(--space-s);
+	}
+
+	.gallery_container,
+	.skill_container {
+		padding: 0;
+		gap: var(--space-s);
+	}
+
+	.about_pic_image {
+		max-width: 100%;
+	}
+
+	.about_pic::after {
+		max-width: 100%;
+		left: 15px;
+		width: calc(100% - 30px);
+	}
+
+	/* Case study adjustments */
+	.cs_section {
+		padding: var(--space-l) var(--space-xs);
+	}
+
+	.cs_section_content {
+		padding-inline: var(--space-xs);
+	}
+
+	.cs_section_header {
+		padding: var(--space-s) var(--space-xs);
+	}
+
+	.cs_hero_title {
+		font-size: var(--fs-4);
+		padding: var(--space-m) var(--space-s);
+	}
+
+	.cs_hero {
+		padding: 0 var(--space-s);
+	}
+
+	.cs_info {
+		gap: var(--space-m);
+	}
+}
+
+@media (min-width: 992px) {
+
+	/* About page desktop layout */
+	.about_bio {
+		flex-direction: row;
+		align-items: flex-start;
+		gap: var(--space-xl);
+	}
+
+	.about_pic {
+		flex: 0 0 350px;
+	}
+
+	.journey_timeline {
+		flex: 1;
+		margin-top: 0;
+	}
+
+	/* Sketch gallery desktop layout */
+	.gallery_container {
+		justify-content: space-between;
 	}
 }

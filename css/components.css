@@ -33,6 +33,7 @@
 	justify-content: space-between;
 	margin-top: var(--space-l);
 	margin-inline: var(--space-s);
+	/* max-width: 1200px; */
 	align-items: end;
 	z-index: 3;
 }
