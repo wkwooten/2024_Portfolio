@@ -296,14 +296,14 @@ class InteractivePolyhedron {
     });
 
     // Create boundary size
-    const boundarySize = 10;
+    const boundarySize = 10; // Reset to original size
     const boundaryDepth = 0.5;
 
     // Floor
     const floorBody = new CANNON.Body({
       mass: 0,
       shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundaryDepth, boundarySize)),
-      position: new CANNON.Vec3(0, -3, 0), // Positioned relative to camera view
+      position: new CANNON.Vec3(0, -3, 0), // Reset to original position
       material: wallMaterial
     });
     this.world.addBody(floorBody);
@@ -313,7 +313,7 @@ class InteractivePolyhedron {
     const ceilingBody = new CANNON.Body({
       mass: 0,
       shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundaryDepth, boundarySize)),
-      position: new CANNON.Vec3(0, 20, 0), // Positioned very high above the viewport
+      position: new CANNON.Vec3(0, 20, 0), // Keep this high position
       material: wallMaterial
     });
     this.world.addBody(ceilingBody);
@@ -323,7 +323,7 @@ class InteractivePolyhedron {
     const leftWallBody = new CANNON.Body({
       mass: 0,
       shape: new CANNON.Box(new CANNON.Vec3(boundaryDepth, boundarySize, boundarySize)),
-      position: new CANNON.Vec3(-5, 0, 0), // Positioned relative to camera view
+      position: new CANNON.Vec3(-5, 0, 0), // Reset to original position
       material: wallMaterial
     });
     this.world.addBody(leftWallBody);
@@ -333,7 +333,7 @@ class InteractivePolyhedron {
     const rightWallBody = new CANNON.Body({
       mass: 0,
       shape: new CANNON.Box(new CANNON.Vec3(boundaryDepth, boundarySize, boundarySize)),
-      position: new CANNON.Vec3(5, 0, 0), // Positioned relative to camera view
+      position: new CANNON.Vec3(5, 0, 0), // Reset to original position
       material: wallMaterial
     });
     this.world.addBody(rightWallBody);
@@ -343,7 +343,7 @@ class InteractivePolyhedron {
     const backWallBody = new CANNON.Body({
       mass: 0,
       shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundarySize, boundaryDepth)),
-      position: new CANNON.Vec3(0, 0, -5), // Positioned relative to camera view
+      position: new CANNON.Vec3(0, 0, -5), // Reset to original position
       material: wallMaterial
     });
     this.world.addBody(backWallBody);
@@ -353,7 +353,7 @@ class InteractivePolyhedron {
     const frontWallBody = new CANNON.Body({
       mass: 0,
       shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundarySize, boundaryDepth)),
-      position: new CANNON.Vec3(0, 0, 5), // Positioned relative to camera view
+      position: new CANNON.Vec3(0, 0, 5), // Reset to original position
       material: wallMaterial
     });
     this.world.addBody(frontWallBody);
@@ -946,11 +946,10 @@ class InteractivePolyhedron {
       const vel = this.polyhedronBody.velocity;
 
       // Check for out of bounds or unstable velocity
-      // Updated bounds to match the new boundary sizes
-      if (Math.abs(pos.x) > 10 ||
+      if (Math.abs(pos.x) > 10 ||  // Reset to original boundary size
           pos.y > 25 || // Higher than ceiling
-          pos.y < -10 ||
-          Math.abs(pos.z) > 10 ||
+          pos.y < -10 || // Reset to original boundary size
+          Math.abs(pos.z) > 10 ||  // Reset to original boundary size
           Math.abs(vel.x) > 20 ||
           Math.abs(vel.y) > 20 ||
           Math.abs(vel.z) > 20) {
@@ -972,9 +971,9 @@ class InteractivePolyhedron {
 
         // Reset position to match the initial spawn position
         this.polyhedronBody.position.set(
-          (Math.random() - 0.5) * 4, // Random horizontal position within boundaries
+          (Math.random() - 0.5) * 4, // Reset to original range
           startY, // Position high but below ceiling
-          (Math.random() - 0.5) * 3  // Random depth within boundaries
+          (Math.random() - 0.5) * 3  // Reset to original range
         );
 
         // Reset velocity to match the initial spawn velocity
@@ -1152,9 +1151,9 @@ class InteractivePolyhedron {
     const startY = Math.min(15, visibleHeightAtDistance / 2 + 5);
 
     this.polyhedronBody.position.set(
-      (Math.random() - 0.5) * 4, // Random horizontal position within boundaries
+      (Math.random() - 0.5) * 4, // Reset to original range
       startY, // Position high but below ceiling
-      (Math.random() - 0.5) * 3  // Random depth within boundaries
+      (Math.random() - 0.5) * 3  // Reset to original range
     );
 
     // Add gentle initial rotation

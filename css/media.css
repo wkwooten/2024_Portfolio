@@ -16,12 +16,12 @@
 		--vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
 	}
 
-	.hero {
+	/* .hero {
 		background: linear-gradient(135deg,
 				rgba(0, 201, 113, 0.3),
 				rgba(160, 44, 255, 0.3));
 		box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
-	}
+	} */
 
 	.cs_nav {
 		background: var(--bg-color);
@@ -269,16 +269,16 @@
 	}
 
 	/* Dark mode specific styles for this breakpoint */
-	@media (prefers-color-scheme: dark) {
+	/* @media (prefers-color-scheme: dark) {
 		.hero_full {
 			background: linear-gradient(135deg,
 					rgba(0, 201, 113, 0.15),
 					rgba(160, 44, 255, 0.18),
 					rgba(0, 201, 114, 0));
 			background-size: 200% 200%;
-			/* animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite; */
+			animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
 		}
-	}
+	} */
 }
 
 /* Tablet and Medium Screen Styles */

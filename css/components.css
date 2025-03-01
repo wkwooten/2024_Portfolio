@@ -334,6 +334,22 @@
 	z-index: 0;
 	overflow: hidden;
 	pointer-events: auto;
+	background: linear-gradient(to bottom,
+			rgba(26, 115, 232, 0.08) 0%,
+			rgba(31, 191, 84, 0.05) 50%,
+			rgba(255, 255, 255, 0) 100%);
+	/* Smoother light mode gradient */
+}
+
+/* Dark mode gradient for the canvas */
+@media (prefers-color-scheme: dark) {
+	#grid-canvas {
+		background: linear-gradient(-180deg,
+				rgba(0, 201, 113, 0.15) 0%,
+				rgba(160, 44, 255, 0.18) 60%,
+				rgba(0, 0, 0, 0) 100%);
+		/* Smoother dark mode gradient */
+	}
 }
 
 #grid-canvas canvas {
