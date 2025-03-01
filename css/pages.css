@@ -214,6 +214,19 @@ blockquote::before {
 	max-width: 800px;
 }
 
+.timeline_heading {
+	text-align: left;
+	margin-bottom: var(--space-m);
+	padding-bottom: var(--space-xs);
+	padding-left: var(--space-l);
+	border-bottom: var(--basic-line-weight) solid var(--primary);
+	color: var(--primary);
+	text-transform: capitalize;
+	font-weight: 600;
+	font-size: var(--fs-3);
+	width: calc(100% - var(--space-l));
+}
+
 .journey_timeline::before {
 	content: '';
 	position: absolute;
@@ -1067,4 +1080,3 @@ section {
 	margin-top: var(--space-m);
 	margin-bottom: var(--space-xl);
 }
-

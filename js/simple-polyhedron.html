@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Polyhedron Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+    #container {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+    import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
+
+    // Log CANNON to check what's available
+    console.log('CANNON loaded:', !!CANNON);
+    console.log('CANNON constructors:', Object.keys(CANNON).filter(key => typeof CANNON[key] === 'function'));
+
+    // Basic setup
+    const container = document.getElementById('container');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
+
+    // Create a simple world
+    const world = new CANNON.World();
+    world.gravity.set(0, -9.82, 0);
+
+    // Try to create a sphere shape
+    try {
+      console.log('Creating sphere...');
+
+      // Visual sphere
+      const geometry = new THREE.DodecahedronGeometry(1, 0);
+      const material = new THREE.MeshBasicMaterial({
+        color: 0x1a73e8,
+        wireframe: true
+      });
+      const mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+
+      // Physics sphere - try different constructors
+      let body;
+
+      try {
+        if (CANNON.Sphere) {
+          console.log('Using CANNON.Sphere');
+          const shape = new CANNON.Sphere(1);
+          body = new CANNON.Body({ mass: 1 });
+          body.addShape(shape);
+        } else if (CANNON.shapes && CANNON.shapes.Sphere) {
+          console.log('Using CANNON.shapes.Sphere');
+          const shape = new CANNON.shapes.Sphere(1);
+          body = new CANNON.Body({ mass: 1 });
+          body.addShape(shape);
+        } else {
+          console.log('No Sphere constructor found, using Box');
+          const shape = new CANNON.Box(new CANNON.Vec3(1, 1, 1));
+          body = new CANNON.Body({ mass: 1 });
+          body.addShape(shape);
+        }
+      } catch (e) {
+        console.error('Error creating shape:', e);
+        // Fallback to box
+        console.log('Falling back to Box');
+        const shape = new CANNON.Box(new CANNON.Vec3(1, 1, 1));
+        body = new CANNON.Body({ mass: 1 });
+        body.addShape(shape);
+      }
+
+      body.position.set(0, 0, 0);
+      world.addBody(body);
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // Step the physics world
+        world.step(1/60);
+
+        // Update mesh position
+        mesh.position.copy(body.position);
+        mesh.quaternion.copy(body.quaternion);
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+
+    } catch (error) {
+      console.error('Error in setup:', error);
+    }
+  </script>
+</body>
+</html>

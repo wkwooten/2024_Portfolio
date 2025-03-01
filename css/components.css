@@ -250,6 +250,19 @@
 	background: transparent;
 }
 
+/* Create interactive zones around the hero */
+.hero_full::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+	pointer-events: none;
+	/* Allow events to pass through to the polyhedron */
+}
+
 .hero {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -265,16 +278,53 @@
 	z-index: 1;
 	border-radius: 10px;
 	background: linear-gradient(135deg,
-			rgba(45, 199, 251, 0.281) 0%,
-			rgba(12, 246, 67, 0.1) 50%,
-			rgba(45, 199, 251, 0.281) 100%);
+			rgba(45, 199, 251, 0.15) 0%,
+			rgba(12, 246, 67, 0.05) 50%,
+			rgba(45, 199, 251, 0.15) 100%);
 	box-shadow: 0 0 20px 5px rgba(27, 54, 93, 0.05);
 	transition: all 0.3s ease;
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
 	margin: 0 auto;
+	pointer-events: none;
+	/* Allow interaction with polyhedron through the hero */
 }
 
+/* Create interactive margins around specific hero elements */
+.frame {
+	pointer-events: none;
+	/* Allow interaction with polyhedron through the frame */
+	position: relative;
+	z-index: 2;
+}
+
+.intro {
+	pointer-events: none;
+	/* Allow interaction with polyhedron through the intro */
+	position: relative;
+	z-index: 2;
+}
+
+/* Create interactive gaps between hero elements */
+.hero > * {
+	position: relative;
+}
+
+/* Add padding around elements to create larger hit areas */
+.frame,
+.intro {
+	padding: 15px;
+	margin: -15px;
+}
+
+/* Make the hero text more legible with subtle text shadow */
+.name,
+#intro_blurb1,
+#intro_blurb2 {
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Ensure the grid canvas can receive events */
 #grid-canvas {
 	position: fixed;
 	top: 0;
@@ -282,8 +332,8 @@
 	width: 100vw;
 	height: 100vh;
 	z-index: 0;
-	pointer-events: none;
 	overflow: hidden;
+	pointer-events: auto;
 }
 
 #grid-canvas canvas {
@@ -293,6 +343,7 @@
 	width: 100vw !important;
 	height: 100vh !important;
 	display: block;
+	pointer-events: auto;
 }
 
 .frame {
@@ -319,9 +370,11 @@
 	line-height: 150%;
 	letter-spacing: -0.135rem;
 	text-transform: uppercase;
-	text-shadow: 1px 2px 2px rgb(91, 91, 91);
+	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 	color: var(--primary);
 	position: relative;
+	pointer-events: none;
+	/* Allow interaction with polyhedron through the name */
 }
 
 .name span {
@@ -362,7 +415,7 @@
 }
 
 .name:hover {
-	cursor: pointer;
+	cursor: default;
 }
 
 .intro {
@@ -391,6 +444,8 @@
 	justify-content: center;
 	width: 100%;
 	align-self: center;
+	pointer-events: auto;
+	/* Ensure contact area is clickable */
 }
 
 .mail {
@@ -407,6 +462,8 @@
 	position: relative;
 	overflow: hidden;
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	pointer-events: auto;
+	/* Ensure mail button is clickable */
 }
 
 .mail::before {
