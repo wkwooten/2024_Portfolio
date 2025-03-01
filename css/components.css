@@ -277,14 +277,14 @@
 	position: relative;
 	z-index: 1;
 	border-radius: 10px;
-	background: linear-gradient(135deg,
-			rgba(45, 199, 251, 0.15) 0%,
-			rgba(12, 246, 67, 0.05) 50%,
-			rgba(45, 199, 251, 0.15) 100%);
-	box-shadow: 0 0 20px 5px rgba(27, 54, 93, 0.05);
+	/* background: linear-gradient(135deg,
+			rgba(45, 199, 251, 0.281) 0%,
+			rgba(12, 246, 67, 0.1) 50%,
+			rgba(45, 199, 251, 0.281) 100%); */
+	/* box-shadow: 0 0 20px 5px rgba(27, 54, 93, 0.05); */
 	transition: all 0.3s ease;
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
+	/* backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px); */
 	margin: 0 auto;
 	pointer-events: none;
 	/* Allow interaction with polyhedron through the hero */
