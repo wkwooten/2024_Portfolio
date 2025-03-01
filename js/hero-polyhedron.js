@@ -66,9 +66,11 @@ class InteractivePolyhedron {
     container.addEventListener('mousedown', this.onMouseDown.bind(this));
     window.addEventListener('mousemove', this.onMouseMove.bind(this));
     window.addEventListener('mouseup', this.onMouseUp.bind(this));
+
+    // Use passive: true by default for touch events, but allow preventDefault() when needed
     container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
     window.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
-    window.addEventListener('touchend', this.onTouchEnd.bind(this));
+    window.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: true });
 
     // Add color scheme change listener
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', this.updatePolyhedronColor.bind(this));
@@ -107,13 +109,14 @@ class InteractivePolyhedron {
     // Create Three.js geometry
     const radius = 1;
     const detail = 0; // Increase for smoother edges
-    const geometry = new THREE.DodecahedronGeometry(radius, detail);
+    const geometry = new THREE.IcosahedronGeometry(radius, detail);
 
     // Get color from CSS variables (if available)
     let polyhedronColor = 0x1a73e8; // Default blue
-    try {
-      const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Declare isDarkMode here so it's available throughout the method
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+    try {
       // Use purple color for dark mode
       if (isDarkMode) {
         polyhedronColor = 0x9c27b0; // Purple color for dark mode
@@ -145,20 +148,47 @@ class InteractivePolyhedron {
       console.log('Error getting CSS color, using default', e);
     }
 
-    // Create wireframe material with explicit color
+    // Get background color from CSS
+    let backgroundColor = isDarkMode ? 0x121212 : 0xffffff; // Default dark/light background
+    try {
+      const styles = getComputedStyle(document.documentElement);
+      const bgColorStr = styles.getPropertyValue('--bg-color').trim();
+
+      if (bgColorStr) {
+        // Convert CSS color to hex
+        const tempElem = document.createElement('div');
+        tempElem.style.backgroundColor = bgColorStr;
+        document.body.appendChild(tempElem);
+        const computedColor = getComputedStyle(tempElem).backgroundColor;
+        document.body.removeChild(tempElem);
+
+        // Parse RGB values
+        const rgbMatch = computedColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (rgbMatch) {
+          const r = parseInt(rgbMatch[1]);
+          const g = parseInt(rgbMatch[2]);
+          const b = parseInt(rgbMatch[3]);
+          backgroundColor = (r << 16) | (g << 8) | b;
+          if (this.debug) console.log('Using background color:', backgroundColor.toString(16));
+        }
+      }
+    } catch (e) {
+      console.log('Error getting background color, using default', e);
+    }
+
+    // Create material with background color for faces
     const material = new THREE.MeshBasicMaterial({
-      color: polyhedronColor,
-      wireframe: true,
-      wireframeLinewidth: 1,
+      color: backgroundColor,
       transparent: false,
-      opacity: 1.0
+      opacity: 1.0,
+      side: THREE.DoubleSide // Render both sides of faces
     });
 
-    // Create a second material for edges to make them more visible
+    // Create edges geometry to highlight only the outer edges
     const edgesGeometry = new THREE.EdgesGeometry(geometry);
     const edgesMaterial = new THREE.LineBasicMaterial({
       color: polyhedronColor,
-      linewidth: 1
+      linewidth: 2
     });
     const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
 
@@ -361,115 +391,103 @@ class InteractivePolyhedron {
   }
 
   onMouseDown(event) {
-    event.preventDefault(); // Prevent default behavior
+    // Get mouse coordinates
+    const mouseCoords = this.getMouseCoordinates(event);
 
-    const coords = this.getMouseCoordinates(event);
-    this.mouse.x = coords.x;
-    this.mouse.y = coords.y;
+    // Safety check - if polyhedron doesn't exist yet, return
+    if (!this.polyhedron) {
+      return;
+    }
 
-    // Check for intersection with the polyhedron
-    if (this.checkPolyhedronIntersection(this.mouse)) {
-      if (this.debug) console.log('Polyhedron clicked!');
+    // Check if we clicked on the polyhedron
+    const isIntersecting = this.checkPolyhedronIntersection(mouseCoords);
 
+    if (isIntersecting) {
+      // Start dragging
       this.isDragging = true;
+      this.isHovering = true;
 
-      // Change cursor to grabbing
-      this.renderer.domElement.style.cursor = 'grabbing';
+      // Update cursor style
+      document.body.style.cursor = 'grabbing';
 
-      // Snap polyhedron to cursor position
-      this.snapPolyhedronToCursor(this.mouse);
+      // Store initial mouse position for velocity calculation
+      this.previousMousePosition.x = mouseCoords.x;
+      this.previousMousePosition.y = mouseCoords.y;
+      this.lastMouseMoveTime = performance.now();
 
-      // Store time for velocity calculation
-      this.dragStartTime = performance.now();
+      // Reset velocity
+      this.mouseVelocity.x = 0;
+      this.mouseVelocity.y = 0;
+
+      // Initialize dragPositions for throw calculation
       this.dragPositions = [{
-        time: this.dragStartTime,
+        time: performance.now(),
         x: event.clientX,
         y: event.clientY
       }];
 
-      // Pause physics while dragging
-      this.polyhedronBody.type = CANNON.BODY_TYPES.KINEMATIC;
+      // Wake up the physics body
+      this.polyhedronBody.wakeUp();
+
+      // Snap the polyhedron to the cursor
+      this.snapPolyhedronToCursor(mouseCoords);
+
+      if (this.debug) {
+        console.log('Started dragging polyhedron');
+      }
     }
   }
 
-  // Helper method to check for polyhedron intersection with improved detection
   checkPolyhedronIntersection(mousePosition) {
+    // Safety check - if polyhedron doesn't exist yet, return false
+    if (!this.polyhedron) {
+      if (this.debug) console.log('Cannot check intersection: polyhedron not initialized');
+      return false;
+    }
+
+    // Set the raycaster to use the mouse position
     this.raycaster.setFromCamera(mousePosition, this.camera);
-    const intersects = this.raycaster.intersectObject(this.polyhedron);
 
-    if (this.debug) {
-      console.log('Mouse position:', mousePosition);
-      console.log('Intersects:', intersects.length);
-    }
+    // Check for intersections with the polyhedron
+    const intersects = this.raycaster.intersectObject(this.polyhedron, true);
 
-    // If direct intersection, return true
-    if (intersects.length > 0) {
-      return true;
-    }
-
-    // If no direct intersection, try with a slightly expanded detection radius
-    // This makes it easier to click/touch the polyhedron
-    const expandedRaycaster = new THREE.Raycaster();
-
-    // Try multiple slightly offset rays to improve hit detection
-    const offsets = [
-      { x: 0.05, y: 0 },
-      { x: -0.05, y: 0 },
-      { x: 0, y: 0.05 },
-      { x: 0, y: -0.05 },
-      { x: 0.05, y: 0.05 },
-      { x: -0.05, y: -0.05 }
-    ];
-
-    for (const offset of offsets) {
-      const offsetPosition = {
-        x: mousePosition.x + offset.x,
-        y: mousePosition.y + offset.y
-      };
-
-      expandedRaycaster.setFromCamera(offsetPosition, this.camera);
-      const expandedIntersects = expandedRaycaster.intersectObject(this.polyhedron);
-
-      if (expandedIntersects.length > 0) {
-        if (this.debug) console.log('Expanded intersection detected');
-        return true;
-      }
-    }
-
-    return false;
+    // Return true if there are any intersections
+    return intersects.length > 0;
   }
 
   onMouseMove(event) {
-    const coords = this.getMouseCoordinates(event);
-    this.mouse.x = coords.x;
-    this.mouse.y = coords.y;
+    // Get mouse coordinates
+    const mouseCoords = this.getMouseCoordinates(event);
 
-    // Check for hover state and update cursor
-    const isIntersecting = this.checkPolyhedronIntersection(this.mouse);
-
-    if (isIntersecting && !this.isDragging) {
-      if (!this.isHovering) {
-        // First time hovering - add visual feedback
-        this.highlightPolyhedron(true);
-      }
-      this.isHovering = true;
-      this.renderer.domElement.style.cursor = 'grab';
-    } else if (!this.isDragging) {
-      if (this.isHovering) {
-        // No longer hovering - remove visual feedback
-        this.highlightPolyhedron(false);
-      }
-      this.isHovering = false;
-      this.renderer.domElement.style.cursor = 'auto';
+    // Safety check - if polyhedron doesn't exist yet, return
+    if (!this.polyhedron) {
+      return;
     }
 
+    // If we're dragging, update the polyhedron position
     if (this.isDragging) {
-      // Snap polyhedron to cursor position
-      this.snapPolyhedronToCursor(this.mouse);
+      this.snapPolyhedronToCursor(mouseCoords);
 
-      // Store position for velocity calculation (keep last 5 positions)
+      // Calculate mouse velocity for throw physics
+      const currentTime = performance.now();
+      const deltaTime = currentTime - this.lastMouseMoveTime;
+
+      if (deltaTime > 0) {
+        this.mouseVelocity.x = (mouseCoords.x - this.previousMousePosition.x) / deltaTime * 1000;
+        this.mouseVelocity.y = (mouseCoords.y - this.previousMousePosition.y) / deltaTime * 1000;
+      }
+
+      this.previousMousePosition.x = mouseCoords.x;
+      this.previousMousePosition.y = mouseCoords.y;
+      this.lastMouseMoveTime = currentTime;
+
+      // Store position for velocity calculation
+      if (!this.dragPositions) {
+        this.dragPositions = [];
+      }
+
       this.dragPositions.push({
-        time: performance.now(),
+        time: currentTime,
         x: event.clientX,
         y: event.clientY
       });
@@ -478,33 +496,65 @@ class InteractivePolyhedron {
       if (this.dragPositions.length > 5) {
         this.dragPositions.shift();
       }
+    } else {
+      // If not dragging, check if we're hovering over the polyhedron
+      const isIntersecting = this.checkPolyhedronIntersection(mouseCoords);
+
+      // Only update if the hover state has changed
+      if (isIntersecting !== this.isHovering) {
+        this.isHovering = isIntersecting;
+        this.highlightPolyhedron(isIntersecting);
+
+        // Update cursor style
+        document.body.style.cursor = isIntersecting ? 'grab' : 'auto';
+      }
     }
   }
 
   // Highlight the polyhedron when interacting with it
   highlightPolyhedron(highlight) {
-    if (!this.polyhedron) return;
+    if (!this.polyhedron) {
+      console.log('Cannot highlight: polyhedron not initialized');
+      return;
+    }
 
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    try {
+      const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    if (highlight) {
-      // Highlight colors
-      const highlightColor = isDarkMode ? 0xd500f9 : 0x2979ff; // Brighter purple for dark mode, bright blue for light
-      this.polyhedron.material.color.setHex(highlightColor);
+      // Define highlight colors based on color scheme
+      const normalEdgeColor = isDarkMode ? 0x9c27b0 : 0x1a73e8; // Purple for dark mode, blue for light
+      const highlightEdgeColor = isDarkMode ? 0xd500f9 : 0x2979ff; // Brighter purple for dark, brighter blue for light
 
-      // Update edges color if they exist
-      if (this.polyhedron.children.length > 0) {
-        this.polyhedron.children[0].material.color.setHex(highlightColor);
+      // Only update the edge color, not the face color
+      if (this.polyhedron.children.length > 0 && this.polyhedron.children[0].material) {
+        if (highlight) {
+          // Highlight state - brighter color, thicker lines
+          this.polyhedron.children[0].material.color.setHex(highlightEdgeColor);
+          this.polyhedron.children[0].material.linewidth = 3; // Thicker lines when highlighted
+
+          // Slightly increase scale for visual feedback
+          this.polyhedron.scale.set(1.3, 1.3, 1.3);
+        } else {
+          // Normal state - regular color, normal lines
+          this.polyhedron.children[0].material.color.setHex(normalEdgeColor);
+          this.polyhedron.children[0].material.linewidth = 2; // Normal linewidth
+
+          // Reset scale
+          this.polyhedron.scale.set(1.2, 1.2, 1.2);
+        }
+
+        this.polyhedron.children[0].material.needsUpdate = true;
+
+        if (this.debug) {
+          console.log(`Polyhedron ${highlight ? 'highlighted' : 'unhighlighted'} with edge color: ${
+            highlight ? highlightEdgeColor.toString(16) : normalEdgeColor.toString(16)
+          }`);
+        }
+      } else {
+        console.error('Polyhedron edges not found for highlighting');
       }
-
-      // Scale up slightly for visual feedback
-      this.polyhedron.scale.set(1.3, 1.3, 1.3);
-    } else {
-      // Reset to normal color
-      this.updatePolyhedronColor();
-
-      // Reset scale
-      this.polyhedron.scale.set(1.2, 1.2, 1.2);
+    } catch (error) {
+      console.error('Error highlighting polyhedron:', error);
     }
   }
 
@@ -513,7 +563,12 @@ class InteractivePolyhedron {
       this.isDragging = false;
 
       // Reset cursor based on hover state
-      this.renderer.domElement.style.cursor = this.isHovering ? 'grab' : 'auto';
+      document.body.style.cursor = this.isHovering ? 'grab' : 'auto';
+
+      // Initialize dragPositions if it doesn't exist
+      if (!this.dragPositions) {
+        this.dragPositions = [];
+      }
 
       // Calculate throw velocity based on recent movement
       let throwVelocity = this.calculateThrowVelocity();
@@ -533,7 +588,8 @@ class InteractivePolyhedron {
 
   // Calculate velocity based on recent mouse movements
   calculateThrowVelocity() {
-    if (this.dragPositions.length < 2) {
+    // Initialize dragPositions if it doesn't exist
+    if (!this.dragPositions || this.dragPositions.length < 2) {
       // Default velocity if not enough data
       return new CANNON.Vec3(
         (Math.random() - 0.5) * 5,
@@ -565,13 +621,23 @@ class InteractivePolyhedron {
   }
 
   onTouchStart(event) {
-    event.preventDefault();
+    // Get touch coordinates
     const coords = this.getTouchCoordinates(event);
     this.mouse.x = coords.x;
     this.mouse.y = coords.y;
 
+    // Safety check - if polyhedron doesn't exist yet, return
+    if (!this.polyhedron) {
+      return;
+    }
+
     // Check for intersection with the polyhedron
-    if (this.checkPolyhedronIntersection(this.mouse)) {
+    const isIntersecting = this.checkPolyhedronIntersection(this.mouse);
+
+    if (isIntersecting) {
+      // Only prevent default behavior if we're interacting with the polyhedron
+      event.preventDefault();
+
       if (this.debug) console.log('Polyhedron touched!');
 
       this.isDragging = true;
@@ -593,11 +659,14 @@ class InteractivePolyhedron {
       // Pause physics while dragging
       this.polyhedronBody.type = CANNON.BODY_TYPES.KINEMATIC;
     }
+    // If not touching the polyhedron, allow default behavior (scrolling)
   }
 
   onTouchMove(event) {
-    event.preventDefault();
+    // Only prevent default and handle the event if we're dragging the polyhedron
     if (this.isDragging) {
+      event.preventDefault();
+
       const coords = this.getTouchCoordinates(event);
       this.mouse.x = coords.x;
       this.mouse.y = coords.y;
@@ -617,6 +686,7 @@ class InteractivePolyhedron {
         this.dragPositions.shift();
       }
     }
+    // If not dragging, allow default behavior (scrolling)
   }
 
   onTouchEnd() {
@@ -649,6 +719,12 @@ class InteractivePolyhedron {
     if (!this.polyhedron || !this.polyhedronBody) {
       console.error('Polyhedron or physics body missing in animation loop');
       return;
+    }
+
+    // Make sure clock is initialized
+    if (!this.clock) {
+      console.log('Initializing clock in animation loop');
+      this.clock = new THREE.Clock();
     }
 
     // Update physics
@@ -805,23 +881,53 @@ class InteractivePolyhedron {
       return;
     }
 
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    let newColor = 0x1a73e8; // Default blue
+    try {
+      const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let edgeColor = 0x1a73e8; // Default blue
 
-    if (isDarkMode) {
-      newColor = 0x9c27b0; // Purple for dark mode
-      if (this.debug) console.log('Setting dark mode purple color');
-    } else {
+      if (isDarkMode) {
+        edgeColor = 0x9c27b0; // Purple for dark mode
+        if (this.debug) console.log('Setting dark mode purple color for edges');
+      } else {
+        try {
+          const styles = getComputedStyle(document.documentElement);
+          const cssColor = styles.getPropertyValue('--gradient-color1').trim();
+
+          if (cssColor) {
+            // Convert CSS color to hex
+            const tempElem = document.createElement('div');
+            tempElem.style.color = cssColor;
+            document.body.appendChild(tempElem);
+            const computedColor = getComputedStyle(tempElem).color;
+            document.body.removeChild(tempElem);
+
+            // Parse RGB values
+            const rgbMatch = computedColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+            if (rgbMatch) {
+              const r = parseInt(rgbMatch[1]);
+              const g = parseInt(rgbMatch[2]);
+              const b = parseInt(rgbMatch[3]);
+              edgeColor = (r << 16) | (g << 8) | b;
+              if (this.debug) console.log('Using CSS color for edges:', edgeColor.toString(16));
+            }
+          }
+        } catch (e) {
+          console.log('Error getting CSS color for edges, using default', e);
+        }
+      }
+
+      // Get background color for faces
+      let backgroundColor = isDarkMode ? 0x121212 : 0xffffff; // Default dark/light background
       try {
         const styles = getComputedStyle(document.documentElement);
-        const cssColor = styles.getPropertyValue('--gradient-color1').trim();
+        const bgColorStr = styles.getPropertyValue('--bg-color').trim();
 
-        if (cssColor) {
+        if (bgColorStr) {
           // Convert CSS color to hex
           const tempElem = document.createElement('div');
-          tempElem.style.color = cssColor;
+          tempElem.style.backgroundColor = bgColorStr;
           document.body.appendChild(tempElem);
-          const computedColor = getComputedStyle(tempElem).color;
+          const computedColor = getComputedStyle(tempElem).backgroundColor;
           document.body.removeChild(tempElem);
 
           // Parse RGB values
@@ -830,29 +936,36 @@ class InteractivePolyhedron {
             const r = parseInt(rgbMatch[1]);
             const g = parseInt(rgbMatch[2]);
             const b = parseInt(rgbMatch[3]);
-            newColor = (r << 16) | (g << 8) | b;
-            if (this.debug) console.log('Using CSS color:', newColor.toString(16));
+            backgroundColor = (r << 16) | (g << 8) | b;
+            if (this.debug) console.log('Using background color for faces:', backgroundColor.toString(16));
           }
         }
       } catch (e) {
-        console.log('Error getting CSS color, using default', e);
+        console.log('Error getting background color for faces, using default', e);
       }
-    }
 
-    // Ensure the material exists before updating
-    if (this.polyhedron.material) {
-      this.polyhedron.material.color.setHex(newColor);
+      // Update the polyhedron material if it exists
+      if (this.polyhedron.material) {
+        // Set face color to match background
+        this.polyhedron.material.color.setHex(backgroundColor);
+        this.polyhedron.material.needsUpdate = true;
 
-      // Update edges color if they exist
+        if (this.debug) console.log('Updated face color to match background:', backgroundColor.toString(16));
+      } else {
+        console.error('Polyhedron material not found');
+      }
+
+      // Update the edges color if they exist
       if (this.polyhedron.children.length > 0 && this.polyhedron.children[0].material) {
-        this.polyhedron.children[0].material.color.setHex(newColor);
-      }
+        this.polyhedron.children[0].material.color.setHex(edgeColor);
+        this.polyhedron.children[0].material.needsUpdate = true;
 
-      if (this.debug) {
-        console.log('Updated polyhedron color to', newColor.toString(16), 'for', isDarkMode ? 'dark mode' : 'light mode');
+        if (this.debug) console.log('Updated edge color:', edgeColor.toString(16));
+      } else {
+        console.error('Polyhedron edges not found');
       }
-    } else {
-      console.error('Polyhedron material not found');
+    } catch (error) {
+      console.error('Error updating polyhedron color:', error);
     }
   }
 }
