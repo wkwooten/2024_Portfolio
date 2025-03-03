@@ -54,7 +54,6 @@
     </div>
     <div class="controls">
       <button id="reset-polyhedron" class="playground-button">Reset Position</button>
-      <button id="add-polyhedron" class="playground-button">Add Polyhedron</button>
       <button id="change-color" class="playground-button">Change Colors</button>
       <button id="toggle-boundaries" class="playground-button">Show Boundaries</button>
       <div class="debug-toggle">
@@ -178,15 +177,6 @@
         });
       }
 
-      // Add polyhedron button (in control panel)
-      const addButton = document.getElementById('add-polyhedron');
-      if (addButton) {
-        addButton.addEventListener('click', () => {
-          console.log('Add button clicked');
-          addNewPolyhedron(container, lightModeColors, darkModeColors, module);
-        });
-      }
-
       // Add polyhedron FAB
       const addFabButton = document.getElementById('add-polyhedron-fab');
       if (addFabButton) {
@@ -264,61 +254,62 @@
       console.log('All polyhedrons reset');
     }
 
-    // Function to add a new polyhedron
-    function addNewPolyhedron(container, lightModeColors, darkModeColors, module) {
-      // Get the current count
-      const currentCount = window.heroPolyhedrons.length;
-
-      if (currentCount < 10) { // Limit to 10 polyhedrons for performance
-        // Create a new polyhedron
-        const newInstances = module.InteractivePolyhedron.createInstances(container, 1, {
-          debug: document.getElementById('debug-mode')?.checked || false,
-          colors: lightModeColors,
-          darkModeColors: darkModeColors,
-          sizes: [0.8 + Math.random() * 0.4], // Random size
-          positions: [
-            {
-              x: (Math.random() - 0.5) * 4,
-              y: 15 + Math.random() * 5,
-              z: (Math.random() - 0.5) * 3
-            }
-          ]
-        });
-
-        // Add to the global array
-        window.heroPolyhedrons.push(newInstances[0]);
-        console.log('New polyhedron added, total:', window.heroPolyhedrons.length);
-
-        // Update the UI to reflect the new count
-        updatePolyhedronCounter();
-      } else {
-        console.log('Maximum number of polyhedrons reached');
-        alert('Maximum number of polyhedrons reached (10). Please remove some before adding more.');
-      }
-    }
-
     // Function to remove the last added polyhedron
     function removeLastPolyhedron() {
-      if (window.heroPolyhedrons && window.heroPolyhedrons.length > 1) {
+      if (window.heroPolyhedrons && window.heroPolyhedrons.length > 0) {
         const instance = window.heroPolyhedrons.pop();
 
-        // Remove from physics world
-        if (instance.polyhedronBody && instance.polyhedronBody.world) {
-          instance.polyhedronBody.world.removeBody(instance.polyhedronBody);
+        // Start vanishing animation
+        const fadeOutDuration = 800; // Increased duration for smoother effect
+        const startTime = performance.now();
+        const startOpacity = 1;
+        const startScale = 1.2; // Initial scale of the polyhedron
+
+        function animateFadeOut(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / fadeOutDuration, 1);
+
+          // Ease out cubic function for smooth animation
+          const easedProgress = 1 - Math.pow(1 - progress, 3);
+          const currentOpacity = startOpacity * (1 - easedProgress);
+          const currentScale = startScale * (1 - easedProgress); // Scale down to nearly zero
+
+          // Update opacity and scale of both the polyhedron and its edges
+          if (instance.polyhedron) {
+            // Update opacity
+            instance.polyhedron.material.opacity = currentOpacity;
+            if (instance.polyhedron.children.length > 0) {
+              instance.polyhedron.children[0].material.opacity = currentOpacity;
+            }
+
+            // Update scale
+            instance.polyhedron.scale.set(currentScale, currentScale, currentScale);
+          }
+
+          if (progress < 1) {
+            requestAnimationFrame(animateFadeOut);
+          } else {
+            // Remove from physics world after animation
+            if (instance.polyhedronBody && instance.polyhedronBody.world) {
+              instance.polyhedronBody.world.removeBody(instance.polyhedronBody);
+            }
+
+            // Remove from scene after animation
+            if (instance.polyhedron && instance.polyhedron.parent) {
+              instance.polyhedron.parent.remove(instance.polyhedron);
+            }
+
+            console.log('Polyhedron removed, remaining:', window.heroPolyhedrons.length);
+
+            // Update the UI to reflect the new count
+            updatePolyhedronCounter();
+          }
         }
 
-        // Remove from scene
-        if (instance.polyhedron && instance.polyhedron.parent) {
-          instance.polyhedron.parent.remove(instance.polyhedron);
-        }
-
-        console.log('Polyhedron removed, remaining:', window.heroPolyhedrons.length);
-
-        // Update the UI to reflect the new count
-        updatePolyhedronCounter();
+        // Start the animation
+        requestAnimationFrame(animateFadeOut);
       } else {
-        console.log('Cannot remove the last polyhedron');
-        alert('At least one polyhedron must remain in the scene.');
+        console.log('No polyhedrons to remove');
       }
     }
 
@@ -326,15 +317,8 @@
     function updatePolyhedronCounter() {
       const count = window.heroPolyhedrons ? window.heroPolyhedrons.length : 0;
 
-      // Update the add button state
-      const addButton = document.getElementById('add-polyhedron');
+      // Update the add FAB state
       const addFabButton = document.getElementById('add-polyhedron-fab');
-
-      if (addButton) {
-        addButton.disabled = count >= 10;
-        addButton.title = count >= 10 ? 'Maximum number reached' : 'Add a polyhedron';
-      }
-
       if (addFabButton) {
         addFabButton.disabled = count >= 10;
         addFabButton.title = count >= 10 ? 'Maximum number reached' : 'Add a polyhedron';
@@ -343,8 +327,8 @@
       // Update the remove button state
       const removeButton = document.getElementById('remove-polyhedron');
       if (removeButton) {
-        removeButton.disabled = count <= 1;
-        removeButton.title = count <= 1 ? 'Cannot remove the last polyhedron' : 'Remove a polyhedron';
+        removeButton.disabled = count <= 0;
+        removeButton.title = count <= 0 ? 'No polyhedrons to remove' : 'Remove a polyhedron';
       }
 
       // Update the polyhedron count display
@@ -381,6 +365,39 @@
       });
 
       console.log('Colors updated for all polyhedrons');
+    }
+
+    // Function to add a new polyhedron
+    function addNewPolyhedron(container, lightModeColors, darkModeColors, module) {
+      // Get the current count
+      const currentCount = window.heroPolyhedrons.length;
+
+      if (currentCount < 10) { // Limit to 10 polyhedrons for performance
+        // Create a new polyhedron
+        const newInstances = module.InteractivePolyhedron.createInstances(container, 1, {
+          debug: document.getElementById('debug-mode')?.checked || false,
+          colors: lightModeColors,
+          darkModeColors: darkModeColors,
+          sizes: [0.8 + Math.random() * 0.4], // Random size
+          positions: [
+            {
+              x: (Math.random() - 0.5) * 4,
+              y: 15 + Math.random() * 5,
+              z: (Math.random() - 0.5) * 3
+            }
+          ]
+        });
+
+        // Add to the global array
+        window.heroPolyhedrons.push(newInstances[0]);
+        console.log('New polyhedron added, total:', window.heroPolyhedrons.length);
+
+        // Update the UI to reflect the new count
+        updatePolyhedronCounter();
+      } else {
+        console.log('Maximum number of polyhedrons reached');
+        alert('Maximum number of polyhedrons reached (10). Please remove some before adding more.');
+      }
     }
   </script>
 

@@ -14,7 +14,6 @@
  * @version 2.0
  */
 
-
 import * as THREE from 'three';
 import * as CANNON from 'cannon-es';
 
@@ -54,7 +53,7 @@ class InteractivePolyhedron {
     this.height = container.clientHeight;
 
     // Set up delay before animation starts
-    this.startDelay = 0;
+    this.startDelay = 0; // No delay for experimental version
     this.startTime = performance.now() + this.startDelay;
     this.isActive = false;
 
@@ -87,8 +86,8 @@ class InteractivePolyhedron {
     // Initialize physics world with optimized settings
     this.world = new CANNON.World();
     this.world.gravity.set(0, -0.5, 0); // Moderate gravity for natural falling
-    this.world.broadphase = new CANNON.NaiveBroadphase();
-    this.world.solver.iterations = 8; // Reduced from 10 for better performance
+    this.world.broadphase = new CANNON.NaiveBroadphase(); // Using NaiveBroadphase which is available in all versions
+    this.world.solver.iterations = 5; // Reduced from 8 to compensate for more complex physics
     this.world.allowSleep = true; // Allow bodies to sleep when they come to rest
     this.world.sleepSpeedLimit = 0.05; // Lower threshold to allow bodies to sleep sooner
     this.world.sleepTimeLimit = 0.5; // Shorter time before sleeping
@@ -207,7 +206,9 @@ class InteractivePolyhedron {
       }),
       linearDamping: 0.05,
       angularDamping: 0.05,
-      allowSleep: true
+      allowSleep: true,
+      collisionFilterGroup: 1, // Enable collisions with other polyhedra
+      collisionFilterMask: 1 // Collide with other polyhedra
     });
 
     // Initially set the body to sleep until the delay is over
@@ -497,48 +498,52 @@ class InteractivePolyhedron {
   endDragging() {
     if (!this.isDragging) return;
 
-    console.log('endDragging called');
-
-    // Calculate throw velocity based on drag history
-    const throwVelocity = this.calculateThrowVelocity();
-    console.log('Calculated throw velocity:', throwVelocity);
-
-    // Restore the original body type
-    this.polyhedronBody.type = this.savedBodyType || CANNON.Body.DYNAMIC;
-
-    // Restore gravity
-    if (this.savedGravity) {
-      this.polyhedronBody.gravity.copy(this.savedGravity);
-    } else {
-      this.polyhedronBody.gravity.set(0, -0.5, 0);
-    }
-
-    // Apply the calculated velocity
-    this.polyhedronBody.velocity.copy(throwVelocity);
-
-    // Apply a blend of saved angular velocity and new random component
-    if (this.savedAngularVelocity) {
-      // Blend with saved angular velocity
-      this.polyhedronBody.angularVelocity.copy(this.savedAngularVelocity);
-    }
-
-    // Add a random component to angular velocity for more interesting motion
-    this.polyhedronBody.angularVelocity.x += (Math.random() - 0.5) * 2;
-    this.polyhedronBody.angularVelocity.y += (Math.random() - 0.5) * 2;
-    this.polyhedronBody.angularVelocity.z += (Math.random() - 0.5) * 2;
-
-    // Reset dragging state
     this.isDragging = false;
-    this.dragPositions = [];
-    this.targetPosition = null;
-    this.savedBodyType = null;
-    this.savedGravity = null;
-    this.savedAngularVelocity = null;
 
-    // Reset cursor
+    // Reset cursor based on hover state
     document.body.style.cursor = this.isHovering ? 'grab' : 'auto';
 
-    console.log('Drag ended');
+    // Calculate throw velocity based on recent movement
+    let throwVelocity = this.calculateThrowVelocity();
+
+    // Resume physics with a throw
+    this.polyhedronBody.type = CANNON.BODY_TYPES.DYNAMIC;
+    this.polyhedronBody.velocity.copy(throwVelocity);
+
+    // Restore the original gravity
+    if (this.savedGravity) {
+      this.world.gravity.copy(this.savedGravity);
+    } else {
+      // Default gravity if saved gravity doesn't exist
+      this.world.gravity.set(0, -0.5, 0);
+    }
+
+    // Add some random spin for visual interest
+    // Blend the saved angular velocity with a new random component
+    if (this.savedAngularVelocity) {
+      // Create a new random angular velocity component
+      const randomAngVel = new CANNON.Vec3(
+        (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 2
+      );
+
+      // Blend 50% of the saved angular velocity with 50% of the new random component
+      this.polyhedronBody.angularVelocity.set(
+        this.savedAngularVelocity.x * 0.5 + randomAngVel.x * 0.5,
+        this.savedAngularVelocity.y * 0.5 + randomAngVel.y * 0.5,
+        this.savedAngularVelocity.z * 0.5 + randomAngVel.z * 0.5
+      );
+    } else {
+      // Fallback to just random if no saved angular velocity
+      this.polyhedronBody.angularVelocity.set(
+        (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 2,
+        (Math.random() - 0.5) * 2
+      );
+    }
+
+    debugLog(this, 'Dragging ended, gravity restored');
   }
 
   // Update the mouse event handlers to use the consolidated methods
@@ -1028,7 +1033,7 @@ class InteractivePolyhedron {
 }
 
 // Static factory method to create multiple instances - optimized version
-InteractivePolyhedron.createInstances = function(container, count = 3, options = {}) {
+InteractivePolyhedron.createInstances = function(container, count = 1, options = {}) {
   console.log(`Creating ${count} polyhedron instances with options:`, options);
   const instances = [];
 
@@ -1039,7 +1044,7 @@ InteractivePolyhedron.createInstances = function(container, count = 3, options =
   for (let i = 0; i < count; i++) {
     // Create a custom polyhedron instance that uses shared resources
     const instanceOptions = {
-      startDelay: 0, // Set to 0 for immediate start, no delay
+      startDelay: 2500 + (i * 500), // Stagger start times
       colorIndex: i % (options.colors ? options.colors.length : 1), // Pass the color index
       colors: options.colors, // Pass the entire colors array
       darkModeColors: options.darkModeColors, // Pass the dark mode colors array
@@ -1096,11 +1101,11 @@ function createSharedResources(container, debug = false) {
   // Create a shared physics world with optimized settings
   const world = new CANNON.World();
   world.gravity.set(0, -0.5, 0);
-  world.broadphase = new CANNON.NaiveBroadphase();
-  world.solver.iterations = 8;
-  world.allowSleep = true;
-  world.sleepSpeedLimit = 0.05;
-  world.sleepTimeLimit = 0.5;
+  world.broadphase = new CANNON.NaiveBroadphase(); // Using NaiveBroadphase which is available in all versions
+  world.solver.iterations = 5; // Reduced from 8 to compensate for more complex physics
+  world.allowSleep = true; // Allow bodies to sleep when they come to rest
+  world.sleepSpeedLimit = 0.05; // Lower threshold to allow bodies to sleep sooner
+  world.sleepTimeLimit = 0.5; // Shorter time before sleeping
 
   // Add lights to the shared scene
   addLightsToScene(scene);
@@ -1269,7 +1274,7 @@ function setupSharedEventHandlers(container, instances, resources) {
 
   // Mouse down event handler
   container.addEventListener('mousedown', (event) => {
-    // Update mouse coordinates
+    // Get mouse coordinates
     const rect = resources.renderer.domElement.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
@@ -1279,22 +1284,20 @@ function setupSharedEventHandlers(container, instances, resources) {
 
     // Find intersections with all polyhedra
     const polyhedronMeshes = instances.map(instance => instance.polyhedron);
-    const intersects = resources.raycaster.intersectObjects(polyhedronMeshes, true); // Added true to check descendants
+    const intersects = resources.raycaster.intersectObjects(polyhedronMeshes);
 
     if (intersects.length > 0) {
       // Get the first intersected polyhedron
       const intersectedMesh = intersects[0].object;
-      console.log('Mouse down intersected with mesh:', intersectedMesh);
 
       // Find the instance that owns this mesh
       activeInstance = instances.find(instance =>
         instance.polyhedron === intersectedMesh ||
-        instance.polyhedron.children.includes(intersectedMesh) ||
-        (instance.polyhedron.children.length > 0 && instance.polyhedron.children[0] === intersectedMesh)
+        instance.polyhedron.children.includes(intersectedMesh)
       );
 
       if (activeInstance) {
-        console.log('Starting drag on mouse down');
+        // Start dragging this instance
         activeInstance.startDragging(mouse, event.clientX, event.clientY);
       }
     }
@@ -1309,13 +1312,12 @@ function setupSharedEventHandlers(container, instances, resources) {
 
     // Handle active instance dragging
     if (activeInstance && activeInstance.isDragging) {
-      console.log('Updating drag on mouse move');
       activeInstance.updateDragging(mouse, event.clientX, event.clientY);
     } else {
       // Check for hover state on all instances
       resources.raycaster.setFromCamera(mouse, resources.camera);
       const polyhedronMeshes = instances.map(instance => instance.polyhedron);
-      const intersects = resources.raycaster.intersectObjects(polyhedronMeshes, true); // Added true to check descendants
+      const intersects = resources.raycaster.intersectObjects(polyhedronMeshes);
 
       // Reset hover state on all instances
       instances.forEach(instance => {
@@ -1329,8 +1331,7 @@ function setupSharedEventHandlers(container, instances, resources) {
         // Find the instance that owns this mesh
         const hoveredInstance = instances.find(instance =>
           instance.polyhedron === intersectedMesh ||
-          instance.polyhedron.children.includes(intersectedMesh) ||
-          (instance.polyhedron.children.length > 0 && instance.polyhedron.children[0] === intersectedMesh)
+          instance.polyhedron.children.includes(intersectedMesh)
         );
 
         if (hoveredInstance) {
@@ -1346,9 +1347,8 @@ function setupSharedEventHandlers(container, instances, resources) {
   });
 
   // Mouse up event handler
-  window.addEventListener('mouseup', (event) => {
+  window.addEventListener('mouseup', () => {
     if (activeInstance && activeInstance.isDragging) {
-      console.log('Ending drag on mouse up');
       activeInstance.endDragging();
       activeInstance = null;
     }
@@ -1357,9 +1357,6 @@ function setupSharedEventHandlers(container, instances, resources) {
   // Touch event handlers
   container.addEventListener('touchstart', (event) => {
     if (event.touches.length > 0) {
-      // Prevent default to avoid scrolling
-      event.preventDefault();
-
       // Get touch coordinates
       const rect = resources.renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
@@ -1370,22 +1367,22 @@ function setupSharedEventHandlers(container, instances, resources) {
 
       // Find intersections with all polyhedra
       const polyhedronMeshes = instances.map(instance => instance.polyhedron);
-      const intersects = resources.raycaster.intersectObjects(polyhedronMeshes, true); // Added true to check descendants
+      const intersects = resources.raycaster.intersectObjects(polyhedronMeshes);
 
       if (intersects.length > 0) {
+        // Prevent default to avoid scrolling
+        event.preventDefault();
+
         // Get the first intersected polyhedron
         const intersectedMesh = intersects[0].object;
-        console.log('Touch intersected with mesh:', intersectedMesh);
 
         // Find the instance that owns this mesh
         activeInstance = instances.find(instance =>
           instance.polyhedron === intersectedMesh ||
-          instance.polyhedron.children.includes(intersectedMesh) ||
-          (instance.polyhedron.children.length > 0 && instance.polyhedron.children[0] === intersectedMesh)
+          instance.polyhedron.children.includes(intersectedMesh)
         );
 
         if (activeInstance) {
-          console.log('Starting drag on touch');
           // Start dragging this instance
           activeInstance.startDragging(mouse, event.touches[0].clientX, event.touches[0].clientY);
         }
@@ -1394,38 +1391,25 @@ function setupSharedEventHandlers(container, instances, resources) {
   }, { passive: false });
 
   container.addEventListener('touchmove', (event) => {
-    // Always prevent default to avoid scrolling
-    event.preventDefault();
-
     if (activeInstance && activeInstance.isDragging && event.touches.length > 0) {
+      // Prevent default to avoid scrolling
+      event.preventDefault();
+
       // Get touch coordinates
       const rect = resources.renderer.domElement.getBoundingClientRect();
       mouse.x = ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((event.touches[0].clientY - rect.top) / rect.height) * 2 + 1;
 
       // Update dragging
-      console.log('Updating drag on touch move');
       activeInstance.updateDragging(mouse, event.touches[0].clientX, event.touches[0].clientY);
     }
   }, { passive: false });
 
-  container.addEventListener('touchend', (event) => {
-    // Prevent default
-    if (event.cancelable) {
-      event.preventDefault();
-    }
-
+  container.addEventListener('touchend', () => {
     if (activeInstance && activeInstance.isDragging) {
-      console.log('Ending drag on touch end');
       activeInstance.endDragging();
       activeInstance = null;
     }
-  }, { passive: false });
-
-  // Add a click handler to help with mobile devices
-  container.addEventListener('click', (event) => {
-    // This empty click handler helps ensure touch events work properly on some mobile devices
-    console.log('Container clicked');
   });
 }
 
@@ -1465,8 +1449,8 @@ class CustomPolyhedronInstance {
     this.options = options;
 
     // Set options with defaults
-    this.startDelay = 0; // Always set to 0 for immediate activation
-    this.startTime = performance.now();
+    this.startDelay = options.startDelay || 2500;
+    this.startTime = performance.now() + this.startDelay;
     this.isActive = false;
     this.debug = options.debug || false;
     this.size = options.size || 1.0;
@@ -1569,7 +1553,9 @@ class CustomPolyhedronInstance {
       }),
       linearDamping: 0.05,
       angularDamping: 0.05,
-      allowSleep: true
+      allowSleep: true,
+      collisionFilterGroup: 1, // Enable collisions with other polyhedra
+      collisionFilterMask: 1 // Collide with other polyhedra
     });
 
     // Initially set the body to sleep until the delay is over
@@ -1578,8 +1564,9 @@ class CustomPolyhedronInstance {
   }
 
   update(deltaTime) {
-    // Force immediate activation regardless of startTime
-    if (!this.isActive) {
+    // Check if we should activate the polyhedron
+    const currentTime = performance.now();
+    if (!this.isActive && currentTime > this.startTime) {
       this.activatePolyhedron();
       this.isActive = true;
     }
@@ -1637,29 +1624,16 @@ class CustomPolyhedronInstance {
 
   // Smoothly move polyhedron to cursor position
   snapPolyhedronToCursor() {
-    if (!this.isDragging || !this.targetPosition) {
-      return;
-    }
+    // Use the grabSmoothness property to control the interpolation speed
+    const lerpFactor = this.grabSmoothness || 0.3; // Default to 0.3 if not set
 
-    console.log('snapPolyhedronToCursor called, target:', this.targetPosition);
-
-    // Use a smoothing factor for gradual movement (0.1 = very smooth, 1.0 = instant)
-    const smoothFactor = this.grabSmoothness || 0.3;
-
-    // Calculate new position by interpolating between current and target
+    // Calculate the new position by interpolating between current and target
     const newPosition = new THREE.Vector3();
     newPosition.copy(this.polyhedronBody.position);
+    newPosition.lerp(this.targetPosition, lerpFactor);
 
-    // Move towards target using linear interpolation
-    newPosition.x += (this.targetPosition.x - newPosition.x) * smoothFactor;
-    newPosition.y += (this.targetPosition.y - newPosition.y) * smoothFactor;
-    newPosition.z += (this.targetPosition.z - newPosition.z) * smoothFactor;
-
-    // Apply the new position to the physics body
+    // Set the polyhedron's position to this interpolated point
     this.polyhedronBody.position.copy(newPosition);
-
-    // Ensure the mesh position is updated immediately
-    this.polyhedron.position.copy(this.polyhedronBody.position);
   }
 
   // Visual feedback for hover/drag state
@@ -1721,138 +1695,112 @@ class CustomPolyhedronInstance {
 
   // Start dragging the polyhedron
   startDragging(mouse, clientX, clientY) {
-    console.log('startDragging called with mouse:', mouse);
-
-    // Set dragging state
     this.isDragging = true;
-
-    // Store initial drag position for velocity calculation
-    this.dragPositions = [{
-      x: clientX,
-      y: clientY,
-      time: performance.now()
-    }];
+    this.isHovering = true;
 
     // Update cursor style
     document.body.style.cursor = 'grabbing';
 
-    // Wake up the physics body if it was sleeping
+    // Store initial mouse position for velocity calculation
+    this.dragPositions = [{
+      time: performance.now(),
+      x: clientX,
+      y: clientY
+    }];
+
+    // Wake up the physics body
     this.polyhedronBody.wakeUp();
 
-    // Save the current body type and switch to kinematic during dragging
-    this.savedBodyType = this.polyhedronBody.type;
-    this.polyhedronBody.type = CANNON.Body.KINEMATIC;
+    // Store the current gravity for later restoration
+    this.savedGravity = new CANNON.Vec3().copy(this.world.gravity);
 
-    // Disable gravity during dragging
-    this.savedGravity = this.polyhedronBody.gravity.clone();
-    this.polyhedronBody.gravity.set(0, 0, 0);
+    // Disable gravity while dragging
+    this.world.gravity.set(0, 0, 0);
 
-    // Save angular velocity for later
-    this.savedAngularVelocity = this.polyhedronBody.angularVelocity.clone();
+    // Set the body type to kinematic to prevent other forces from affecting it
+    this.polyhedronBody.type = CANNON.BODY_TYPES.KINEMATIC;
 
-    // Set up the target position for smooth movement
-    // Use raycaster to find the 3D position under the mouse
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, this.camera);
+    // Completely stop all motion by zeroing out velocities
+    this.polyhedronBody.velocity.set(0, 0, 0);
+    this.polyhedronBody.angularVelocity.scale(0.7);
 
-    // Calculate the target position
-    const planeNormal = new THREE.Vector3(0, 0, 1);
-    const planeConstant = 0; // Distance from origin along normal
-    const plane = new THREE.Plane(planeNormal, planeConstant);
-    const targetPoint = new THREE.Vector3();
+    // Zero out forces and torques
+    this.polyhedronBody.force.set(0, 0, 0);
+    this.polyhedronBody.torque.set(0, 0, 0);
 
-    // Intersect ray with a plane facing the camera
-    raycaster.ray.intersectPlane(plane, targetPoint);
+    // Initialize the target position for smooth transition
+    const distance = 4; // Distance from camera
+    this.targetPosition = new THREE.Vector3();
+    this.targetPosition.copy(this.raycaster.ray.direction);
+    this.targetPosition.multiplyScalar(distance);
+    this.targetPosition.add(this.camera.position);
 
-    // Set the target position
-    this.targetPosition = targetPoint;
-
-    console.log('Drag started, target position:', this.targetPosition);
+    debugLog(this, 'Started dragging polyhedron');
   }
 
   // Update dragging position
   updateDragging(mouse, clientX, clientY) {
-    if (!this.isDragging) return;
-
-    console.log('updateDragging called with mouse:', mouse);
-
-    // Store drag position for velocity calculation
-    // Keep only the last 5 positions for better performance
+    // Store position for velocity calculation
     this.dragPositions.push({
+      time: performance.now(),
       x: clientX,
-      y: clientY,
-      time: performance.now()
+      y: clientY
     });
 
-    // Limit the history to 5 entries
+    // Keep only the last 5 positions for velocity calculation
     if (this.dragPositions.length > 5) {
       this.dragPositions.shift();
     }
 
-    // Use raycaster to find the 3D position under the mouse
-    const raycaster = new THREE.Raycaster();
-    raycaster.setFromCamera(mouse, this.camera);
+    // Update target position
+    this.raycaster.setFromCamera(mouse, this.camera);
+    const distance = 4; // Distance from camera
+    this.targetPosition.copy(this.raycaster.ray.direction);
+    this.targetPosition.multiplyScalar(distance);
+    this.targetPosition.add(this.camera.position);
 
-    // Calculate the target position
-    const planeNormal = new THREE.Vector3(0, 0, 1);
-    const planeConstant = 0; // Distance from origin along normal
-    const plane = new THREE.Plane(planeNormal, planeConstant);
-    const targetPoint = new THREE.Vector3();
-
-    // Intersect ray with a plane facing the camera
-    if (raycaster.ray.intersectPlane(plane, targetPoint)) {
-      // Update the target position
-      this.targetPosition = targetPoint;
-      console.log('Drag updated, target position:', this.targetPosition);
-    }
+    // Constrain the target position to keep it within visible bounds
+    this.targetPosition.x = Math.max(-4, Math.min(4, this.targetPosition.x));
+    this.targetPosition.y = Math.max(-1.5, Math.min(5, this.targetPosition.y));
+    this.targetPosition.z = Math.max(-4, Math.min(3, this.targetPosition.z));
   }
 
   // End dragging and apply throw velocity
   endDragging() {
-    if (!this.isDragging) return;
-
-    console.log('endDragging called');
-
-    // Calculate throw velocity based on drag history
+    // Calculate throw velocity
     const throwVelocity = this.calculateThrowVelocity();
-    console.log('Calculated throw velocity:', throwVelocity);
 
-    // Restore the original body type
-    this.polyhedronBody.type = this.savedBodyType || CANNON.Body.DYNAMIC;
-
-    // Restore gravity
-    if (this.savedGravity) {
-      this.polyhedronBody.gravity.copy(this.savedGravity);
-    } else {
-      this.polyhedronBody.gravity.set(0, -0.5, 0);
-    }
-
-    // Apply the calculated velocity
+    // Resume physics with a throw
+    this.polyhedronBody.type = CANNON.BODY_TYPES.DYNAMIC;
     this.polyhedronBody.velocity.copy(throwVelocity);
 
-    // Apply a blend of saved angular velocity and new random component
-    if (this.savedAngularVelocity) {
-      // Blend with saved angular velocity
-      this.polyhedronBody.angularVelocity.copy(this.savedAngularVelocity);
+    // Restore the original gravity
+    if (this.savedGravity) {
+      this.world.gravity.copy(this.savedGravity);
+    } else {
+      this.world.gravity.set(0, -0.5, 0);
     }
 
-    // Add a random component to angular velocity for more interesting motion
-    this.polyhedronBody.angularVelocity.x += (Math.random() - 0.5) * 2;
-    this.polyhedronBody.angularVelocity.y += (Math.random() - 0.5) * 2;
-    this.polyhedronBody.angularVelocity.z += (Math.random() - 0.5) * 2;
+    // Blend saved angular velocity with new random component
+    const randomAngVel = new CANNON.Vec3(
+      (Math.random() - 0.5) * 2,
+      (Math.random() - 0.5) * 2,
+      (Math.random() - 0.5) * 2
+    );
 
-    // Reset dragging state
+    this.polyhedronBody.angularVelocity.set(
+      this.polyhedronBody.angularVelocity.x * 0.5 + randomAngVel.x * 0.5,
+      this.polyhedronBody.angularVelocity.y * 0.5 + randomAngVel.y * 0.5,
+      this.polyhedronBody.angularVelocity.z * 0.5 + randomAngVel.z * 0.5
+    );
+
+    // Reset state
     this.isDragging = false;
-    this.dragPositions = [];
-    this.targetPosition = null;
-    this.savedBodyType = null;
-    this.savedGravity = null;
-    this.savedAngularVelocity = null;
 
-    // Reset cursor
-    document.body.style.cursor = this.isHovering ? 'grab' : 'auto';
+    // Reset cursor based on hover state
+    document.body.style.cursor = 'auto';
 
-    console.log('Drag ended');
+    debugLog(this, `Ended dragging with velocity: (${throwVelocity.x.toFixed(2)}, ${throwVelocity.y.toFixed(2)}, ${throwVelocity.z.toFixed(2)})`);
   }
 
   // Calculate throw velocity based on drag history
@@ -2004,5 +1952,73 @@ class CustomPolyhedronInstance {
   }
 }
 
-// Export the InteractivePolyhedron class for use in other modules
+// Initialize when script is loaded (for lazy loading)
+console.log('Polyhedron script loaded, looking for grid-canvas container...');
+const container = document.querySelector('#grid-canvas');
+
+if (container) {
+  console.log('Grid canvas container found, dimensions:', container.clientWidth, 'x', container.clientHeight);
+  try {
+    // Clear any existing canvas elements to prevent duplicates
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+    console.log('Container cleared of any existing elements');
+
+    // Define color schemes
+    const lightModeColors = [0x1a73e8, 0x9c27b0, 0x00c971]; // Blue, purple, and green for light mode
+    const darkModeColors = [0x00c971, 0x9c27b0, 0x1a73e8]; // Green, purple, and blue for dark mode
+
+    // Set to true for debugging, false for production
+    const debugMode = false;
+
+    if (debugMode) {
+      console.log('Light mode colors:', lightModeColors.map(c => '0x' + c.toString(16)));
+      console.log('Dark mode colors:', darkModeColors.map(c => '0x' + c.toString(16)));
+    }
+
+    // Create multiple polyhedron instances with shared resources
+    const instances = InteractivePolyhedron.createInstances(container, 1, {
+      debug: debugMode,
+      colors: lightModeColors,
+      darkModeColors: darkModeColors,
+      sizes: [1.0, 1, 1], // Different sizes for visual interest
+      positions: [
+        { x: -2, y: 15, z: -1 },
+        { x: 0.5, y: 18, z: 0 },
+        { x: 2, y: 16, z: 1 }
+      ]
+    });
+
+    // Expose instances to global scope for debugging
+    window.heroPolyhedrons = instances;
+
+    console.log(`${instances.length} polyhedron instances created with shared resources`);
+
+    // Add a click handler to the container to help with mobile devices
+    container.addEventListener('click', () => {
+      // This empty click handler helps ensure touch events work properly on some mobile devices
+    });
+
+    // Force an initial color update to ensure correct colors on load
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (debugMode) {
+      console.log('Initial color scheme is:', isDarkMode ? 'dark' : 'light');
+    }
+
+    setTimeout(() => {
+      instances.forEach((instance, index) => {
+        if (debugMode) {
+          console.log(`Forcing color update for instance ${index}`);
+        }
+        instance.updateColors();
+      });
+    }, 500); // Small delay to ensure everything is initialized
+
+  } catch (error) {
+    console.error('Error initializing polyhedron:', error);
+  }
+}
+
+// Export the InteractivePolyhedron class
 export { InteractivePolyhedron };
