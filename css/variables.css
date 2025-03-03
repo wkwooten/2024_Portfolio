@@ -14,6 +14,14 @@
 	--gradient_color1: #1a73e8;
 	--gradient_color2: #1fbf54;
 	--vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
+	--bg-transparent: rgba(224, 247, 255, 0.7);
+	--bg-transparent-dark: rgba(9, 9, 9, 0.8);
+
+	/* Button Colors */
+	--button-primary: #1a73e8;
+	--button-primary-hover: #0d5bcd;
+	--button-primary-dark: #00c971;
+	--button-primary-dark-hover: #17a346;
 
 	/* Animation Timings */
 	--modal-time: 1s;

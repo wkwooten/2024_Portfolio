@@ -241,7 +241,7 @@
 	align-items: center;
 	justify-content: center;
 	gap: var(--space-m);
-	width: 100%;
+	width: 100vw;
 	margin-bottom: var(--space-xl);
 	z-index: 1;
 	position: relative;

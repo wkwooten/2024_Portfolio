@@ -2,17 +2,20 @@
    Main CSS File - Imports all other CSS files
    ========================================================================== */
 
-/* Import Variables First */
-@import './variables.css';
+/* Import variables */
+@import url("variables.css");
 
-/* Import Base Styles */
-@import './base.css';
+/* Import base styles */
+@import url("base.css");
 
-/* Import Components */
-@import './components.css';
+/* Import component styles */
+@import url("components.css");
 
-/* Import Page-Specific Styles */
-@import './pages.css';
+/* Import page-specific styles */
+@import url("pages.css");
 
-/* Import Media Queries Last */
-@import './media.css';
+/* Import experiment styles */
+@import url("experiments.css");
+
+/* Import media queries (always last) */
+@import url("media.css");

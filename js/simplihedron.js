@@ -17,7 +17,7 @@ import * as CANNON from 'cannon-es';
 // Helper function for centralized debug logging
 function debugLog(instance, message) {
   if (instance && instance.debug) {
-    console.log(`[Polyhedron ${instance.color ? instance.color.toString(16) : 'unknown'}]: ${message}`);
+    console.log(`[Polyhedron ${instance.color ? '0x' + instance.color.toString(16) : 'unknown'}]: ${message}`);
   }
 }
 
@@ -150,81 +150,65 @@ class InteractivePolyhedron {
   }
 
   createPolyhedron() {
-    // Create Three.js geometry - use the simplest version for better performance
-    const radius = 1;
-    const detail = 0; // Lowest detail level for best performance
+    // Create Three.js geometry
+    const radius = 1 * this.size;
+    const detail = 0;
     const geometry = new THREE.IcosahedronGeometry(radius, detail);
 
-    // Get color from CSS variables (if available) - simplified color detection
-    let polyhedronColor = 0x1a73e8; // Default blue
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Create material
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide
+    });
 
-    // Use simpler color selection
-    if (isDarkMode) {
-      polyhedronColor = 0x9c27b0; // Purple color for dark mode
+    // Ensure we have a valid color before creating edges
+    if (!this.color) {
+      const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      this.updateColorFromScheme(isDarkMode);
+      console.log(`Set initial color to 0x${this.color.toString(16)}`);
     }
 
-    // Simplified background color detection
-    let backgroundColor = isDarkMode ? 0x121212 : 0xffffff;
-
-    // Create material with background color for faces - use simpler material settings
-    const material = new THREE.MeshBasicMaterial({
-      color: backgroundColor,
-      transparent: true,
-      opacity: 0, // Start invisible
-      side: THREE.FrontSide // Only render front faces for better performance
-    });
-
-    // Create edges geometry with optimized settings
+    // Create edges with the correct color
     const edgesGeometry = new THREE.EdgesGeometry(geometry);
     const edgesMaterial = new THREE.LineBasicMaterial({
-      color: polyhedronColor,
+      color: this.color,
+      linewidth: 2,
       transparent: true,
-      opacity: 0 // Start invisible
+      opacity: 0
     });
+
+    console.log(`Creating polyhedron edges with color: 0x${this.color.toString(16)}`);
+
     const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
 
     // Create mesh
     this.polyhedron = new THREE.Mesh(geometry, material);
     this.polyhedron.add(edges);
+    this.polyhedron.scale.set(1.2, 1.2, 1.2);
+    this.polyhedron.visible = false;
+    this.polyhedron.userData.instance = this; // Store reference to this instance
     this.scene.add(this.polyhedron);
 
-    // Make the polyhedron slightly larger for easier interaction
-    this.polyhedron.scale.set(1.2, 1.2, 1.2);
-
-    // Initially hide the polyhedron until activation
-    this.polyhedron.visible = false;
-
-    // Create physics body - use a simpler shape for physics
+    // Create physics body
     const shape = new CANNON.Sphere(radius * 1.2);
-
     this.polyhedronBody = new CANNON.Body({
       mass: 5,
       shape: shape,
-      position: new CANNON.Vec3(0, 20, 0),
+      position: new CANNON.Vec3(this.initialPosition.x, this.initialPosition.y, this.initialPosition.z),
       material: new CANNON.Material({
         friction: 0.3,
         restitution: 0.8
       }),
       linearDamping: 0.05,
       angularDamping: 0.05,
-      allowSleep: true // Allow this body to sleep when at rest
+      allowSleep: true
     });
 
     // Initially set the body to sleep until the delay is over
     this.polyhedronBody.sleep();
-
-    // Set initial rotation to zero - will be activated after delay
-    this.polyhedronBody.angularVelocity.set(0, 0, 0);
-
-    // Set initial velocity to zero - will be activated after delay
-    this.polyhedronBody.velocity.set(0, 0, 0);
-
     this.world.addBody(this.polyhedronBody);
-
-    if (this.debug) {
-      console.log('Polyhedron created with optimized settings');
-    }
   }
 
   createPolyhedronShape(geometry, radius) {
@@ -355,13 +339,17 @@ class InteractivePolyhedron {
   }
 
   onWindowResize() {
-    this.width = this.container.clientWidth;
-    this.height = this.container.clientHeight;
+    if (!this.container || !this.camera || !this.renderer) return;
 
-    this.camera.aspect = this.width / this.height;
+    // Update camera aspect ratio
+    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
     this.camera.updateProjectionMatrix();
 
-    this.renderer.setSize(this.width, this.height);
+    // Update renderer size
+    this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+
+    debugLog(this, `Window resized: ${this.container.clientWidth}x${this.container.clientHeight}`);
   }
 
   // Consolidated method to handle both mouse and touch input coordinates
@@ -1041,7 +1029,7 @@ class InteractivePolyhedron {
 
 // Static factory method to create multiple instances - optimized version
 InteractivePolyhedron.createInstances = function(container, count = 1, options = {}) {
-  console.log(`Creating ${count} polyhedron instances`);
+  console.log(`Creating ${count} polyhedron instances with options:`, options);
   const instances = [];
 
   // Create shared resources
@@ -1050,6 +1038,22 @@ InteractivePolyhedron.createInstances = function(container, count = 1, options =
   // Create instances with staggered start times and different properties
   for (let i = 0; i < count; i++) {
     // Create a custom polyhedron instance that uses shared resources
+    const instanceOptions = {
+      startDelay: 2500 + (i * 500), // Stagger start times
+      colorIndex: i % (options.colors ? options.colors.length : 1), // Pass the color index
+      colors: options.colors, // Pass the entire colors array
+      darkModeColors: options.darkModeColors, // Pass the dark mode colors array
+      size: options.sizes ? options.sizes[i % options.sizes.length] : 1.0 + (i * 0.2),
+      position: options.positions ? options.positions[i] : {
+        x: (Math.random() - 0.5) * 4,
+        y: 15 + i * 2,
+        z: (Math.random() - 0.5) * 3
+      },
+      debug: options.debug || false
+    };
+
+    console.log(`Creating instance ${i} with colorIndex: ${instanceOptions.colorIndex}`);
+
     const instance = new CustomPolyhedronInstance(
       container,
       sharedResources.scene,
@@ -1059,20 +1063,7 @@ InteractivePolyhedron.createInstances = function(container, count = 1, options =
       sharedResources.raycaster,
       sharedResources.clock,
       sharedResources.boundaries,
-      {
-        startDelay: 2500 + (i * 500), // Stagger start times
-        color: options.colors ? options.colors[i % options.colors.length] : undefined,
-        colors: options.colors, // Pass the entire colors array
-        darkModeColors: options.darkModeColors, // Pass the dark mode colors array
-        colorIndex: i % (options.colors ? options.colors.length : 1), // Pass the color index
-        size: options.sizes ? options.sizes[i % options.sizes.length] : 1.0 + (i * 0.2),
-        position: options.positions ? options.positions[i] : {
-          x: (Math.random() - 0.5) * 4,
-          y: 15 + i * 2,
-          z: (Math.random() - 0.5) * 3
-        },
-        debug: options.debug || false
-      }
+      instanceOptions
     );
     instances.push(instance);
   }
@@ -1126,6 +1117,21 @@ function createSharedResources(container, debug = false) {
   // Create a shared clock and raycaster
   const clock = new THREE.Clock();
   const raycaster = new THREE.Raycaster();
+
+  // Add window resize handler for shared resources
+  window.addEventListener('resize', () => {
+    // Update camera aspect ratio
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+
+    // Update renderer size
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    if (debug) {
+      console.log(`Window resized: ${container.clientWidth}x${container.clientHeight}`);
+    }
+  });
 
   return {
     renderer,
@@ -1230,9 +1236,9 @@ function addSharedBoundaries(world, scene, debug = false) {
       // Use a different material for the floor to make it more visible
       const material = boundary.isFloor ?
         new THREE.MeshBasicMaterial({
-          color: window.matchMedia('(prefers-color-scheme: dark)').matches ? 0x333333 : 0xeeeeee,
+          color: window.matchMedia('(prefers-color-scheme: dark)').matches ? 0x090909 : 0xeeeeee,
           transparent: true,
-          opacity: 0.15,
+          opacity: 0.0,
           wireframe: false
         }) :
         new THREE.MeshBasicMaterial({
@@ -1444,15 +1450,19 @@ class CustomPolyhedronInstance {
     this.debug = options.debug || false;
     this.size = options.size || 1.0;
 
-    // Set the color directly first to avoid the error
+    // Store color options for later use
+    this.colorOptions = {
+      colors: options.colors || [],
+      darkModeColors: options.darkModeColors || [],
+      colorIndex: options.colorIndex || 0,
+      defaultColor: options.color || 0x1a73e8,
+      darkModeBackground: 0x090909, // Dark mode background color #090909
+      lightModeBackground: 0xffffff // Light mode background color #ffffff
+    };
+
+    // Set initial color based on current color scheme
     const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (isDarkMode && options.darkModeColors) {
-      this.color = options.darkModeColors[options.colorIndex || 0] || (Math.random() * 0xffffff);
-    } else if (options.colors) {
-      this.color = options.colors[options.colorIndex || 0] || (Math.random() * 0xffffff);
-    } else {
-      this.color = options.color || (Math.random() * 0xffffff);
-    }
+    this.updateColorFromScheme(isDarkMode);
 
     this.initialPosition = options.position || { x: 0, y: 15, z: 0 };
 
@@ -1474,8 +1484,10 @@ class CustomPolyhedronInstance {
 
     // Add media query listener to update colors when color scheme changes
     this.colorSchemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    this.colorSchemeMediaQuery.addEventListener('change', () => {
-      this.updateColors(options);
+    this.colorSchemeMediaQuery.addEventListener('change', (e) => {
+      console.log('Color scheme changed to:', e.matches ? 'dark' : 'light');
+      this.updateColorFromScheme(e.matches);
+      this.updatePolyhedronColor();
     });
   }
 
@@ -1485,15 +1497,25 @@ class CustomPolyhedronInstance {
     const detail = 0;
     const geometry = new THREE.IcosahedronGeometry(radius, detail);
 
-    // Create material
+    // Determine background color based on color scheme
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const backgroundColor = isDarkMode ? this.colorOptions.darkModeBackground : this.colorOptions.lightModeBackground;
+
+    // Create material with appropriate background color
     const material = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
+      color: backgroundColor,
       transparent: true,
       opacity: 0,
       side: THREE.DoubleSide
     });
 
-    // Create edges
+    // Ensure we have a valid color before creating edges
+    if (!this.color) {
+      this.updateColorFromScheme(isDarkMode);
+      console.log(`Set initial color to 0x${this.color.toString(16)}`);
+    }
+
+    // Create edges with the correct color
     const edgesGeometry = new THREE.EdgesGeometry(geometry);
     const edgesMaterial = new THREE.LineBasicMaterial({
       color: this.color,
@@ -1501,6 +1523,9 @@ class CustomPolyhedronInstance {
       transparent: true,
       opacity: 0
     });
+
+    console.log(`Creating polyhedron edges with color: 0x${this.color.toString(16)}`);
+
     const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
 
     // Create mesh
@@ -1862,29 +1887,61 @@ class CustomPolyhedronInstance {
     }
   }
 
-  // Add a method to update colors based on color scheme
-  updateColors(options) {
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  // Helper method to update color based on color scheme
+  updateColorFromScheme(isDarkMode) {
+    const options = this.colorOptions;
 
-    // Update the color based on color scheme
-    if (isDarkMode && options.darkModeColors) {
-      this.color = options.darkModeColors[options.colorIndex || 0] || (Math.random() * 0xffffff);
-    } else if (options.colors) {
-      this.color = options.colors[options.colorIndex || 0] || (Math.random() * 0xffffff);
+    if (isDarkMode && options.darkModeColors && options.darkModeColors.length > 0) {
+      this.color = options.darkModeColors[options.colorIndex % options.darkModeColors.length];
+      console.log(`Using dark mode color: 0x${this.color.toString(16)}`);
+    } else if (options.colors && options.colors.length > 0) {
+      this.color = options.colors[options.colorIndex % options.colors.length];
+      console.log(`Using light mode color: 0x${this.color.toString(16)}`);
     } else {
-      this.color = options.color || (Math.random() * 0xffffff);
+      this.color = options.defaultColor;
+      console.log(`Using default color: 0x${this.color.toString(16)}`);
+    }
+  }
+
+  // Update the polyhedron color immediately
+  updatePolyhedronColor() {
+    if (!this.polyhedron) {
+      console.warn('Cannot update color: polyhedron not initialized');
+      return;
     }
 
-    // Update the edge material color
-    if (this.polyhedron && this.polyhedron.children.length > 0) {
+    // Update edge color
+    if (this.polyhedron.children.length > 0) {
       const edgeMaterial = this.polyhedron.children[0].material;
       if (edgeMaterial) {
+        const oldColor = edgeMaterial.color.getHex();
         edgeMaterial.color.setHex(this.color);
         edgeMaterial.needsUpdate = true;
-
-        debugLog(this, `Updated polyhedron color to ${this.color.toString(16)} (Dark mode: ${isDarkMode})`);
+        console.log(`Updated polyhedron edge color from 0x${oldColor.toString(16)} to 0x${this.color.toString(16)}`);
       }
     }
+
+    // Update background color based on color scheme
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const backgroundColor = isDarkMode ? this.colorOptions.darkModeBackground : this.colorOptions.lightModeBackground;
+
+    if (this.polyhedron.material) {
+      this.polyhedron.material.color.setHex(backgroundColor);
+      this.polyhedron.material.needsUpdate = true;
+      console.log(`Updated polyhedron background color to 0x${backgroundColor.toString(16)}`);
+    }
+  }
+
+  // Add a method to update colors based on color scheme
+  updateColors() {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    console.log('Updating colors, dark mode:', isDarkMode);
+
+    // Update the color based on color scheme
+    this.updateColorFromScheme(isDarkMode);
+
+    // Update the edge material color
+    this.updatePolyhedronColor();
   }
 }
 
@@ -1901,11 +1958,23 @@ if (container) {
     }
     console.log('Container cleared of any existing elements');
 
+    // Define color schemes
+    const lightModeColors = [0x1a73e8, 0x9c27b0, 0x00c971]; // Blue, purple, and green for light mode
+    const darkModeColors = [0x00c971, 0x9c27b0, 0x1a73e8]; // Green, purple, and blue for dark mode
+
+    // Set to true for debugging, false for production
+    const debugMode = false;
+
+    if (debugMode) {
+      console.log('Light mode colors:', lightModeColors.map(c => '0x' + c.toString(16)));
+      console.log('Dark mode colors:', darkModeColors.map(c => '0x' + c.toString(16)));
+    }
+
     // Create multiple polyhedron instances with shared resources
-    const instances = InteractivePolyhedron.createInstances(container, 3, {
-      debug: false, // Keep debug mode off for production
-      colors: [0x1a73e8, 0x9c27b0, 0x00c971], // Blue, purple, and green for light mode
-      darkModeColors: [0x00c971, 0x9c27b0, 0x1a73e8], // Green, purple, and blue for dark mode
+    const instances = InteractivePolyhedron.createInstances(container, 1, {
+      debug: debugMode,
+      colors: lightModeColors,
+      darkModeColors: darkModeColors,
       sizes: [1.0, 1, 1], // Different sizes for visual interest
       positions: [
         { x: -2, y: 15, z: -1 },
@@ -1923,6 +1992,21 @@ if (container) {
     container.addEventListener('click', () => {
       // This empty click handler helps ensure touch events work properly on some mobile devices
     });
+
+    // Force an initial color update to ensure correct colors on load
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (debugMode) {
+      console.log('Initial color scheme is:', isDarkMode ? 'dark' : 'light');
+    }
+
+    setTimeout(() => {
+      instances.forEach((instance, index) => {
+        if (debugMode) {
+          console.log(`Forcing color update for instance ${index}`);
+        }
+        instance.updateColors();
+      });
+    }, 500); // Small delay to ensure everything is initialized
 
   } catch (error) {
     console.error('Error initializing polyhedron:', error);

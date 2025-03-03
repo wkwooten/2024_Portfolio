@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Load the polyhedron script
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = 'js/hero-polyhedron.js';
+      script.src = 'js/simplihedron.js';
       script.onload = () => console.log('Polyhedron script loaded successfully');
       script.onerror = (e) => console.error('Error loading polyhedron script:', e);
       document.body.appendChild(script);

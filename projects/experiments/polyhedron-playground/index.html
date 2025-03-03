@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Interactive Polyhedron Playground | Ki Wooten</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="An interactive 3D physics playground built with Three.js and Cannon.js. Drag, throw, and play with colorful polyhedrons.">
+  <link rel="icon" href="../../../Images/personal logo.png" />
+  <link rel="stylesheet" type="text/css" href="../../../css/main.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/umbrellajs"></script>
+
+  <!-- Import map for module scripts -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+      }
+    }
+  </script>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ENNVZMQH5L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
+    gtag("config", "G-ENNVZMQH5L");
+  </script>
+</head>
+<body class="polyhedron-playground">
+  <a href="../../../projects/" class="back-to-projects">
+    <span class="back-arrow">←</span> Back to Projects
+  </a>
+
+  <button class="toggle-controls" id="toggle-controls">Show Controls</button>
+
+  <div id="grid-canvas"></div>
+
+  <div class="playground-overlay" style="display: none;">
+    <h1>Interactive Polyhedron Playground</h1>
+    <div class="instructions">
+      <p>Click and drag the polyhedrons to move them around. Release to throw them and watch them bounce off the invisible walls.</p>
+      <p>The polyhedrons respond to physics and will interact with each other when they collide.</p>
+    </div>
+    <div class="performance-info">
+      <p>This playground uses Three.js for rendering and Cannon.js for physics simulation.</p>
+      <p>Performance: <span id="fps">-- FPS</span> | Polyhedrons: <span id="polyhedron-count">0/10</span></p>
+    </div>
+    <div class="controls">
+      <button id="reset-polyhedron" class="playground-button">Reset Position</button>
+      <button id="add-polyhedron" class="playground-button">Add Polyhedron</button>
+      <button id="change-color" class="playground-button">Change Colors</button>
+      <button id="toggle-boundaries" class="playground-button">Show Boundaries</button>
+      <div class="debug-toggle">
+        <input type="checkbox" id="debug-mode">
+        <label for="debug-mode">Debug Mode</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating action buttons -->
+  <div class="floating-action-container">
+    <button class="action-button" id="remove-polyhedron">
+      <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><g fill="currentColor"><path d="M224 128a96 96 0 1 1-96-96a96 96 0 0 1 96 96" opacity="0.2"/><path d="M176 128a8 8 0 0 1-8 8H88a8 8 0 0 1 0-16h80a8 8 0 0 1 8 8m56 0A104 104 0 1 1 128 24a104.11 104.11 0 0 1 104 104m-16 0a88 88 0 1 0-88 88a88.1 88.1 0 0 0 88-88"/></g></svg>
+    </button>
+    <button class="action-button" id="add-polyhedron-fab">
+      <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><g fill="currentColor"><path d="M224 128a96 96 0 1 1-96-96a96 96 0 0 1 96 96" opacity="0.2"/><path d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24m0 192a88 88 0 1 1 88-88a88.1 88.1 0 0 1-88 88m48-88a8 8 0 0 1-8 8h-32v32a8 8 0 0 1-16 0v-32H88a8 8 0 0 1 0-16h32V88a8 8 0 0 1 16 0v32h32a8 8 0 0 1 8 8"/></g></svg>
+    </button>
+  </div>
+
+  <!-- Import our polyhedron script -->
+  <script type="module">
+    import * as THREE from 'three';
+    import * as CANNON from 'cannon-es';
+
+    // Use the experimental version for the playground
+    const scriptPath = '../../../js/experimentahedron.js';
+
+    // Dynamically import the module
+    import(scriptPath).then(module => {
+      // Execute immediately instead of waiting for DOMContentLoaded
+      console.log('Initializing polyhedron playground...');
+      const container = document.querySelector('#grid-canvas');
+
+      if (container) {
+        console.log('Grid canvas container found:', container);
+        try {
+          // Clear any existing canvas elements to prevent duplicates
+          while (container.firstChild) {
+            container.removeChild(container.firstChild);
+          }
+          console.log('Container cleared');
+
+          // Set debug mode based on checkbox
+          const debugCheckbox = document.getElementById('debug-mode');
+          let debugMode = false;
+
+          if (debugCheckbox) {
+            debugCheckbox.addEventListener('change', (e) => {
+              debugMode = e.target.checked;
+              console.log('Debug mode set to:', debugMode);
+
+              // Update debug mode for all instances
+              if (window.heroPolyhedrons) {
+                window.heroPolyhedrons.forEach(instance => {
+                  instance.debug = debugMode;
+                });
+              }
+            });
+          }
+
+          // Create multiple polyhedron instances
+          const lightModeColors = [0x1a73e8, 0x9c27b0, 0x00c971]; // Blue, purple, and green for light mode
+          const darkModeColors = [0x00c971, 0x9c27b0, 0x1a73e8]; // Green, purple, and blue for dark mode
+
+          console.log('Creating polyhedron instances...');
+          const instances = module.InteractivePolyhedron.createInstances(container, 3, {
+            debug: debugMode,
+            colors: lightModeColors,
+            darkModeColors: darkModeColors,
+            sizes: [1.0, 1.2, 0.8], // Different sizes for visual interest
+            positions: [
+              { x: -2, y: 15, z: -1 },
+              { x: 0.5, y: 18, z: 0 },
+              { x: 2, y: 16, z: 1 }
+            ]
+          });
+
+          // Store instances globally for access by controls
+          window.heroPolyhedrons = instances;
+          console.log('Polyhedrons initialized successfully');
+
+          // Update the UI to reflect the initial count
+          updatePolyhedronCounter();
+
+          // Set up controls
+          setupControls(instances, container, lightModeColors, darkModeColors, module);
+
+          // Set up toggle for overlay
+          const toggleButton = document.getElementById('toggle-controls');
+          const overlay = document.querySelector('.playground-overlay');
+
+          if (toggleButton && overlay) {
+            toggleButton.addEventListener('click', () => {
+              if (overlay.style.display === 'none') {
+                overlay.style.display = 'block';
+                toggleButton.textContent = 'Hide Controls';
+              } else {
+                overlay.style.display = 'none';
+                toggleButton.textContent = 'Show Controls';
+              }
+            });
+          }
+
+        } catch (error) {
+          console.error('Error initializing polyhedron playground:', error);
+        }
+      } else {
+        console.error('Container #grid-canvas not found');
+      }
+    }).catch(error => {
+      console.error('Failed to load polyhedron script:', error);
+    });
+
+    function setupControls(instances, container, lightModeColors, darkModeColors, module) {
+      // Reset button
+      const resetButton = document.getElementById('reset-polyhedron');
+      if (resetButton) {
+        resetButton.addEventListener('click', () => {
+          console.log('Reset button clicked');
+          resetAllPolyhedrons(instances);
+        });
+      }
+
+      // Add polyhedron button (in control panel)
+      const addButton = document.getElementById('add-polyhedron');
+      if (addButton) {
+        addButton.addEventListener('click', () => {
+          console.log('Add button clicked');
+          addNewPolyhedron(container, lightModeColors, darkModeColors, module);
+        });
+      }
+
+      // Add polyhedron FAB
+      const addFabButton = document.getElementById('add-polyhedron-fab');
+      if (addFabButton) {
+        addFabButton.addEventListener('click', () => {
+          console.log('Add FAB clicked');
+          addNewPolyhedron(container, lightModeColors, darkModeColors, module);
+        });
+      }
+
+      // Remove polyhedron button
+      const removeButton = document.getElementById('remove-polyhedron');
+      if (removeButton) {
+        removeButton.addEventListener('click', () => {
+          console.log('Remove button clicked');
+          removeLastPolyhedron();
+        });
+      }
+
+      // Color change button
+      const colorButton = document.getElementById('change-color');
+      if (colorButton) {
+        colorButton.addEventListener('click', () => {
+          console.log('Color change button clicked');
+          changePolyhedronColors(instances);
+        });
+      }
+
+      // Toggle boundaries button
+      const boundariesButton = document.getElementById('toggle-boundaries');
+      if (boundariesButton) {
+        let boundariesVisible = false;
+        boundariesButton.addEventListener('click', () => {
+          boundariesVisible = !boundariesVisible;
+          console.log('Boundaries visibility set to:', boundariesVisible);
+
+          // Toggle visibility of boundary meshes if they exist
+          if (instances.length > 0 && instances[0].boundaries) {
+            instances[0].boundaries.forEach(boundary => {
+              if (boundary.mesh) {
+                boundary.mesh.visible = boundariesVisible;
+              }
+            });
+          }
+        });
+      }
+    }
+
+    // Function to reset all polyhedrons
+    function resetAllPolyhedrons(instances) {
+      instances.forEach(instance => {
+        // Reset position to a random height
+        instance.polyhedronBody.position.set(
+          (Math.random() - 0.5) * 4,
+          15 + Math.random() * 5,
+          (Math.random() - 0.5) * 3
+        );
+
+        // Reset velocity
+        instance.polyhedronBody.velocity.set(
+          (Math.random() - 0.5) * 0.8,
+          -4,
+          (Math.random() - 0.5) * 0.8
+        );
+
+        // Reset angular velocity
+        instance.polyhedronBody.angularVelocity.set(
+          (Math.random() - 0.5) * 2,
+          (Math.random() - 0.5) * 2,
+          (Math.random() - 0.5) * 2
+        );
+
+        // Wake up the body if it was sleeping
+        instance.polyhedronBody.wakeUp();
+      });
+      console.log('All polyhedrons reset');
+    }
+
+    // Function to add a new polyhedron
+    function addNewPolyhedron(container, lightModeColors, darkModeColors, module) {
+      // Get the current count
+      const currentCount = window.heroPolyhedrons.length;
+
+      if (currentCount < 10) { // Limit to 10 polyhedrons for performance
+        // Create a new polyhedron
+        const newInstances = module.InteractivePolyhedron.createInstances(container, 1, {
+          debug: document.getElementById('debug-mode')?.checked || false,
+          colors: lightModeColors,
+          darkModeColors: darkModeColors,
+          sizes: [0.8 + Math.random() * 0.4], // Random size
+          positions: [
+            {
+              x: (Math.random() - 0.5) * 4,
+              y: 15 + Math.random() * 5,
+              z: (Math.random() - 0.5) * 3
+            }
+          ]
+        });
+
+        // Add to the global array
+        window.heroPolyhedrons.push(newInstances[0]);
+        console.log('New polyhedron added, total:', window.heroPolyhedrons.length);
+
+        // Update the UI to reflect the new count
+        updatePolyhedronCounter();
+      } else {
+        console.log('Maximum number of polyhedrons reached');
+        alert('Maximum number of polyhedrons reached (10). Please remove some before adding more.');
+      }
+    }
+
+    // Function to remove the last added polyhedron
+    function removeLastPolyhedron() {
+      if (window.heroPolyhedrons && window.heroPolyhedrons.length > 1) {
+        const instance = window.heroPolyhedrons.pop();
+
+        // Remove from physics world
+        if (instance.polyhedronBody && instance.polyhedronBody.world) {
+          instance.polyhedronBody.world.removeBody(instance.polyhedronBody);
+        }
+
+        // Remove from scene
+        if (instance.polyhedron && instance.polyhedron.parent) {
+          instance.polyhedron.parent.remove(instance.polyhedron);
+        }
+
+        console.log('Polyhedron removed, remaining:', window.heroPolyhedrons.length);
+
+        // Update the UI to reflect the new count
+        updatePolyhedronCounter();
+      } else {
+        console.log('Cannot remove the last polyhedron');
+        alert('At least one polyhedron must remain in the scene.');
+      }
+    }
+
+    // Function to update the polyhedron counter in the UI
+    function updatePolyhedronCounter() {
+      const count = window.heroPolyhedrons ? window.heroPolyhedrons.length : 0;
+
+      // Update the add button state
+      const addButton = document.getElementById('add-polyhedron');
+      const addFabButton = document.getElementById('add-polyhedron-fab');
+
+      if (addButton) {
+        addButton.disabled = count >= 10;
+        addButton.title = count >= 10 ? 'Maximum number reached' : 'Add a polyhedron';
+      }
+
+      if (addFabButton) {
+        addFabButton.disabled = count >= 10;
+        addFabButton.title = count >= 10 ? 'Maximum number reached' : 'Add a polyhedron';
+      }
+
+      // Update the remove button state
+      const removeButton = document.getElementById('remove-polyhedron');
+      if (removeButton) {
+        removeButton.disabled = count <= 1;
+        removeButton.title = count <= 1 ? 'Cannot remove the last polyhedron' : 'Remove a polyhedron';
+      }
+
+      // Update the polyhedron count display
+      const countElement = document.getElementById('polyhedron-count');
+      if (countElement) {
+        countElement.textContent = `${count}/10`;
+      }
+    }
+
+    // Function to change polyhedron colors
+    function changePolyhedronColors(instances) {
+      // Generate new random colors
+      const newLightColors = [
+        Math.floor(Math.random() * 0xffffff),
+        Math.floor(Math.random() * 0xffffff),
+        Math.floor(Math.random() * 0xffffff)
+      ];
+
+      const newDarkColors = [
+        Math.floor(Math.random() * 0xffffff),
+        Math.floor(Math.random() * 0xffffff),
+        Math.floor(Math.random() * 0xffffff)
+      ];
+
+      // Update colors for all instances
+      instances.forEach((instance, index) => {
+        // Update the color options
+        instance.colorOptions.colors = newLightColors;
+        instance.colorOptions.darkModeColors = newDarkColors;
+        instance.colorOptions.colorIndex = index % newLightColors.length;
+
+        // Apply the new colors
+        instance.updateColors();
+      });
+
+      console.log('Colors updated for all polyhedrons');
+    }
+  </script>
+
+</body>
+</html>
