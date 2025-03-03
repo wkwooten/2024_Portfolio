@@ -173,12 +173,12 @@
 		gap: var(--space-s);
 	}
 
-	.hero_full {
+	/* .hero_full {
 		background: linear-gradient(-15deg, rgba(45, 199, 251, 0.00), rgba(12, 246, 67, 0.08), rgba(45, 199, 251, 0.0));
 		background-size: 200% 200%;
 		animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
 		-webkit-animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-	}
+	} */
 
 	/* Navigation Components */
 	.cs_end,

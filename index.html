@@ -14,6 +14,15 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/umbrellajs"></script>
+    <!-- Import map for module scripts - moved to head for better performance -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+        }
+      }
+    </script>
     <!-- Google tag (gtag.js) -->
     <script
       async
@@ -320,14 +329,6 @@
         </div>
     </footer>
     <script src="js/main.js"></script>
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-          "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
-        }
-      }
-    </script>
-    <script type="module" src="js/hero-polyhedron.js"></script>
+    <!-- Polyhedron script will be lazy loaded by main.js -->
   </body>
 </html>

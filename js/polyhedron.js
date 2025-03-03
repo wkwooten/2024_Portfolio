@@ -316,7 +316,7 @@ class InteractivePolyhedron {
       color: 0x444444,
       wireframe: true,
       transparent: true,
-      opacity: 0.08, // Reduced opacity for more subtle boundaries
+      opacity: 0.25, // Reduced opacity for more subtle boundaries
       wireframeLinewidth: 1
     });
 

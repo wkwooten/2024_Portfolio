@@ -26,12 +26,21 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Mobile menu toggle
-  if (document.querySelector('.modal_button')) {
-    u('.modal_button').on('click', e => {
-      u('.modal').toggleClass('collapsed');
-      u('body').toggleClass('stop_scroll');
-      u('.modal_back_btn').toggleClass('switch');
-      u('.modal_menu_btn').toggleClass('switch');
+  const menuBtn = document.querySelector('.modal_menu_btn');
+  const backBtn = document.querySelector('.modal_back_btn');
+  const modal = document.querySelector('.modal');
+
+  if (menuBtn && backBtn && modal) {
+    menuBtn.addEventListener('click', function() {
+      modal.classList.remove('collapsed');
+      menuBtn.classList.add('switch');
+      backBtn.classList.remove('switch');
+    });
+
+    backBtn.addEventListener('click', function() {
+      modal.classList.add('collapsed');
+      menuBtn.classList.remove('switch');
+      backBtn.classList.add('switch');
     });
   }
 
@@ -295,4 +304,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Close modal with escape key (handled by the global keydown handler)
   }
+
+  // Lazy load the polyhedron script after critical content is loaded
+  setTimeout(() => {
+    // Check if we're on a page that needs the polyhedron
+    const polyhedronContainer = document.getElementById('grid-canvas');
+    if (polyhedronContainer) {
+      console.log('Lazy loading polyhedron script...');
+
+      // Load the polyhedron script
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = 'js/hero-polyhedron.js';
+      script.onload = () => console.log('Polyhedron script loaded successfully');
+      script.onerror = (e) => console.error('Error loading polyhedron script:', e);
+      document.body.appendChild(script);
+    }
+  }, 500); // 500ms delay to allow critical content to render first
 });
