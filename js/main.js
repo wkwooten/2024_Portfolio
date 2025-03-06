@@ -3,7 +3,19 @@
  * Combines functionality from animations.js and testing.js
  */
 
+function loadGlassmorphicScript() {
+  console.log('Loading glassmorphic script...');
+  const script = document.createElement('script');
+  script.src = 'js/glassmorphic.js';
+  script.onload = () => console.log('Glassmorphic script loaded successfully');
+  script.onerror = (e) => console.error('Error loading glassmorphic script:', e);
+  document.head.appendChild(script);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+  // Load the glassmorphic script first to ensure it's ready
+  loadGlassmorphicScript();
+
   // =========================================================================
   // UI INTERACTIONS
   // =========================================================================

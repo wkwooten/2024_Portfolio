@@ -565,6 +565,11 @@ class InteractivePolyhedron {
 
         // Update cursor style
         document.body.style.cursor = isIntersecting ? 'grab' : 'auto';
+
+        // Update glassmorphic overlay on hover
+        if (window.glassmorph) {
+          window.glassmorph.updateState(isIntersecting ? 'hover' : 'default');
+        }
       }
     }
   }
@@ -1294,6 +1299,11 @@ function setupSharedEventHandlers(container, instances, resources) {
       if (activeInstance) {
         // Start dragging this instance
         activeInstance.startDragging(mouse, event.clientX, event.clientY);
+
+        // Update glassmorphic overlay to interaction state
+        if (window.glassmorph) {
+          window.glassmorph.updateState('interaction');
+        }
       }
     }
   });
@@ -1332,11 +1342,26 @@ function setupSharedEventHandlers(container, instances, resources) {
         if (hoveredInstance) {
           hoveredInstance.isHovering = true;
           document.body.style.cursor = 'grab';
+
+          // Update glassmorphic overlay to hover state
+          if (window.glassmorph) {
+            window.glassmorph.updateState('hover');
+          }
         } else {
           document.body.style.cursor = 'auto';
+
+          // Reset glassmorphic overlay
+          if (window.glassmorph) {
+            window.glassmorph.updateState('default');
+          }
         }
       } else {
         document.body.style.cursor = 'auto';
+
+        // Reset glassmorphic overlay
+        if (window.glassmorph) {
+          window.glassmorph.updateState('default');
+        }
       }
     }
   });
@@ -1346,6 +1371,11 @@ function setupSharedEventHandlers(container, instances, resources) {
     if (activeInstance && activeInstance.isDragging) {
       activeInstance.endDragging();
       activeInstance = null;
+
+      // Reset glassmorphic overlay after dragging ends
+      if (window.glassmorph) {
+        window.glassmorph.updateState('default');
+      }
     }
   });
 
@@ -1380,6 +1410,11 @@ function setupSharedEventHandlers(container, instances, resources) {
         if (activeInstance) {
           // Start dragging this instance
           activeInstance.startDragging(mouse, event.touches[0].clientX, event.touches[0].clientY);
+
+          // Update glassmorphic overlay to interaction state
+          if (window.glassmorph) {
+            window.glassmorph.updateState('interaction');
+          }
         }
       }
     }
@@ -1404,6 +1439,11 @@ function setupSharedEventHandlers(container, instances, resources) {
     if (activeInstance && activeInstance.isDragging) {
       activeInstance.endDragging();
       activeInstance = null;
+
+      // Reset glassmorphic overlay after touch interaction
+      if (window.glassmorph) {
+        window.glassmorph.updateState('default');
+      }
     }
   });
 }
