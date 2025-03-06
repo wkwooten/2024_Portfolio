@@ -589,6 +589,107 @@ blockquote::before {
 	transition: color 0.3s ease;
 }
 
+/* In-progress project styling */
+.works_case_study.in-progress {
+	border: 3px dashed var(--primary);
+	background-color: var(--bg-color);
+	overflow: hidden;
+	transition: border-color 0.3s ease, transform 0.3s ease, opacity 0.3s ease, box-shadow 0.3s ease;
+	display: flex;
+	flex-direction: column;
+	opacity: 0.75;
+	position: relative;
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+	/* Make the card more rectangular */
+	border-radius: 8px;
+	aspect-ratio: auto;
+	/* Allow natural aspect ratio */
+	max-width: 300px;
+}
+
+.works_case_study.in-progress:hover {
+	border-color: var(--accent);
+	transform: translateY(-5px);
+	opacity: 0.95;
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+}
+
+.works_case_study.in-progress .construction-icon {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 180px;
+	/* Reduced height to make card more rectangular */
+	padding: var(--space-s);
+	padding-top: calc(var(--space-s) + 20px);
+	/* Adjusted padding for top banner */
+	margin: auto;
+	color: var(--primary);
+	transition: color 0.3s ease, transform 0.3s ease;
+	width: 50%;
+	/* Slightly smaller icon */
+	position: relative;
+	z-index: 1;
+}
+
+.works_case_study.in-progress h2 {
+	position: relative;
+	z-index: 1;
+	margin-top: 0;
+	/* Reduce space after icon */
+	padding: 0 var(--space-s);
+	/* Add horizontal padding */
+}
+
+.works_case_study.in-progress .works_overlay {
+	z-index: 2;
+}
+
+.works_case_study.in-progress:hover .construction-icon {
+	color: var(--accent);
+	transform: scale(1.1);
+}
+
+/* Add a subtle pattern for in-progress cards */
+.works_case_study.in-progress::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-image: repeating-linear-gradient(45deg,
+			transparent,
+			transparent 10px,
+			rgba(var(--primary-rgb), 0.03) 10px,
+			rgba(var(--primary-rgb), 0.03) 20px);
+	pointer-events: none;
+	z-index: 0;
+}
+
+/* Refined top banner for in-progress projects */
+.top-banner {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	background-color: var(--primary);
+	color: var(--bg-color);
+	padding: 6px 5px;
+	font-size: 0.7rem;
+	font-weight: bold;
+	z-index: 3;
+	text-align: center;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	transition: background-color 0.3s ease;
+}
+
+.works_case_study.in-progress:hover .top-banner {
+	background-color: var(--accent);
+}
+
 /* Case Study Styles */
 .cs_section {
 	width: 100%;
@@ -1079,4 +1180,38 @@ section {
 .about > blockquote:first-of-type {
 	margin-top: var(--space-m);
 	margin-bottom: var(--space-xl);
+}
+
+/* Bottom banner construction label */
+.construction-label {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: var(--primary);
+	color: var(--bg-color);
+	padding: 6px 10px;
+	font-size: 0.8rem;
+	font-weight: bold;
+	z-index: 3;
+	transition: background-color 0.3s ease;
+	opacity: 1;
+	text-align: center;
+	white-space: nowrap;
+}
+
+/* Title tag for in-progress projects */
+.title-tag {
+	display: inline-block;
+	font-size: 0.65rem;
+	font-weight: normal;
+	color: var(--primary);
+	background-color: rgba(var(--primary-rgb), 0.1);
+	padding: 3px 6px;
+	border-radius: 4px;
+	margin-left: 8px;
+	vertical-align: middle;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+	border: 1px solid rgba(var(--primary-rgb), 0.3);
 }
