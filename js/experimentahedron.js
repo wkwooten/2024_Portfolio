@@ -53,9 +53,8 @@ class InteractivePolyhedron {
     this.height = container.clientHeight;
 
     // Set up delay before animation starts
-    this.startDelay = 0; // No delay for experimental version
-    this.startTime = performance.now() + this.startDelay;
-    this.isActive = false;
+    this.startTime = performance.now(); // No delay
+    this.isActive = true; // Start active immediately
 
     // Grab smoothness factor (0-1): higher = faster, lower = smoother
     this.grabSmoothness = 0.2;
@@ -91,6 +90,12 @@ class InteractivePolyhedron {
     this.world.allowSleep = true; // Allow bodies to sleep when they come to rest
     this.world.sleepSpeedLimit = 0.05; // Lower threshold to allow bodies to sleep sooner
     this.world.sleepTimeLimit = 0.5; // Shorter time before sleeping
+
+    // Ensure contact detection for all collision groups
+    this.world.defaultContactMaterial.contactEquationStiffness = 1e6;
+    this.world.defaultContactMaterial.contactEquationRelaxation = 3;
+    this.world.defaultContactMaterial.friction = 0.3;
+    this.world.defaultContactMaterial.restitution = 0.8;
 
     // Initialize raycaster for mouse interaction
     this.raycaster = new THREE.Raycaster();
@@ -211,9 +216,18 @@ class InteractivePolyhedron {
       collisionFilterMask: 1 // Collide with other polyhedra
     });
 
-    // Initially set the body to sleep until the delay is over
-    this.polyhedronBody.sleep();
+    // Make polyhedron active immediately
     this.world.addBody(this.polyhedronBody);
+
+    // Ensure collisions are properly initialized
+    this.polyhedronBody.collisionFilterGroup = 1;
+    this.polyhedronBody.collisionFilterMask = 1;
+
+    // Force physics engine to update collision detection
+    this.polyhedronBody.wakeUp();
+
+    // Activate the polyhedron immediately
+    this.activatePolyhedron();
   }
 
   createPolyhedronShape(geometry, radius) {
@@ -265,7 +279,7 @@ class InteractivePolyhedron {
       // Ceiling
       {
         shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundaryDepth, boundarySize)),
-        position: new CANNON.Vec3(0, 20, 0),
+        position: new CANNON.Vec3(0, 20, 0), // Changed back to 20 from 15
         dimensions: [boundarySize * 2, boundaryDepth * 2, boundarySize * 2]
       },
       // Left wall
@@ -839,7 +853,7 @@ class InteractivePolyhedron {
     // Check for out of bounds or unstable velocity
     const isOutOfBounds =
       Math.abs(pos.x) > 10 ||  // Reset to original boundary size
-      pos.y > 25 || // Higher than ceiling
+      pos.y > 22 || // Changed to 22 (lower than original 25 but higher than ceiling at 20)
       pos.y < -8 || // Adjusted for new floor position (-2 with some margin)
       Math.abs(pos.z) > 10 ||  // Reset to original boundary size
       Math.abs(vel.x) > 20 ||
@@ -943,41 +957,41 @@ class InteractivePolyhedron {
 
   // New method to activate the polyhedron after the delay
   activatePolyhedron() {
-    debugLog(this, 'Activating polyhedron after delay');
+    debugLog(this, 'Activating polyhedron');
 
     // Make the polyhedron visible
     this.polyhedron.visible = true;
 
-    // Wake up the physics body
+    // Wake up the physics body and ensure collision settings
     this.polyhedronBody.wakeUp();
 
-    // Get the viewport height in world coordinates
-    const cameraDistance = this.camera.position.z;
-    const vFOV = THREE.MathUtils.degToRad(this.camera.fov);
-    const visibleHeightAtDistance = 2 * Math.tan(vFOV / 2) * cameraDistance;
+    // Log collision filter settings for debugging
+    if (this.debug) {
+      console.log('Polyhedron collision settings:', {
+        group: this.polyhedronBody.collisionFilterGroup,
+        mask: this.polyhedronBody.collisionFilterMask
+      });
+    }
 
-    // Position the polyhedron just above the visible area but below the ceiling
-    // The ceiling is at y=20, so we'll position it at around y=15
-    const startY = Math.min(15, visibleHeightAtDistance / 2 + 5);
-
+    // Set initial position
     this.polyhedronBody.position.set(
-      (Math.random() - 0.5) * 4, // Reset to original range
-      startY, // Position high but below ceiling
-      (Math.random() - 0.5) * 3  // Reset to original range
+      this.initialPosition.x,
+      this.initialPosition.y,
+      this.initialPosition.z
     );
 
     // Add gentle initial rotation
     this.polyhedronBody.angularVelocity.set(
-      (Math.random() - 0.5) * 2, // Moderate rotation for visual interest
+      (Math.random() - 0.5) * 2,
       (Math.random() - 0.5) * 2,
       (Math.random() - 0.5) * 2
     );
 
     // Add a downward velocity to create a falling effect
     this.polyhedronBody.velocity.set(
-      (Math.random() - 0.5) * 0.8, // Slight horizontal drift
-      -4, // Strong downward velocity for dramatic falling effect
-      (Math.random() - 0.5) * 0.8  // Slight depth drift
+      (Math.random() - 0.5) * 0.8,
+      -4,
+      (Math.random() - 0.5) * 0.8
     );
 
     // Ensure we're in fast movement state when activating
@@ -1040,11 +1054,28 @@ InteractivePolyhedron.createInstances = function(container, count = 1, options =
   // Create shared resources
   const sharedResources = createSharedResources(container, options.debug);
 
+  // Store the shared resources for later access
+  InteractivePolyhedron._lastSharedResources = sharedResources;
+
+  // Configure default collision behavior
+  const defaultMaterial = new CANNON.Material();
+  const defaultContactMaterial = new CANNON.ContactMaterial(
+    defaultMaterial,
+    defaultMaterial,
+    {
+      friction: 0.3,
+      restitution: 0.8,
+      contactEquationStiffness: 1e6,
+      contactEquationRelaxation: 3
+    }
+  );
+  sharedResources.world.addContactMaterial(defaultContactMaterial);
+  sharedResources.world.defaultContactMaterial = defaultContactMaterial;
+
   // Create instances with staggered start times and different properties
   for (let i = 0; i < count; i++) {
     // Create a custom polyhedron instance that uses shared resources
     const instanceOptions = {
-      startDelay: 2500 + (i * 500), // Stagger start times
       colorIndex: i % (options.colors ? options.colors.length : 1), // Pass the color index
       colors: options.colors, // Pass the entire colors array
       darkModeColors: options.darkModeColors, // Pass the dark mode colors array
@@ -1082,6 +1113,48 @@ InteractivePolyhedron.createInstances = function(container, count = 1, options =
   return instances;
 };
 
+// Method to get the last created shared resources
+InteractivePolyhedron.getLastSharedResources = function() {
+  return InteractivePolyhedron._lastSharedResources;
+};
+
+// Method to create a new polyhedron instance with existing shared resources
+InteractivePolyhedron.createInstanceWithExistingResources = function(container, sharedResources, options = {}) {
+  console.log('Creating polyhedron instance with existing resources');
+  const instances = [];
+
+  // Create a custom polyhedron instance using the provided shared resources
+  const instanceOptions = {
+    colorIndex: options.colorIndex || 0,
+    colors: options.colors || [],
+    darkModeColors: options.darkModeColors || [],
+    size: options.sizes ? options.sizes[0] : 1.0,
+    position: options.positions ? options.positions[0] : {
+      x: (Math.random() - 0.5) * 4,
+      y: 15 + Math.random() * 5,
+      z: (Math.random() - 0.5) * 3
+    },
+    debug: options.debug || false
+  };
+
+  console.log(`Creating instance with colorIndex: ${instanceOptions.colorIndex}`);
+
+  const instance = new CustomPolyhedronInstance(
+    container,
+    sharedResources.scene,
+    sharedResources.camera,
+    sharedResources.renderer,
+    sharedResources.world,
+    sharedResources.raycaster,
+    sharedResources.clock,
+    sharedResources.boundaries,
+    instanceOptions
+  );
+  instances.push(instance);
+
+  return instances;
+};
+
 // Helper function to create shared resources
 function createSharedResources(container, debug = false) {
   // Create a shared renderer
@@ -1106,6 +1179,12 @@ function createSharedResources(container, debug = false) {
   world.allowSleep = true; // Allow bodies to sleep when they come to rest
   world.sleepSpeedLimit = 0.05; // Lower threshold to allow bodies to sleep sooner
   world.sleepTimeLimit = 0.5; // Shorter time before sleeping
+
+  // Ensure contact detection for all collision groups
+  world.defaultContactMaterial.contactEquationStiffness = 1e6;
+  world.defaultContactMaterial.contactEquationRelaxation = 3;
+  world.defaultContactMaterial.friction = 0.3;
+  world.defaultContactMaterial.restitution = 0.8;
 
   // Add lights to the shared scene
   addLightsToScene(scene);
@@ -1189,7 +1268,7 @@ function addSharedBoundaries(world, scene, debug = false) {
     // Ceiling
     {
       shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundaryDepth, boundarySize)),
-      position: new CANNON.Vec3(0, 20, 0),
+      position: new CANNON.Vec3(0, 20, 0), // Changed back to 20 from 15
       dimensions: [boundarySize * 2, boundaryDepth * 2, boundarySize * 2]
     },
     // Left wall
@@ -1429,6 +1508,9 @@ function startAnimationLoop(instances, resources) {
     resources.renderer.render(resources.scene, resources.camera);
   };
 
+  // Expose animateAll globally for potential extensions
+  window.animateAll = animateAll;
+
   // Start the animation loop
   animateAll();
 }
@@ -1449,11 +1531,9 @@ class CustomPolyhedronInstance {
     this.options = options;
 
     // Set options with defaults
-    this.startDelay = options.startDelay || 2500;
-    this.startTime = performance.now() + this.startDelay;
-    this.isActive = false;
     this.debug = options.debug || false;
     this.size = options.size || 1.0;
+    this.isActive = true; // Always active
 
     // Store color options for later use
     this.colorOptions = {
@@ -1558,24 +1638,26 @@ class CustomPolyhedronInstance {
       collisionFilterMask: 1 // Collide with other polyhedra
     });
 
-    // Initially set the body to sleep until the delay is over
-    this.polyhedronBody.sleep();
+    // Make polyhedron active immediately
     this.world.addBody(this.polyhedronBody);
+
+    // Ensure collisions are properly initialized
+    this.polyhedronBody.collisionFilterGroup = 1;
+    this.polyhedronBody.collisionFilterMask = 1;
+
+    // Force physics engine to update collision detection
+    this.polyhedronBody.wakeUp();
+
+    // Activate the polyhedron immediately
+    this.activatePolyhedron();
   }
 
   update(deltaTime) {
-    // Check if we should activate the polyhedron
-    const currentTime = performance.now();
-    if (!this.isActive && currentTime > this.startTime) {
-      this.activatePolyhedron();
-      this.isActive = true;
-    }
-
     // Handle fade-in animation
     this.updateFadeInAnimation();
 
     // Handle dragging with smooth movement
-    if (this.isActive && this.isDragging && this.targetPosition) {
+    if (this.isDragging && this.targetPosition) {
       this.snapPolyhedronToCursor();
     }
 
@@ -1654,13 +1736,21 @@ class CustomPolyhedronInstance {
   }
 
   activatePolyhedron() {
-    debugLog(this, 'Activating polyhedron after delay');
+    debugLog(this, 'Activating polyhedron');
 
     // Make the polyhedron visible
     this.polyhedron.visible = true;
 
-    // Wake up the physics body
+    // Wake up the physics body and ensure collision settings
     this.polyhedronBody.wakeUp();
+
+    // Log collision filter settings for debugging
+    if (this.debug) {
+      console.log('Polyhedron collision settings:', {
+        group: this.polyhedronBody.collisionFilterGroup,
+        mask: this.polyhedronBody.collisionFilterMask
+      });
+    }
 
     // Set initial position
     this.polyhedronBody.position.set(
@@ -1838,7 +1928,7 @@ class CustomPolyhedronInstance {
 
     // Check for out of bounds or unstable velocity
     if (Math.abs(pos.x) > 10 ||
-        pos.y > 25 ||
+        pos.y > 22 || // Changed to 22 (lower than original 25 but higher than ceiling at 20)
         pos.y < -8 ||
         Math.abs(pos.z) > 10 ||
         Math.abs(vel.x) > 20 ||

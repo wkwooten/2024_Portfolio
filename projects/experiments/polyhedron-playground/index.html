@@ -17,7 +17,8 @@
     {
       "imports": {
         "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-        "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+        "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
       }
     }
   </script>
@@ -61,6 +62,53 @@
         <label for="debug-mode">Debug Mode</label>
       </div>
     </div>
+
+    <!-- New Camera Controls Panel -->
+    <div class="camera-controls">
+      <h3>Camera Controls</h3>
+      <div class="camera-control-group">
+        <label for="camera-x">Position X:</label>
+        <input type="range" id="camera-x" min="-20" max="20" step="0.1" value="0">
+        <span id="camera-x-value">0</span>
+      </div>
+      <div class="camera-control-group">
+        <label for="camera-y">Position Y:</label>
+        <input type="range" id="camera-y" min="-20" max="20" step="0.1" value="3">
+        <span id="camera-y-value">3</span>
+      </div>
+      <div class="camera-control-group">
+        <label for="camera-z">Position Z:</label>
+        <input type="range" id="camera-z" min="0" max="20" step="0.1" value="6">
+        <span id="camera-z-value">6</span>
+      </div>
+      <div class="camera-control-group">
+        <label for="camera-fov">FOV:</label>
+        <input type="range" id="camera-fov" min="30" max="120" step="1" value="60">
+        <span id="camera-fov-value">60</span>
+      </div>
+      <div class="camera-control-group">
+        <label>Rotation:</label>
+        <div class="rotation-indicator">
+          <span>X: <span id="rotation-x-value">0.00</span>°</span>
+          <span>Y: <span id="rotation-y-value">0.00</span>°</span>
+          <span>Z: <span id="rotation-z-value">0.00</span>°</span>
+        </div>
+      </div>
+      <div class="camera-controls-help">
+        <p><strong>Controls:</strong></p>
+        <ul>
+          <li>Click "Enable Pointer Lock" to activate first-person controls</li>
+          <li>Mouse: Look around</li>
+          <li>W/S: Move forward/backward</li>
+          <li>A/D: Move left/right</li>
+          <li>Space/C: Move up/down</li>
+          <li>Press ESC to exit pointer lock mode</li>
+        </ul>
+      </div>
+      <button id="enable-pointer-lock" class="playground-button">Enable Pointer Lock</button>
+      <button id="copy-camera-settings" class="playground-button">Copy Camera Settings</button>
+      <button id="reset-camera" class="playground-button">Reset Camera</button>
+    </div>
   </div>
 
   <!-- Floating action buttons -->
@@ -73,10 +121,79 @@
     </button>
   </div>
 
+  <!-- Add some CSS for the camera controls -->
+  <style>
+    .camera-controls {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 8px;
+      max-width: 500px;
+    }
+
+    .camera-control-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .camera-control-group label {
+      width: 100px;
+      font-size: 14px;
+    }
+
+    .camera-control-group input {
+      flex-grow: 1;
+      margin: 0 10px;
+    }
+
+    .camera-control-group span {
+      width: 40px;
+      text-align: right;
+    }
+
+    .toggle-orbit-controls {
+      margin-top: 10px;
+    }
+
+    .camera-controls-help {
+      margin: 10px 0;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .camera-controls-help ul {
+      margin: 5px 0;
+      padding-left: 20px;
+    }
+
+    .camera-controls-help li {
+      margin-bottom: 3px;
+    }
+
+    .rotation-indicator {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      padding: 5px 0;
+      background: rgba(0,0,0,0.1);
+      border-radius: 4px;
+      margin-left: 10px;
+    }
+
+    .rotation-indicator span {
+      font-size: 14px;
+    }
+  </style>
+
   <!-- Import our polyhedron script -->
   <script type="module">
     import * as THREE from 'three';
     import * as CANNON from 'cannon-es';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 
     // Use the experimental version for the playground
     const scriptPath = '../../../js/experimentahedron.js';
@@ -133,6 +250,11 @@
 
           // Store instances globally for access by controls
           window.heroPolyhedrons = instances;
+
+          // Store the shared resources for reuse
+          window.sharedResources = module.InteractivePolyhedron.getLastSharedResources();
+          console.log('Storing shared resources for reuse:', window.sharedResources);
+
           console.log('Polyhedrons initialized successfully');
 
           // Update the UI to reflect the initial count
@@ -156,6 +278,9 @@
               }
             });
           }
+
+          // Set up camera controls
+          setupCameraControls(sharedResources.camera, sharedResources.renderer, sharedResources.scene);
 
         } catch (error) {
           console.error('Error initializing polyhedron playground:', error);
@@ -374,22 +499,34 @@
 
       if (currentCount < 10) { // Limit to 10 polyhedrons for performance
         // Create a new polyhedron
-        const newInstances = module.InteractivePolyhedron.createInstances(container, 1, {
-          debug: document.getElementById('debug-mode')?.checked || false,
-          colors: lightModeColors,
-          darkModeColors: darkModeColors,
-          sizes: [0.8 + Math.random() * 0.4], // Random size
-          positions: [
-            {
-              x: (Math.random() - 0.5) * 4,
-              y: 15 + Math.random() * 5,
-              z: (Math.random() - 0.5) * 3
-            }
-          ]
-        });
+        const newInstances = module.InteractivePolyhedron.createInstanceWithExistingResources(
+          container,
+          window.sharedResources,
+          {
+            debug: document.getElementById('debug-mode')?.checked || false,
+            colors: lightModeColors,
+            darkModeColors: darkModeColors,
+            sizes: [0.8 + Math.random() * 0.4], // Random size
+            positions: [
+              {
+                x: (Math.random() - 0.5) * 4,
+                y: 15 + Math.random() * 5,
+                z: (Math.random() - 0.5) * 3
+              }
+            ]
+          }
+        );
 
         // Add to the global array
         window.heroPolyhedrons.push(newInstances[0]);
+
+        // Ensure the new polyhedron has collisions enabled
+        if (newInstances[0] && newInstances[0].polyhedronBody) {
+          newInstances[0].polyhedronBody.collisionFilterGroup = 1;
+          newInstances[0].polyhedronBody.collisionFilterMask = 1;
+          newInstances[0].polyhedronBody.wakeUp();
+        }
+
         console.log('New polyhedron added, total:', window.heroPolyhedrons.length);
 
         // Update the UI to reflect the new count
@@ -398,6 +535,363 @@
         console.log('Maximum number of polyhedrons reached');
         alert('Maximum number of polyhedrons reached (10). Please remove some before adding more.');
       }
+    }
+
+    // Function to set up camera controls
+    function setupCameraControls(camera, renderer, scene) {
+      // Store default camera values
+      const defaultCameraSettings = {
+        position: new THREE.Vector3(0, 3, 6),
+        fov: 60
+      };
+
+      // Set up pointer lock controls
+      const pointerLockControls = new PointerLockControls(camera, renderer.domElement);
+
+      // Set initial camera position
+      camera.position.copy(defaultCameraSettings.position);
+      camera.fov = defaultCameraSettings.fov;
+      camera.lookAt(0, 0, 0);
+      camera.updateProjectionMatrix();
+
+      // Movement variables
+      let moveForward = false;
+      let moveBackward = false;
+      let moveLeft = false;
+      let moveRight = false;
+      let moveUp = false;
+      let moveDown = false;
+      const moveSpeed = 0.5; // Increased from 0.2 for better responsiveness
+
+      // Get all camera control elements
+      const cameraXInput = document.getElementById('camera-x');
+      const cameraYInput = document.getElementById('camera-y');
+      const cameraZInput = document.getElementById('camera-z');
+      const cameraFovInput = document.getElementById('camera-fov');
+
+      const cameraXValue = document.getElementById('camera-x-value');
+      const cameraYValue = document.getElementById('camera-y-value');
+      const cameraZValue = document.getElementById('camera-z-value');
+      const cameraFovValue = document.getElementById('camera-fov-value');
+
+      const copyButton = document.getElementById('copy-camera-settings');
+      const resetButton = document.getElementById('reset-camera');
+      const enablePointerLockButton = document.getElementById('enable-pointer-lock');
+
+      // Set initial values based on camera's current position
+      cameraXInput.value = camera.position.x;
+      cameraYInput.value = camera.position.y;
+      cameraZInput.value = camera.position.z;
+      cameraFovInput.value = camera.fov;
+
+      // Update display values
+      cameraXValue.textContent = camera.position.x.toFixed(2);
+      cameraYValue.textContent = camera.position.y.toFixed(2);
+      cameraZValue.textContent = camera.position.z.toFixed(2);
+      cameraFovValue.textContent = camera.fov.toFixed(2);
+
+      // Update camera based on slider values
+      function updateCamera() {
+        if (!pointerLockControls.isLocked) {
+          camera.position.x = parseFloat(cameraXInput.value);
+          camera.position.y = parseFloat(cameraYInput.value);
+          camera.position.z = parseFloat(cameraZInput.value);
+          camera.fov = parseFloat(cameraFovInput.value);
+          camera.updateProjectionMatrix();
+
+          // Update displayed values
+          cameraXValue.textContent = camera.position.x.toFixed(2);
+          cameraYValue.textContent = camera.position.y.toFixed(2);
+          cameraZValue.textContent = camera.position.z.toFixed(2);
+          cameraFovValue.textContent = camera.fov.toFixed(2);
+        }
+      }
+
+      // Update slider values from camera position
+      function updateSlidersFromCamera() {
+        if (pointerLockControls.isLocked) {
+          // Update camera position sliders
+          cameraXInput.value = camera.position.x;
+          cameraYInput.value = camera.position.y;
+          cameraZInput.value = camera.position.z;
+
+          // Update displayed values
+          cameraXValue.textContent = camera.position.x.toFixed(2);
+          cameraYValue.textContent = camera.position.y.toFixed(2);
+          cameraZValue.textContent = camera.position.z.toFixed(2);
+        }
+      }
+
+      // Add event listeners to sliders
+      cameraXInput.addEventListener('input', updateCamera);
+      cameraYInput.addEventListener('input', updateCamera);
+      cameraZInput.addEventListener('input', updateCamera);
+      cameraFovInput.addEventListener('input', updateCamera);
+
+      // Enable pointer lock controls
+      enablePointerLockButton.addEventListener('click', () => {
+        pointerLockControls.lock();
+      });
+
+      // Handle pointer lock changes
+      pointerLockControls.addEventListener('lock', () => {
+        console.log('Pointer lock enabled');
+        enablePointerLockButton.textContent = 'Controls Active';
+        enablePointerLockButton.disabled = true;
+      });
+
+      pointerLockControls.addEventListener('unlock', () => {
+        console.log('Pointer lock disabled');
+        enablePointerLockButton.textContent = 'Enable Pointer Lock';
+        enablePointerLockButton.disabled = false;
+        moveForward = moveBackward = moveLeft = moveRight = moveUp = moveDown = false;
+      });
+
+      // Keyboard controls for movement
+      document.addEventListener('keydown', (event) => {
+        if (!pointerLockControls.isLocked) return;
+
+        switch (event.code) {
+          case 'KeyW':
+            moveForward = true;
+            break;
+          case 'KeyS':
+            moveBackward = true;
+            break;
+          case 'KeyA':
+            moveLeft = true;
+            break;
+          case 'KeyD':
+            moveRight = true;
+            break;
+          case 'Space':
+            moveUp = true;
+            break;
+          case 'KeyC':
+            moveDown = true;
+            break;
+        }
+      });
+
+      document.addEventListener('keyup', (event) => {
+        if (!pointerLockControls.isLocked) return;
+
+        switch (event.code) {
+          case 'KeyW':
+            moveForward = false;
+            break;
+          case 'KeyS':
+            moveBackward = false;
+            break;
+          case 'KeyA':
+            moveLeft = false;
+            break;
+          case 'KeyD':
+            moveRight = false;
+            break;
+          case 'Space':
+            moveUp = false;
+            break;
+          case 'KeyC':
+            moveDown = false;
+            break;
+        }
+      });
+
+      // Animation function with movement
+      const updateCameraMovement = function() {
+        if (pointerLockControls.isLocked) {
+          // Get the camera's direction vectors
+          const direction = new THREE.Vector3();
+          camera.getWorldDirection(direction);
+
+          // Calculate movement vectors
+          // Forward/backward movement along camera direction
+          if (moveForward) {
+            camera.position.addScaledVector(direction, moveSpeed);
+          }
+          if (moveBackward) {
+            camera.position.addScaledVector(direction, -moveSpeed);
+          }
+
+          // Left/right movement perpendicular to camera direction
+          const sideVector = new THREE.Vector3();
+          sideVector.crossVectors(camera.up, direction).normalize();
+
+          if (moveLeft) {
+            camera.position.addScaledVector(sideVector, -moveSpeed);
+          }
+          if (moveRight) {
+            camera.position.addScaledVector(sideVector, moveSpeed);
+          }
+
+          // Up/down movement along world up axis
+          const upVector = new THREE.Vector3(0, 1, 0);
+
+          if (moveUp) {
+            camera.position.addScaledVector(upVector, moveSpeed);
+          }
+          if (moveDown) {
+            camera.position.addScaledVector(upVector, -moveSpeed);
+          }
+
+          // Update sliders to match camera position
+          updateSlidersFromCamera();
+
+          // Update rotation indicators
+          updateRotationDisplay();
+        }
+      };
+
+      // Function to update rotation display
+      function updateRotationDisplay() {
+        // Calculate Euler angles from camera quaternion
+        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+
+        // Convert to degrees
+        const rotX = THREE.MathUtils.radToDeg(euler.x);
+        const rotY = THREE.MathUtils.radToDeg(euler.y);
+        const rotZ = THREE.MathUtils.radToDeg(euler.z);
+
+        // Update display
+        document.getElementById('rotation-x-value').textContent = rotX.toFixed(2);
+        document.getElementById('rotation-y-value').textContent = rotY.toFixed(2);
+        document.getElementById('rotation-z-value').textContent = rotZ.toFixed(2);
+      }
+
+      // Reset camera to default
+      resetButton.addEventListener('click', () => {
+        // Reset camera position and target
+        camera.position.copy(defaultCameraSettings.position);
+        camera.fov = defaultCameraSettings.fov;
+
+        // Reset camera direction to look forward
+        camera.lookAt(0, 0, 0);
+        camera.updateProjectionMatrix();
+        updateRotationDisplay(); // Update rotation display after reset
+
+        // Reset slider values
+        cameraXInput.value = defaultCameraSettings.position.x;
+        cameraYInput.value = defaultCameraSettings.position.y;
+        cameraZInput.value = defaultCameraSettings.position.z;
+        cameraFovInput.value = defaultCameraSettings.fov;
+
+        // Update displayed values
+        cameraXValue.textContent = defaultCameraSettings.position.x.toFixed(2);
+        cameraYValue.textContent = defaultCameraSettings.position.y.toFixed(2);
+        cameraZValue.textContent = defaultCameraSettings.position.z.toFixed(2);
+        cameraFovValue.textContent = defaultCameraSettings.fov.toFixed(2);
+      });
+
+      // Add animation update
+      const originalAnimateAll = window.animateAll;
+      window.animateAll = function() {
+        if (originalAnimateAll) originalAnimateAll();
+        updateCameraMovement();
+      };
+
+      // Copy camera settings to clipboard
+      copyButton.addEventListener('click', () => {
+        // Get Euler angles
+        const euler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+
+        const settings = {
+          cameraPosition: {
+            x: parseFloat(camera.position.x.toFixed(2)),
+            y: parseFloat(camera.position.y.toFixed(2)),
+            z: parseFloat(camera.position.z.toFixed(2))
+          },
+          cameraRotation: {
+            x: parseFloat(THREE.MathUtils.radToDeg(euler.x).toFixed(2)),
+            y: parseFloat(THREE.MathUtils.radToDeg(euler.y).toFixed(2)),
+            z: parseFloat(THREE.MathUtils.radToDeg(euler.z).toFixed(2))
+          },
+          cameraDirection: {
+            x: parseFloat((camera.getWorldDirection(new THREE.Vector3()).x).toFixed(2)),
+            y: parseFloat((camera.getWorldDirection(new THREE.Vector3()).y).toFixed(2)),
+            z: parseFloat((camera.getWorldDirection(new THREE.Vector3()).z).toFixed(2))
+          },
+          cameraFov: parseFloat(camera.fov.toFixed(2))
+        };
+
+        // Calculate a target point based on camera direction
+        const cameraDirection = new THREE.Vector3();
+        camera.getWorldDirection(cameraDirection);
+        const lookAtTarget = new THREE.Vector3().copy(camera.position).add(
+          cameraDirection.multiplyScalar(10) // Look 10 units ahead
+        );
+
+        // Format as JavaScript object
+        const settingsJs = `// Camera Settings
+const cameraPosition = new THREE.Vector3(${settings.cameraPosition.x}, ${settings.cameraPosition.y}, ${settings.cameraPosition.z});
+const cameraTarget = new THREE.Vector3(${lookAtTarget.x.toFixed(2)}, ${lookAtTarget.y.toFixed(2)}, ${lookAtTarget.z.toFixed(2)});
+const cameraFov = ${settings.cameraFov};
+
+// Rotation in degrees (x: pitch, y: yaw, z: roll)
+// x: ${settings.cameraRotation.x}°, y: ${settings.cameraRotation.y}°, z: ${settings.cameraRotation.z}°
+
+// Apply settings
+camera.position.copy(cameraPosition);
+camera.lookAt(cameraTarget);
+camera.fov = cameraFov;
+camera.updateProjectionMatrix();`;
+
+        // Try multiple clipboard approaches
+        const copyToClipboard = async (text) => {
+          try {
+            // Modern async clipboard API
+            await navigator.clipboard.writeText(text);
+            return true;
+          } catch (err1) {
+            try {
+              // Fallback to execCommand for older browsers
+              const textArea = document.createElement('textarea');
+              textArea.value = text;
+              textArea.style.position = 'fixed';
+              textArea.style.left = '-999999px';
+              textArea.style.top = '-999999px';
+              document.body.appendChild(textArea);
+              textArea.focus();
+              textArea.select();
+              const success = document.execCommand('copy');
+              document.body.removeChild(textArea);
+              return success;
+            } catch (err2) {
+              return false;
+            }
+          }
+        };
+
+        copyToClipboard(settingsJs).then(success => {
+          if (success) {
+            copyButton.textContent = 'Copied!';
+            setTimeout(() => {
+              copyButton.textContent = 'Copy Camera Settings';
+            }, 2000);
+          } else {
+            // Create textarea with the settings that user can manually copy
+            const textArea = document.createElement('textarea');
+            textArea.value = settingsJs;
+            textArea.style.width = '100%';
+            textArea.style.height = '150px';
+            textArea.style.marginTop = '10px';
+
+            // Create a container for the manual copy section
+            const manualCopyContainer = document.createElement('div');
+            manualCopyContainer.style.marginTop = '10px';
+            manualCopyContainer.innerHTML = '<p>Could not copy automatically. Please manually copy the code below:</p>';
+            manualCopyContainer.appendChild(textArea);
+
+            // Add the container after the copy button
+            copyButton.parentNode.insertBefore(manualCopyContainer, copyButton.nextSibling);
+
+            copyButton.textContent = 'Could not copy - use manual method below';
+          }
+        });
+
+        // Always log the settings to console for fallback
+        console.log('Camera Settings:', settingsJs);
+      });
     }
   </script>
 
