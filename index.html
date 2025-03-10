@@ -19,10 +19,13 @@
       {
         "imports": {
           "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-          "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"
+          "cannon-es": "https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js",
+          "@dimforge/rapier3d-compat": "https://cdn.skypack.dev/@dimforge/rapier3d-compat"
         }
       }
     </script>
+    <!-- Preload hint for Rapier.js to start loading early but with low priority -->
+    <link rel="preload" href="https://cdn.skypack.dev/@dimforge/rapier3d-compat" as="script" crossorigin="anonymous" />
     <!-- Google tag (gtag.js) -->
     <script
       async

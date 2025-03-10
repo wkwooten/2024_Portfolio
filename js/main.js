@@ -305,20 +305,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close modal with escape key (handled by the global keydown handler)
   }
 
-  // Lazy load the polyhedron script after critical content is loaded
-  setTimeout(() => {
-    // Check if we're on a page that needs the polyhedron
-    const polyhedronContainer = document.getElementById('grid-canvas');
-    if (polyhedronContainer) {
-      console.log('Lazy loading polyhedron script...');
+  // Load the polyhedron code asynchronously after the page loads
+  function loadPolyhedron() {
+    // Get the container element
+    const container = document.getElementById('grid-canvas');
+    if (!container) return;
 
-      // Load the polyhedron script
-      const script = document.createElement('script');
-      script.type = 'module';
-      script.src = 'js/simplihedron.js';
-      script.onload = () => console.log('Polyhedron script loaded successfully');
-      script.onerror = (e) => console.error('Error loading polyhedron script:', e);
-      document.body.appendChild(script);
-    }
-  }, 500); // 500ms delay to allow critical content to render first
+    // Try Rapier.js first for all devices - it offers better performance even on lower-end devices
+    import('./simplihedron.js')
+      .then(module => {
+        const RapierPolyhedron = module.default;
+        new RapierPolyhedron(container);
+        console.log('Loaded high-performance Rapier.js polyhedron');
+      })
+      .catch(error => {
+        console.error('Failed to load Rapier polyhedron, falling back to Cannon.js', error);
+        // Fallback to Cannon.js implementation only if Rapier fails
+        import('../Archive/simplihedron.js')
+          .then(module => {
+            // Check how the module exports the InteractivePolyhedron class
+            if (module.default) {
+              new module.default(container);
+            } else if (module.InteractivePolyhedron) {
+              new module.InteractivePolyhedron(container);
+            } else {
+              console.error('Could not find InteractivePolyhedron in the imported module');
+            }
+            console.log('Loaded Cannon.js polyhedron as fallback');
+          })
+          .catch(err => {
+            console.error('Failed to load fallback implementation:', err);
+          });
+      });
+  }
+
+  // Delay polyhedron loading to prioritize critical content
+  setTimeout(loadPolyhedron, 100);
 });

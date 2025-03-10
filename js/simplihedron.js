@@ -1,360 +1,452 @@
 /**
- * Interactive 3D Polyhedron for Hero Section
- *
- * This script creates an interactive 3D polyhedron that users can drag and throw
- * in a physics-based environment. It uses Three.js for rendering and Cannon.js for physics.
- *
- * The polyhedron responds to user interaction, changes color based on system color scheme,
- * and provides visual feedback for hover and drag states.
- *
- * @author Wooten
- * @version 2.0
+ * RapierPolyhedron - A high-performance interactive 3D polyhedron using Rapier.js physics
+ * This is a reimplementation of the original simplihedron.js with focus on performance
  */
 
+// Import Three.js
 import * as THREE from 'three';
-import * as CANNON from 'cannon-es';
 
-// Helper function for centralized debug logging
-function debugLog(instance, message) {
-  if (instance && instance.debug) {
-    console.log(`[Polyhedron ${instance.color ? '0x' + instance.color.toString(16) : 'unknown'}]: ${message}`);
-  }
-}
-
-class InteractivePolyhedron {
+// Main class for the Rapier-based polyhedron
+class RapierPolyhedron {
+  /**
+   * Create a new RapierPolyhedron instance
+   * @param {HTMLElement} container - The container element to render in
+   * @param {Object} options - Configuration options
+   */
   constructor(container, options = {}) {
-    // Store debug flag
-    this.debug = false;
-
-    // Performance monitoring - simplified
-    this.performanceStats = {
-      frameTime: 1,
-      physicsTime: 1,
-      renderTime: 1,
-      lastFpsUpdate: 1,
-      frameCount: 1,
-      fps: 1
-    };
-
     // Store container reference
     this.container = container;
 
-    // Check if container exists
-    if (!container) {
-      console.error('Container #grid-canvas not found');
-      return;
-    }
+    // Default options merged with provided options
+    this.options = Object.assign({
+      startDelay: 2500,           // Delay before animation starts (ms)
+      color: 0x1a73e8,            // Default color (blue)
+      darkModeColor: 0x00c971,    // Dark mode color (green)
+      debug: false                // Debug mode flag
+    }, options);
 
-    // Get container dimensions
+    // Check for reduced motion preference
+    this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Set up listener for changes to motion preference
+    window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
+      this.prefersReducedMotion = e.matches;
+      this.updateMotionSettings();
+    });
+
+    // Set up state variables
     this.width = container.clientWidth;
     this.height = container.clientHeight;
-
-    // Set up delay before animation starts
-    this.startDelay = 2500; // 2.5 seconds delay
-    this.startTime = performance.now() + this.startDelay;
     this.isActive = false;
+    this.isDragging = false;
+    this.isHovering = false;
+    this.startTime = performance.now() + this.options.startDelay;
+    this.physicsReady = false;
 
-    // Grab smoothness factor (0-1): higher = faster, lower = smoother
-    this.grabSmoothness = 0.2;
+    // Initialize settings for motion based on preferences
+    this.applyForceMultiplier = this.prefersReducedMotion ? 0.3 : 1.0;
+    this.dampingFactor = this.prefersReducedMotion ? 0.8 : 0.5;
+    this.rotationSpeed = this.prefersReducedMotion ? 0.0 : 0.005;
 
-    // Initialize Three.js scene
+    // Initialize Three.js (visuals only)
+    this.initThreeJs();
+
+    // Set up event listeners
+    this.setupEventListeners();
+
+    // Begin loading Rapier.js asynchronously
+    this.loadRapierAsync();
+
+    // Start animation loop
+    this.animate = this.animate.bind(this);
+    requestAnimationFrame(this.animate);
+  }
+
+  /**
+   * Update motion settings based on reduced motion preference
+   */
+  updateMotionSettings() {
+    if (this.prefersReducedMotion) {
+      // Reduce or eliminate animations
+      this.dampingFactor = 0.8;       // Increase damping to reduce motion
+      this.applyForceMultiplier = 0.3; // Reduce force of interactions
+      this.rotationSpeed = 0.0;       // Eliminate idle rotation
+
+      // Update physics world settings if it exists
+      if (this.world) {
+        // Increase gravity to make objects settle faster
+        this.world.gravity = { x: 0, y: -9.8 * 1.5, z: 0 };
+      }
+    } else {
+      // Normal motion settings
+      this.dampingFactor = 0.5;       // Default damping
+      this.applyForceMultiplier = 1.0; // Full interaction force
+      this.rotationSpeed = 0.005;     // Normal idle rotation
+
+      // Reset physics world settings if it exists
+      if (this.world) {
+        this.world.gravity = { x: 0, y: -0.5, z: 0 }; // Normal gravity
+      }
+    }
+  }
+
+  /**
+   * Asynchronously load Rapier.js physics engine
+   */
+  async loadRapierAsync() {
+    try {
+      console.log('Loading Rapier physics engine...');
+
+      // Dynamic import of Rapier (won't block initial rendering)
+      const RAPIER = await import('https://cdn.skypack.dev/@dimforge/rapier3d-compat');
+
+      // Initialize the WASM module
+      await RAPIER.init();
+
+      // Store reference to the initialized module
+      this.RAPIER = RAPIER;
+
+      // Initialize physics once Rapier is loaded
+      this.initPhysics();
+
+      this.physicsReady = true;
+      console.log('Rapier physics initialized successfully');
+    } catch (error) {
+      console.error('Failed to initialize Rapier physics:', error);
+    }
+  }
+
+  /**
+   * Initialize Three.js scene, camera, renderer, and basic visual elements
+   */
+  initThreeJs() {
+    // Scene setup
     this.scene = new THREE.Scene();
 
-    // Initialize camera with adjusted position and angle
+    // Camera setup
     this.camera = new THREE.PerspectiveCamera(
-      60, // Narrower field of view for better control (was 65)
-      this.width / this.height, // Aspect ratio
-      0.1, // Near clipping plane
-      1000 // Far clipping plane
+      55, // FOV
+      this.width / this.height,
+      0.1,
+      1000
     );
-    this.camera.position.z = 6; // Move camera back (was 5)
-    this.camera.position.y = 3; // Raise camera higher (was 2)
-    this.camera.lookAt(0, -1, 0); // Look down toward the floor
+    this.camera.position.set(0, 3.9, 7.5);
+    this.camera.lookAt(0, 0, 0);
 
-    // Initialize renderer
+    // Renderer setup with transparency
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true
     });
     this.renderer.setSize(this.width, this.height);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    container.appendChild(this.renderer.domElement);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Limit for performance
+    this.container.appendChild(this.renderer.domElement);
 
-    // Initialize physics world with optimized settings
-    this.world = new CANNON.World();
-    this.world.gravity.set(0, -0.5, 0); // Moderate gravity for natural falling
-    this.world.broadphase = new CANNON.NaiveBroadphase();
-    this.world.solver.iterations = 8; // Reduced from 10 for better performance
-    this.world.allowSleep = true; // Allow bodies to sleep when they come to rest
-    this.world.sleepSpeedLimit = 0.05; // Lower threshold to allow bodies to sleep sooner
-    this.world.sleepTimeLimit = 0.5; // Shorter time before sleeping
+    // Add lights
+    this.addLights();
 
-    // Initialize raycaster for mouse interaction
+    // Create visual polyhedron (physics will be added later)
+    this.createVisualPolyhedron();
+
+    // Setup raycaster for interaction
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
 
-    // Initialize interaction state
-    this.isDragging = false;
-    this.isHovering = false;
-    this.isMovingFast = true; // Start in fast movement state for smooth initial animation
-    this.previousMousePosition = { x: 0, y: 0 };
-    this.mouseVelocity = { x: 0, y: 0 };
-    this.lastMouseMoveTime = 0;
-    this.boundaryMeshes = [];
-
-    // Initialize clock for animation
+    // Setup clock for animation timing
     this.clock = new THREE.Clock();
-
-    // Add event listeners
-    window.addEventListener('resize', this.onWindowResize.bind(this));
-    container.addEventListener('mousedown', this.onMouseDown.bind(this));
-    window.addEventListener('mousemove', this.onMouseMove.bind(this));
-    window.addEventListener('mouseup', this.onMouseUp.bind(this));
-
-    // Use passive: true by default for touch events, but allow preventDefault() when needed
-    container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
-    window.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
-    window.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: true });
-
-    // Add color scheme change listener
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', this.updatePolyhedronColor.bind(this));
-
-    // Setup scene
-    this.addLights();
-    this.createPolyhedron();
-    this.addBoundaries();
-
-    // Start animation loop
-    this.animate();
   }
 
+  /**
+   * Add lights to the scene
+   */
   addLights() {
-    // Ambient light
+    // Ambient light for base illumination
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     this.scene.add(ambientLight);
 
-    // Directional light (sun-like)
+    // Main directional light with shadows
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
     directionalLight.position.set(5, 5, 5);
     this.scene.add(directionalLight);
 
-    // Point light (for highlights)
-    const pointLight = new THREE.PointLight(0x0088ff, 1, 100);
-    pointLight.position.set(0, 0, 5);
-    this.scene.add(pointLight);
+    // Add colored point lights for visual interest
+    const pointLight1 = new THREE.PointLight(0x0088ff, 1, 10);
+    pointLight1.position.set(0, 0, 5);
+    this.scene.add(pointLight1);
 
-    // Add a second colored point light for more visual interest
-    const pointLight2 = new THREE.PointLight(0xff3366, 0.8, 100);
+    const pointLight2 = new THREE.PointLight(0xff3366, 0.8, 10);
     pointLight2.position.set(-5, 3, -5);
     this.scene.add(pointLight2);
   }
 
-  createPolyhedron() {
-    // Create Three.js geometry
-    const radius = 1 * this.size;
-    const detail = 0;
-    const geometry = new THREE.IcosahedronGeometry(radius, detail);
+  /**
+   * Create the visual representation of the polyhedron
+   */
+  createVisualPolyhedron() {
+    // Create the geometry - icosahedron for interesting shape
+    const radius = 1.2;
+    const geometry = new THREE.IcosahedronGeometry(radius, 0);
 
-    // Create material
-    const material = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0,
-      side: THREE.DoubleSide
-    });
+    // Determine color based on color scheme
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.color = isDarkMode ? this.options.darkModeColor : this.options.color;
 
-    // Ensure we have a valid color before creating edges
-    if (!this.color) {
-      const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      this.updateColorFromScheme(isDarkMode);
-      console.log(`Set initial color to 0x${this.color.toString(16)}`);
+    // Get the background color from the site
+    this.bgColor = this.getComputedBackgroundColor();
+
+    // Detect device capabilities and select the appropriate tier
+    this.capabilities = this.detectCapabilities();
+    this.materialTier = this.selectMaterialTier();
+
+    // Create material based on the selected tier
+    let material;
+
+    // Apply the appropriate tier
+    switch(this.materialTier) {
+      case 'high':
+        // High-tier: Glass effect
+        material = new THREE.MeshPhysicalMaterial({
+          color: this.bgColor,
+          transparent: true,
+          opacity: 0.7,
+          metalness: 0.1,
+          roughness: 0.2,
+          transmission: 0.5,
+          thickness: 0.5,
+          clearcoat: 0.5
+        });
+        break;
+
+      case 'medium':
+        // Medium-tier: Environment mapping
+        if (!this.envMap) {
+          // Create simple environment map if none exists
+          const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+          this.envMap = pmremGenerator.fromScene(new THREE.Scene()).texture;
+          pmremGenerator.dispose();
+        }
+
+        material = new THREE.MeshStandardMaterial({
+          color: this.bgColor,
+          metalness: 0.5,
+          roughness: 0.5,
+          envMap: this.envMap,
+          envMapIntensity: 0.5
+        });
+        break;
+
+      case 'low':
+      default:
+        // Low-tier: Simple material
+        material = new THREE.MeshStandardMaterial({
+          color: this.bgColor,
+          metalness: 0.2,
+          roughness: 0.8
+        });
+        break;
     }
 
-    // Create edges with the correct color
+    // Create edges geometry and material for wireframe effect
     const edgesGeometry = new THREE.EdgesGeometry(geometry);
     const edgesMaterial = new THREE.LineBasicMaterial({
       color: this.color,
-      linewidth: 2,
-      transparent: true,
-      opacity: 0
+      transparent: false,
+      opacity: 1
     });
 
-    console.log(`Creating polyhedron edges with color: 0x${this.color.toString(16)}`);
-
+    // Create edges mesh
     const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
 
-    // Create mesh
+    // Create main mesh and add edges
     this.polyhedron = new THREE.Mesh(geometry, material);
     this.polyhedron.add(edges);
-    this.polyhedron.scale.set(1.2, 1.2, 1.2);
+
+    // Reference for velocity-based effects
+    this.edges = edges;
+
+    // Start with polyhedron hidden until animation begins
     this.polyhedron.visible = false;
-    this.polyhedron.userData.instance = this; // Store reference to this instance
+
+    // Add to scene
     this.scene.add(this.polyhedron);
 
-    // Create physics body
-    const shape = new CANNON.Sphere(radius * 1.2);
-    this.polyhedronBody = new CANNON.Body({
-      mass: 5,
-      shape: shape,
-      position: new CANNON.Vec3(this.initialPosition.x, this.initialPosition.y, this.initialPosition.z),
-      material: new CANNON.Material({
-        friction: 0.3,
-        restitution: 0.8
-      }),
-      linearDamping: 0.05,
-      angularDamping: 0.05,
-      allowSleep: true
-    });
-
-    // Initially set the body to sleep until the delay is over
-    this.polyhedronBody.sleep();
-    this.world.addBody(this.polyhedronBody);
+    // Listen for color scheme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener(
+      'change', this.updateColors.bind(this)
+    );
   }
 
-  createPolyhedronShape(geometry, radius) {
-    // Extract vertices from the geometry
-    const vertices = [];
-    const positions = geometry.attributes.position.array;
+  /**
+   * Get the computed background color of the container or its parent
+   * @returns {number} - The background color as a hex number
+   */
+  getComputedBackgroundColor() {
+    // Try to get the background color from the container or body
+    let bgColor;
+    const computedStyle = getComputedStyle(this.container);
+    let bgColorStr = computedStyle.backgroundColor;
 
-    for (let i = 0; i < positions.length; i += 3) {
-      vertices.push(new CANNON.Vec3(
-        positions[i],
-        positions[i + 1],
-        positions[i + 2]
-      ));
+    // If the container has a transparent background, try the document body
+    if (bgColorStr === 'rgba(0, 0, 0, 0)' || bgColorStr === 'transparent') {
+      bgColorStr = getComputedStyle(document.body).backgroundColor;
     }
 
-    // Extract faces from the geometry
-    const faces = [];
-    for (let i = 0; i < positions.length; i += 9) {
-      faces.push([i/3, i/3 + 1, i/3 + 2]);
-    }
-
-    // Create a convex polyhedron shape
-    return new CANNON.ConvexPolyhedron({
-      vertices: vertices,
-      faces: faces
-    });
-  }
-
-  addBoundaries() {
-    // Create boundary material
-    const wallMaterial = new CANNON.Material({
-      friction: 0.1,
-      restitution: 0.8
-    });
-
-    // Create boundary size
-    const boundarySize = 10; // Reset to original size
-    const boundaryDepth = 0.5;
-
-    // Create all boundaries
-    const boundaries = [
-      // Floor - raised to be more visible in the camera view
-      {
-        shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundaryDepth, boundarySize)),
-        position: new CANNON.Vec3(0, -2, 0), // Raised from -3 to -2
-        dimensions: [boundarySize * 2, boundaryDepth * 2, boundarySize * 2],
-        isFloor: true // Mark this as the floor for special visualization
-      },
-      // Ceiling
-      {
-        shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundaryDepth, boundarySize)),
-        position: new CANNON.Vec3(0, 20, 0),
-        dimensions: [boundarySize * 2, boundaryDepth * 2, boundarySize * 2]
-      },
-      // Left wall
-      {
-        shape: new CANNON.Box(new CANNON.Vec3(boundaryDepth, boundarySize, boundarySize)),
-        position: new CANNON.Vec3(-5, 0, 0),
-        dimensions: [boundaryDepth * 2, boundarySize * 2, boundarySize * 2]
-      },
-      // Right wall
-      {
-        shape: new CANNON.Box(new CANNON.Vec3(boundaryDepth, boundarySize, boundarySize)),
-        position: new CANNON.Vec3(5, 0, 0),
-        dimensions: [boundaryDepth * 2, boundarySize * 2, boundarySize * 2]
-      },
-      // Back wall
-      {
-        shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundarySize, boundaryDepth)),
-        position: new CANNON.Vec3(0, 0, -5),
-        dimensions: [boundarySize * 2, boundarySize * 2, boundaryDepth * 2]
-      },
-      // Front wall - moved closer to camera
-      {
-        shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundarySize, boundaryDepth)),
-        position: new CANNON.Vec3(0, 0, 4), // Moved from 5 to 4 to be in front of camera
-        dimensions: [boundarySize * 2, boundarySize * 2, boundaryDepth * 2]
+    // Convert the CSS color format to hex
+    if (bgColorStr.startsWith('rgb')) {
+      // Parse the rgb/rgba format
+      const rgbValues = bgColorStr.match(/\d+/g);
+      if (rgbValues && rgbValues.length >= 3) {
+        // Convert to hex format
+        const r = parseInt(rgbValues[0]);
+        const g = parseInt(rgbValues[1]);
+        const b = parseInt(rgbValues[2]);
+        bgColor = (r << 16) | (g << 8) | b;
       }
-    ];
+    }
 
-    const boundaryMeshes = [];
+    // Fallback to a default color if parsing fails
+    return bgColor || 0xffffff;
+  }
 
-    // Create all boundary bodies and meshes
-    boundaries.forEach(boundary => {
-      const body = new CANNON.Body({
-        mass: 0,
-        shape: boundary.shape,
-        position: boundary.position,
-        material: wallMaterial
+  /**
+   * Initialize Rapier physics (called after Rapier has loaded)
+   */
+  initPhysics() {
+    // Create physics world with gravity
+    this.world = new this.RAPIER.World({ x: 0, y: -0.5, z: 0 });
+
+    // Create boundaries (invisible walls and floor)
+    this.createBoundaries();
+
+    // Create the polyhedron physics body
+    this.createPhysicsBody();
+
+    // Apply motion settings based on user preferences
+    this.updateMotionSettings();
+  }
+
+  /**
+   * Create invisible boundaries for physics
+   */
+  createBoundaries() {
+    // Create boundary walls to contain the polyhedron
+
+    // Floor - slightly below the visible area
+    this.createBoundary({ x: 0, y: -2, z: 0 }, { x: 10, y: 0.5, z: 10 });
+
+    // Ceiling - to prevent flying too high
+    this.createBoundary({ x: 0, y: 10, z: 0 }, { x: 10, y: 0.5, z: 10 });
+
+    // Walls
+    this.createBoundary({ x: -5, y: 3, z: 0 }, { x: 0.5, y: 5, z: 10 }); // Left
+    this.createBoundary({ x: 5, y: 3, z: 0 }, { x: 0.5, y: 5, z: 10 });  // Right
+    this.createBoundary({ x: 0, y: 3, z: -5 }, { x: 10, y: 5, z: 0.5 }); // Back
+    this.createBoundary({ x: 0, y: 3, z: 5 }, { x: 10, y: 5, z: 0.5 });  // Front
+  }
+
+  /**
+   * Create a boundary (wall, floor, ceiling)
+   * @param {Object} position - Position of the boundary
+   * @param {Object} halfExtents - Half-extents of the boundary box
+   */
+  createBoundary(position, halfExtents) {
+    // Create rigid body description - fixed (zero mass)
+    const rigidBodyDesc = this.RAPIER.RigidBodyDesc.fixed()
+      .setTranslation(position.x, position.y, position.z);
+
+    // Create the rigid body
+    const rigidBody = this.world.createRigidBody(rigidBodyDesc);
+
+    // Create the collider shape
+    const colliderDesc = this.RAPIER.ColliderDesc.cuboid(
+      halfExtents.x, halfExtents.y, halfExtents.z
+    );
+
+    // Set restitution (bounciness)
+    colliderDesc.setRestitution(0.7);
+
+    // Create and attach the collider
+    this.world.createCollider(colliderDesc, rigidBody);
+
+    // Create debug visualization if debug mode is enabled
+    if (this.options.debug) {
+      const geometry = new THREE.BoxGeometry(
+        halfExtents.x * 2, halfExtents.y * 2, halfExtents.z * 2
+      );
+
+      const material = new THREE.MeshBasicMaterial({
+        color: 0x444444,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.2
       });
-      this.world.addBody(body);
 
-      // Only create visualization in debug mode
-      if (this.debug || boundary.isFloor) {
-        const geometry = new THREE.BoxGeometry(
-          boundary.dimensions[0],
-          boundary.dimensions[1],
-          boundary.dimensions[2]
-        );
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(position.x, position.y, position.z);
+      this.scene.add(mesh);
+    }
+  }
 
-        // Use a different material for the floor to make it more visible
-        const material = boundary.isFloor ?
-          new THREE.MeshBasicMaterial({
-            color: window.matchMedia('(prefers-color-scheme: dark)').matches ? 0x333333 : 0xeeeeee,
-            transparent: true,
-            opacity: 0.5,
-            wireframe: true
-          }) :
-          new THREE.MeshBasicMaterial({
-            color: 0x444444,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.08,
-            wireframeLinewidth: 1
-          });
+  /**
+   * Create the physics body for the polyhedron
+   */
+  createPhysicsBody() {
+    // Create a dynamic rigid body for the polyhedron
+    const bodyDesc = this.RAPIER.RigidBodyDesc.dynamic()
+      .setTranslation(0, 4, 0) // Start position
+      .setLinearDamping(this.dampingFactor)   // Damping to slow linear movement (accessibility-aware)
+      .setAngularDamping(this.dampingFactor); // Damping to slow rotation (accessibility-aware)
 
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.copy(body.position);
-        mesh.quaternion.copy(body.quaternion);
-        this.scene.add(mesh);
-        boundaryMeshes.push({ mesh, body });
-      } else {
-        boundaryMeshes.push({ mesh: null, body });
-      }
+    this.body = this.world.createRigidBody(bodyDesc);
+
+    // Create a collider for the polyhedron
+    // Using a ball collider for best performance
+    const radius = 1.2; // Same as visual radius
+    const colliderDesc = this.RAPIER.ColliderDesc.ball(radius);
+
+    // Set physics properties
+    colliderDesc.setRestitution(0.7); // Bounciness
+    colliderDesc.setFriction(0.2);    // Friction
+
+    // Create the collider and attach it to the body
+    this.collider = this.world.createCollider(colliderDesc, this.body);
+
+    // Apply initial random rotation (reduced or normal based on preference)
+    const rotationForce = this.prefersReducedMotion ? 0.5 : 2.0;
+    this.body.setAngvel({
+      x: (Math.random() - 0.5) * rotationForce,
+      y: (Math.random() - 0.5) * rotationForce,
+      z: (Math.random() - 0.5) * rotationForce
     });
-
-    this.boundaryMeshes = boundaryMeshes;
   }
 
-  onWindowResize() {
-    if (!this.container || !this.camera || !this.renderer) return;
+  /**
+   * Set up event listeners for interaction
+   */
+  setupEventListeners() {
+    // Window resize
+    window.addEventListener('resize', this.onWindowResize.bind(this));
 
-    // Update camera aspect ratio
-    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
-    this.camera.updateProjectionMatrix();
+    // Mouse events
+    this.container.addEventListener('mousedown', this.onMouseDown.bind(this));
+    window.addEventListener('mousemove', this.onMouseMove.bind(this));
+    window.addEventListener('mouseup', this.onMouseUp.bind(this));
 
-    // Update renderer size
-    this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-
-    debugLog(this, `Window resized: ${this.container.clientWidth}x${this.container.clientHeight}`);
+    // Touch events
+    this.container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
+    window.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
+    window.addEventListener('touchend', this.onTouchEnd.bind(this));
   }
 
-  // Consolidated method to handle both mouse and touch input coordinates
+  /**
+   * Get standardized input coordinates from mouse or touch event
+   * @param {Event} event - Mouse or touch event
+   * @param {boolean} isTouch - Whether this is a touch event
+   * @returns {Object} Normalized coordinates and client position
+   */
   getInputCoordinates(event, isTouch = false) {
     const rect = this.renderer.domElement.getBoundingClientRect();
+
     if (isTouch && event.touches.length > 0) {
       return {
         x: ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1,
@@ -372,1367 +464,217 @@ class InteractivePolyhedron {
     }
   }
 
-  // Consolidated method to start dragging (used by both mouse and touch)
-  startDragging(coords, clientX, clientY) {
-    // Safety check - if polyhedron doesn't exist yet, return
-    if (!this.polyhedron) {
-      return false;
-    }
+  /**
+   * Handle window resize
+   */
+  onWindowResize() {
+    // Update dimensions
+    this.width = this.container.clientWidth;
+    this.height = this.container.clientHeight;
 
-    // Check if we clicked/touched on the polyhedron
-    this.mouse.x = coords.x;
-    this.mouse.y = coords.y;
-    const isIntersecting = this.checkPolyhedronIntersection(this.mouse);
+    // Update camera
+    this.camera.aspect = this.width / this.height;
+    this.camera.updateProjectionMatrix();
 
-    if (isIntersecting) {
-      // Start dragging
-      this.isDragging = true;
-      this.isHovering = true;
-
-      // Update cursor style for mouse
-      document.body.style.cursor = 'grabbing';
-
-      // Initialize dragPositions for throw calculation
-      this.dragPositions = [{
-        time: performance.now(),
-        x: clientX,
-        y: clientY
-      }];
-
-      // Wake up the physics body
-      this.polyhedronBody.wakeUp();
-
-      // Store the current gravity for later restoration
-      this.savedGravity = new CANNON.Vec3().copy(this.world.gravity);
-
-      // Disable gravity while dragging
-      this.world.gravity.set(0, 0, 0);
-
-      // Set the body type to kinematic to prevent other forces from affecting it
-      this.polyhedronBody.type = CANNON.BODY_TYPES.KINEMATIC;
-
-      // Store the current angular velocity for preservation
-      this.savedAngularVelocity = new CANNON.Vec3().copy(this.polyhedronBody.angularVelocity);
-
-      // Dampen the angular velocity to 70% of its original value
-      // This preserves some of the spinning motion but makes it more controlled
-      this.polyhedronBody.angularVelocity.scale(0.7);
-
-      // Zero out linear velocity for precise positioning
-      this.polyhedronBody.velocity.set(0, 0, 0);
-
-      // Zero out forces and torques
-      this.polyhedronBody.force.set(0, 0, 0);
-      this.polyhedronBody.torque.set(0, 0, 0);
-
-      // Initialize the target position for smooth transition
-      // Create a ray from the camera through the mouse position
-      this.raycaster.setFromCamera(this.mouse, this.camera);
-
-      // Calculate the initial target position
-      const distance = 4; // Distance from camera
-      this.targetPosition = new THREE.Vector3();
-      this.targetPosition.copy(this.raycaster.ray.direction);
-      this.targetPosition.multiplyScalar(distance);
-      this.targetPosition.add(this.camera.position);
-
-      // Snap the polyhedron to the cursor with smooth transition
-      this.snapPolyhedronToCursor(this.mouse);
-
-      debugLog(this, 'Dragging started, gravity disabled, motion partially preserved');
-      return true;
-    }
-    return false;
+    // Update renderer
+    this.renderer.setSize(this.width, this.height);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   }
 
-  // Consolidated method to update dragging (used by both mouse and touch)
-  updateDragging(coords, clientX, clientY) {
-    if (!this.isDragging) return;
-
-    // Update mouse position
-    this.mouse.x = coords.x;
-    this.mouse.y = coords.y;
-
-    // Snap polyhedron to cursor position
-    this.snapPolyhedronToCursor(this.mouse);
-
-    // Store position for velocity calculation
-    const currentTime = performance.now();
-
-    if (!this.dragPositions) {
-      this.dragPositions = [];
-    }
-
-    this.dragPositions.push({
-      time: currentTime,
-      x: clientX,
-      y: clientY
-    });
-
-    // Keep only the last 5 positions for velocity calculation
-    if (this.dragPositions.length > 5) {
-      this.dragPositions.shift();
-    }
-
-    // Calculate mouse velocity for throw physics
-    if (this.previousMousePosition) {
-      const deltaTime = currentTime - this.lastMouseMoveTime;
-
-      if (deltaTime > 0) {
-        this.mouseVelocity.x = (coords.x - this.previousMousePosition.x) / deltaTime * 1000;
-        this.mouseVelocity.y = (coords.y - this.previousMousePosition.y) / deltaTime * 1000;
-      }
-
-      this.previousMousePosition.x = coords.x;
-      this.previousMousePosition.y = coords.y;
-      this.lastMouseMoveTime = currentTime;
-    }
-  }
-
-  // Consolidated method to end dragging (used by both mouse and touch)
-  endDragging() {
-    if (!this.isDragging) return;
-
-    this.isDragging = false;
-
-    // Reset cursor based on hover state
-    document.body.style.cursor = this.isHovering ? 'grab' : 'auto';
-
-    // Calculate throw velocity based on recent movement
-    let throwVelocity = this.calculateThrowVelocity();
-
-    // Resume physics with a throw
-    this.polyhedronBody.type = CANNON.BODY_TYPES.DYNAMIC;
-    this.polyhedronBody.velocity.copy(throwVelocity);
-
-    // Restore the original gravity
-    if (this.savedGravity) {
-      this.world.gravity.copy(this.savedGravity);
-    } else {
-      // Default gravity if saved gravity doesn't exist
-      this.world.gravity.set(0, -0.5, 0);
-    }
-
-    // Add some random spin for visual interest
-    // Blend the saved angular velocity with a new random component
-    if (this.savedAngularVelocity) {
-      // Create a new random angular velocity component
-      const randomAngVel = new CANNON.Vec3(
-        (Math.random() - 0.5) * 2,
-        (Math.random() - 0.5) * 2,
-        (Math.random() - 0.5) * 2
-      );
-
-      // Blend 50% of the saved angular velocity with 50% of the new random component
-      this.polyhedronBody.angularVelocity.set(
-        this.savedAngularVelocity.x * 0.5 + randomAngVel.x * 0.5,
-        this.savedAngularVelocity.y * 0.5 + randomAngVel.y * 0.5,
-        this.savedAngularVelocity.z * 0.5 + randomAngVel.z * 0.5
-      );
-    } else {
-      // Fallback to just random if no saved angular velocity
-      this.polyhedronBody.angularVelocity.set(
-        (Math.random() - 0.5) * 2,
-        (Math.random() - 0.5) * 2,
-        (Math.random() - 0.5) * 2
-      );
-    }
-
-    debugLog(this, 'Dragging ended, gravity restored');
-  }
-
-  // Update the mouse event handlers to use the consolidated methods
+  /**
+   * Handle mouse down event
+   * @param {MouseEvent} event - Mouse event
+   */
   onMouseDown(event) {
     const coords = this.getInputCoordinates(event);
     this.startDragging(coords, event.clientX, event.clientY);
   }
 
+  /**
+   * Handle mouse move event
+   * @param {MouseEvent} event - Mouse event
+   */
   onMouseMove(event) {
     const coords = this.getInputCoordinates(event);
 
     if (this.isDragging) {
       this.updateDragging(coords, event.clientX, event.clientY);
     } else {
-      // If not dragging, check if we're hovering over the polyhedron
-      this.mouse.x = coords.x;
-      this.mouse.y = coords.y;
-      const isIntersecting = this.checkPolyhedronIntersection(this.mouse);
-
-      // Only update if the hover state has changed
-      if (isIntersecting !== this.isHovering) {
-        this.isHovering = isIntersecting;
-        this.highlightPolyhedron(isIntersecting);
-
-        // Update cursor style
-        document.body.style.cursor = isIntersecting ? 'grab' : 'auto';
-      }
+      // Update hover state for interactive cursor
+      this.updateHoverState(coords);
     }
   }
 
+  /**
+   * Handle mouse up event
+   */
   onMouseUp() {
     this.endDragging();
   }
 
-  // Update the touch event handlers to use the consolidated methods
+  /**
+   * Handle touch start event
+   * @param {TouchEvent} event - Touch event
+   */
   onTouchStart(event) {
+    // Prevent default to avoid scrolling while interacting with the polyhedron
     const coords = this.getInputCoordinates(event, true);
-
-    // Only prevent default if we're interacting with the polyhedron
     if (this.startDragging(coords, coords.clientX, coords.clientY)) {
       event.preventDefault();
-      debugLog(this, 'Touch dragging started');
     }
-    // If not touching the polyhedron, allow default behavior (scrolling)
   }
 
+  /**
+   * Handle touch move event
+   * @param {TouchEvent} event - Touch event
+   */
   onTouchMove(event) {
-    // Only prevent default and handle the event if we're dragging the polyhedron
     if (this.isDragging) {
       event.preventDefault();
       const coords = this.getInputCoordinates(event, true);
       this.updateDragging(coords, coords.clientX, coords.clientY);
     }
-    // If not dragging, allow default behavior (scrolling)
   }
 
+  /**
+   * Handle touch end event
+   */
   onTouchEnd() {
     this.endDragging();
   }
 
-  // Remove the now-redundant methods
-  getMouseCoordinates(event) {
-    return this.getInputCoordinates(event);
-  }
+  /**
+   * Update hover state based on mouse position
+   * @param {Object} coords - Normalized mouse coordinates
+   */
+  updateHoverState(coords) {
+    if (!this.isActive || !this.polyhedron) return;
 
-  getTouchCoordinates(event) {
-    return this.getInputCoordinates(event, true);
-  }
+    // Update raycaster with mouse position
+    this.mouse.x = coords.x;
+    this.mouse.y = coords.y;
+    this.raycaster.setFromCamera(this.mouse, this.camera);
 
-  checkPolyhedronIntersection(mousePosition) {
-    // Safety check - if polyhedron doesn't exist yet, return false
-    if (!this.polyhedron) {
-      if (this.debug) console.log('Cannot check intersection: polyhedron not initialized');
-      return false;
-    }
-
-    // Set the raycaster to use the mouse position
-    this.raycaster.setFromCamera(mousePosition, this.camera);
-
-    // Check for intersections with the polyhedron
+    // Check for intersection with polyhedron
     const intersects = this.raycaster.intersectObject(this.polyhedron, true);
 
-    // Return true if there are any intersections
-    return intersects.length > 0;
-  }
+    // Store previous state to detect changes
+    const wasHovering = this.isHovering;
+    this.isHovering = intersects.length > 0;
 
-  animate() {
-    requestAnimationFrame(this.animate.bind(this));
+    // Only update if the hover state changed
+    if (wasHovering !== this.isHovering) {
+      // Update cursor style
+      document.body.style.cursor = this.isHovering ? 'grab' : 'auto';
 
-    const startTime = performance.now();
+      // Visual feedback - adjust opacity when hovering
+      if (this.polyhedron.children.length > 0) {
+        const edges = this.polyhedron.children[0];
 
-    // Check if polyhedron exists
-    if (!this.polyhedron || !this.polyhedronBody) {
-      console.error('Polyhedron or physics body missing in animation loop');
-      return;
-    }
-
-    // Make sure clock is initialized
-    if (!this.clock) {
-      this.clock = new THREE.Clock();
-      debugLog(this, 'Initializing clock in animation loop');
-    }
-
-    // Check if we should activate the polyhedron
-    const currentTime = performance.now();
-    if (!this.isActive && currentTime > this.startTime) {
-      this.activatePolyhedron();
-      this.isActive = true;
-    }
-
-    // Handle fade-in animation if the polyhedron is visible but not fully opaque
-    this.handleFadeInAnimation();
-
-    // Update physics - measure time
-    const physicsStartTime = performance.now();
-    const deltaTime = this.clock.getDelta();
-
-    // Run physics every frame but with optimized settings
-    if (this.isActive) {
-      this.updatePhysics(deltaTime);
-
-      // Update mesh position and rotation from physics body
-      this.polyhedron.position.copy(this.polyhedronBody.position);
-      this.polyhedron.quaternion.copy(this.polyhedronBody.quaternion);
-
-      // Check if polyhedron is out of bounds and reset if needed
-      this.checkBounds();
-
-      // Apply a subtle force to keep the polyhedron away from the exact center when not being interacted with
-      if (!this.isDragging) {
-        this.applySubtleForce();
-      }
-    }
-
-    this.performanceStats.physicsTime = performance.now() - physicsStartTime;
-
-    // Render scene - measure time
-    const renderStartTime = performance.now();
-    this.renderer.render(this.scene, this.camera);
-    this.performanceStats.renderTime = performance.now() - renderStartTime;
-
-    // Update performance stats only when debug is enabled
-    if (this.debug) {
-      this.updatePerformanceStats(currentTime, startTime);
-    }
-  }
-
-  // New method to handle fade-in animation
-  handleFadeInAnimation() {
-    if (this.polyhedron.visible &&
-        this.polyhedron.material &&
-        this.polyhedron.material.opacity < 1.0) {
-
-      // Gradually increase opacity
-      this.polyhedron.material.opacity += 0.02;
-
-      // Also increase edge opacity
-      if (this.polyhedron.children.length > 0 &&
-          this.polyhedron.children[0].material) {
-        this.polyhedron.children[0].material.opacity += 0.02;
-      }
-
-      // Ensure we don't exceed 1.0 opacity
-      if (this.polyhedron.material.opacity >= 1.0) {
-        this.polyhedron.material.opacity = 1.0;
-        this.polyhedron.material.transparent = false;
-
-        if (this.polyhedron.children.length > 0 &&
-            this.polyhedron.children[0].material) {
-          this.polyhedron.children[0].material.opacity = 1.0;
-          this.polyhedron.children[0].material.transparent = false;
+        if (edges.material) {
+          // Enhance opacity when hovering (100% vs 85%)
+          edges.material.opacity = this.isHovering ? 1.0 : 0.85;
         }
       }
-
-      // Mark materials for update
-      this.polyhedron.material.needsUpdate = true;
-      if (this.polyhedron.children.length > 0 &&
-          this.polyhedron.children[0].material) {
-        this.polyhedron.children[0].material.needsUpdate = true;
-      }
     }
   }
 
-  // New method to update physics
-  updatePhysics(deltaTime) {
-    // Check if the polyhedron is nearly at rest and can be put to sleep
-    const isAlmostSleeping =
-      this.polyhedronBody.velocity.lengthSquared() < 0.05 &&
-      this.polyhedronBody.angularVelocity.lengthSquared() < 0.05;
+  /**
+   * Start dragging the polyhedron
+   * @param {Object} coords - Normalized mouse coordinates
+   * @param {number} clientX - Client X position
+   * @param {number} clientY - Client Y position
+   * @returns {boolean} Whether dragging started successfully
+   */
+  startDragging(coords, clientX, clientY) {
+    if (!this.isActive || !this.polyhedron || !this.body) return false;
 
-    if (isAlmostSleeping && !this.isDragging) {
-      // Reduce physics iterations for objects nearly at rest
-      this.world.solver.iterations = 5;
-    } else {
-      // Use more iterations for active objects
-      this.world.solver.iterations = 8;
+    // Update mouse position
+    this.mouse.x = coords.x;
+    this.mouse.y = coords.y;
+
+    // Cast ray from camera through mouse position
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+
+    // Check for intersection with polyhedron
+    const intersects = this.raycaster.intersectObject(this.polyhedron, true);
+
+    if (intersects.length > 0) {
+      this.isDragging = true;
+      this.isHovering = true;
+
+      // Change cursor to grabbing
+      document.body.style.cursor = 'grabbing';
+
+      // Store positions for velocity calculation on release
+      this.dragPositions = [{
+        time: performance.now(),
+        x: clientX,
+        y: clientY
+      }];
+
+      // Store interaction point for better dragging
+      this.interactionPoint = intersects[0].point.clone();
+
+      // Store the distance from camera to interaction point
+      this.dragDistance = this.camera.position.distanceTo(this.interactionPoint);
+
+      // Store original physics properties to restore later
+      this.savedGravity = {
+        x: this.world.gravity.x,
+        y: this.world.gravity.y,
+        z: this.world.gravity.z
+      };
+      this.savedLinVel = this.body.linvel();
+      this.savedAngVel = this.body.angvel();
+
+      // Disable gravity while dragging
+      this.world.gravity = { x: 0, y: 0, z: 0 };
+
+      // Switch to kinematic mode for smooth dragging
+      this.body.setBodyType(this.RAPIER.RigidBodyType.KinematicPositionBased);
+
+      // Stop linear velocity
+      this.body.setLinvel({ x: 0, y: 0, z: 0 });
+
+      // Calculate target position
+      this.targetPosition = new THREE.Vector3();
+      this.updateDragTarget(coords);
+
+      return true;
     }
 
-    // Step the physics world with optimized parameters
-    this.world.step(1/60, deltaTime, this.world.solver.iterations);
-
-    // Limit angular velocity
-    this.limitAngularVelocity();
-
-    // Update boundary visualizations if they exist - only if they've moved
-    if (this.boundaryMeshes && this.physicsFrameCount % 5 === 0) {
-      this.boundaryMeshes.forEach(item => {
-        // Only update if the mesh exists and the body is not sleeping
-        if (item.mesh && item.body.sleepState !== CANNON.Body.SLEEPING) {
-          item.mesh.position.copy(item.body.position);
-          item.mesh.quaternion.copy(item.body.quaternion);
-        }
-      });
-    }
-
-    // Increment physics frame counter
-    this.physicsFrameCount = (this.physicsFrameCount || 0) + 1;
+    return false;
   }
 
-  // New method to update performance stats
-  updatePerformanceStats(currentTime, startTime) {
-    this.performanceStats.frameTime = performance.now() - startTime;
-    this.performanceStats.frameCount++;
+  /**
+   * Update the target position for drag movement
+   * @param {Object} coords - Normalized mouse coordinates
+   */
+  updateDragTarget(coords) {
+    // Update the raycaster
+    this.raycaster.setFromCamera({ x: coords.x, y: coords.y }, this.camera);
 
-    if (currentTime - this.performanceStats.lastFpsUpdate > 1000) {
-      this.performanceStats.fps = Math.round(
-        (this.performanceStats.frameCount * 1000) /
-        (currentTime - this.performanceStats.lastFpsUpdate)
-      );
-      this.performanceStats.frameCount = 0;
-      this.performanceStats.lastFpsUpdate = currentTime;
-
-      debugLog(this, `Performance: ${this.performanceStats.fps} FPS, Frame: ${this.performanceStats.frameTime.toFixed(2)}ms, Physics: ${this.performanceStats.physicsTime.toFixed(2)}ms, Render: ${this.performanceStats.renderTime.toFixed(2)}ms`);
-    }
-  }
-
-  // New method to limit angular velocity
-  limitAngularVelocity() {
-    const maxAngularSpeed = 3; // Maximum angular speed in radians per second
-    const angVel = this.polyhedronBody.angularVelocity;
-
-    // Calculate current angular speed (magnitude of angular velocity)
-    const currentSpeed = Math.sqrt(
-      angVel.x * angVel.x +
-      angVel.y * angVel.y +
-      angVel.z * angVel.z
+    // Calculate the target position along the ray at the stored distance
+    this.targetPosition.copy(this.camera.position).add(
+      this.raycaster.ray.direction.clone().multiplyScalar(this.dragDistance)
     );
 
-    // If speed exceeds maximum, scale it down
-    if (currentSpeed > maxAngularSpeed) {
-      const scaleFactor = maxAngularSpeed / currentSpeed;
-      angVel.x *= scaleFactor;
-      angVel.y *= scaleFactor;
-      angVel.z *= scaleFactor;
-    }
-  }
-
-  // Apply a subtle force to keep the polyhedron moving in an interesting way
-  applySubtleForce() {
-    // Don't apply forces if not active yet
-    if (!this.isActive) {
-      return;
-    }
-
-    // Only apply force if the polyhedron is near the center
-    const pos = this.polyhedronBody.position;
-    const distanceFromCenter = Math.sqrt(pos.x * pos.x + pos.z * pos.z);
-
-    if (distanceFromCenter < 1.5) {
-      // Calculate a force that pushes away from the center, but very gently
-      const angle = Math.atan2(pos.z, pos.x) + (Math.random() * 0.1 - 0.05);
-      const forceMagnitude = 0.2 * (1.5 - distanceFromCenter); // Reduced from 0.5 to 0.2
-
-      // Apply the force perpendicular to the current position to create orbital movement
-      const forceX = forceMagnitude * Math.cos(angle + Math.PI/2);
-      const forceZ = forceMagnitude * Math.sin(angle + Math.PI/2);
-
-      this.polyhedronBody.applyForce(
-        new CANNON.Vec3(forceX, 0, forceZ),
-        this.polyhedronBody.position
-      );
-    }
-  }
-
-  // Add a safety check to reset the polyhedron if it somehow escapes the boundaries
-  checkBounds() {
-    // Only check bounds if the polyhedron is active
-    if (!this.isActive) return;
-
-    const pos = this.polyhedronBody.position;
-    const vel = this.polyhedronBody.velocity;
-
-    // Check for out of bounds or unstable velocity
-    const isOutOfBounds =
-      Math.abs(pos.x) > 10 ||  // Reset to original boundary size
-      pos.y > 25 || // Higher than ceiling
-      pos.y < -8 || // Adjusted for new floor position (-2 with some margin)
-      Math.abs(pos.z) > 10 ||  // Reset to original boundary size
-      Math.abs(vel.x) > 20 ||
-      Math.abs(vel.y) > 20 ||
-      Math.abs(vel.z) > 20;
-
-    if (isOutOfBounds) {
-      debugLog(this, 'Polyhedron out of bounds or unstable, resetting position', {
-        position: [pos.x, pos.y, pos.z],
-        velocity: [vel.x, vel.y, vel.z]
-      });
-
-      this.resetPolyhedron();
-    }
-  }
-
-  // New method to reset the polyhedron to a valid position
-  resetPolyhedron() {
-    // Get the viewport height in world coordinates - same calculation as in activatePolyhedron
-    const cameraDistance = this.camera.position.z;
-    const vFOV = THREE.MathUtils.degToRad(this.camera.fov);
-    const visibleHeightAtDistance = 2 * Math.tan(vFOV / 2) * cameraDistance;
-
-    // Position the polyhedron just above the visible area but below the ceiling
-    // Same as the initial spawn position in activatePolyhedron
-    const startY = Math.min(15, visibleHeightAtDistance / 2 + 5);
-
-    // Reset position to match the initial spawn position
-    this.polyhedronBody.position.set(
-      (Math.random() - 0.5) * 4, // Reset to original range
-      startY, // Position high but below ceiling
-      (Math.random() - 0.5) * 3  // Reset to original range
-    );
-
-    // Reset velocity to match the initial spawn velocity
-    this.polyhedronBody.velocity.set(
-      (Math.random() - 0.5) * 0.8, // Slight horizontal drift
-      -4, // Strong downward velocity for dramatic falling effect
-      (Math.random() - 0.5) * 0.8  // Slight depth drift
-    );
-
-    // Add gentle initial rotation - same as in activatePolyhedron
-    this.polyhedronBody.angularVelocity.set(
-      (Math.random() - 0.5) * 2, // Moderate rotation for visual interest
-      (Math.random() - 0.5) * 2,
-      (Math.random() - 0.5) * 2
-    );
-
-    // Wake up the body if it was sleeping
-    this.polyhedronBody.wakeUp();
-  }
-
-  // Method to smoothly move the polyhedron to the cursor position
-  snapPolyhedronToCursor(mouseCoords) {
-    // Create a ray from the camera through the mouse position
-    this.raycaster.setFromCamera(mouseCoords, this.camera);
-
-    // Calculate a point along the ray at a fixed distance from the camera
-    // This gives us a 3D position that corresponds to the cursor
-    const distance = 4; // Distance from camera
-    const targetPosition = new THREE.Vector3();
-    targetPosition.copy(this.raycaster.ray.direction);
-    targetPosition.multiplyScalar(distance);
-    targetPosition.add(this.camera.position);
-
-    // Initialize target position if this is the first time
-    if (!this.targetPosition) {
-      this.targetPosition = new THREE.Vector3().copy(targetPosition);
-    } else {
-      // Update the target position
-      this.targetPosition.copy(targetPosition);
-    }
-
-    // Constrain the target position to keep it within visible bounds
-    this.constrainTargetPosition();
-
-    // Use the grabSmoothness property to control the interpolation speed
-    // Higher values = faster movement, lower values = smoother but slower
-    const lerpFactor = this.grabSmoothness; // Value between 0.1-0.5 is good
-
-    // Calculate the new position by interpolating between current and target
-    const newPosition = new THREE.Vector3();
-    newPosition.copy(this.polyhedronBody.position);
-    newPosition.lerp(this.targetPosition, lerpFactor);
-
-    // Set the polyhedron's position to this interpolated point
-    this.polyhedronBody.position.copy(newPosition);
-
-    debugLog(this, 'Moving to cursor at:', this.targetPosition);
-  }
-
-  // Helper method to constrain the target position within bounds
-  constrainTargetPosition() {
-    // Limit X position (left/right)
+    // Constrain target position to keep within bounds
     this.targetPosition.x = Math.max(-4, Math.min(4, this.targetPosition.x));
-    // Limit Y position (up/down)
     this.targetPosition.y = Math.max(-1.5, Math.min(5, this.targetPosition.y));
-    // Limit Z position (forward/backward)
     this.targetPosition.z = Math.max(-4, Math.min(3, this.targetPosition.z));
   }
 
-  // New method to activate the polyhedron after the delay
-  activatePolyhedron() {
-    debugLog(this, 'Activating polyhedron after delay');
+  /**
+   * Update dragging based on mouse movement
+   * @param {Object} coords - Normalized mouse coordinates
+   * @param {number} clientX - Client X position
+   * @param {number} clientY - Client Y position
+   */
+  updateDragging(coords, clientX, clientY) {
+    if (!this.isDragging) return;
 
-    // Make the polyhedron visible
-    this.polyhedron.visible = true;
-
-    // Wake up the physics body
-    this.polyhedronBody.wakeUp();
-
-    // Get the viewport height in world coordinates
-    const cameraDistance = this.camera.position.z;
-    const vFOV = THREE.MathUtils.degToRad(this.camera.fov);
-    const visibleHeightAtDistance = 2 * Math.tan(vFOV / 2) * cameraDistance;
-
-    // Position the polyhedron just above the visible area but below the ceiling
-    // The ceiling is at y=20, so we'll position it at around y=15
-    const startY = Math.min(15, visibleHeightAtDistance / 2 + 5);
-
-    this.polyhedronBody.position.set(
-      (Math.random() - 0.5) * 4, // Reset to original range
-      startY, // Position high but below ceiling
-      (Math.random() - 0.5) * 3  // Reset to original range
-    );
-
-    // Add gentle initial rotation
-    this.polyhedronBody.angularVelocity.set(
-      (Math.random() - 0.5) * 2, // Moderate rotation for visual interest
-      (Math.random() - 0.5) * 2,
-      (Math.random() - 0.5) * 2
-    );
-
-    // Add a downward velocity to create a falling effect
-    this.polyhedronBody.velocity.set(
-      (Math.random() - 0.5) * 0.8, // Slight horizontal drift
-      -4, // Strong downward velocity for dramatic falling effect
-      (Math.random() - 0.5) * 0.8  // Slight depth drift
-    );
-
-    // Ensure we're in fast movement state when activating
-    this.isMovingFast = true;
-
-    // Make the polyhedron visible with a slight fade-in
-    this.setupFadeInMaterials();
-
-    debugLog(this, `Polyhedron activated at position (${this.polyhedronBody.position.x.toFixed(2)}, ${this.polyhedronBody.position.y.toFixed(2)}, ${this.polyhedronBody.position.z.toFixed(2)})`);
-    debugLog(this, `Initial velocity: (${this.polyhedronBody.velocity.x.toFixed(2)}, ${this.polyhedronBody.velocity.y.toFixed(2)}, ${this.polyhedronBody.velocity.z.toFixed(2)})`);
-  }
-
-  // Helper method to set up fade-in materials
-  setupFadeInMaterials() {
-    if (this.polyhedron.material) {
-      this.polyhedron.material.transparent = true;
-      this.polyhedron.material.opacity = 0.9;
-      this.polyhedron.material.needsUpdate = true;
-    }
-
-    // Make edges visible too
-    if (this.polyhedron.children.length > 0 && this.polyhedron.children[0].material) {
-      this.polyhedron.children[0].material.transparent = true;
-      this.polyhedron.children[0].material.opacity = 0.9;
-      this.polyhedron.children[0].material.needsUpdate = true;
-    }
-  }
-
-  // Add a method to update colors based on color scheme
-  updateColors(options) {
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    // Update the color based on color scheme
-    if (isDarkMode && options.darkModeColors) {
-      this.color = options.darkModeColors[options.colorIndex || 0] || (Math.random() * 0xffffff);
-    } else if (options.colors) {
-      this.color = options.colors[options.colorIndex || 0] || (Math.random() * 0xffffff);
-    } else {
-      this.color = options.color || (Math.random() * 0xffffff);
-    }
-
-    // Update the edge material color
-    if (this.polyhedron && this.polyhedron.children.length > 0) {
-      const edgeMaterial = this.polyhedron.children[0].material;
-      if (edgeMaterial) {
-        edgeMaterial.color.setHex(this.color);
-        edgeMaterial.needsUpdate = true;
-
-        debugLog(this, `Updated polyhedron color to ${this.color.toString(16)} (Dark mode: ${isDarkMode})`);
-      }
-    }
-  }
-}
-
-// Static factory method to create multiple instances - optimized version
-InteractivePolyhedron.createInstances = function(container, count = 1, options = {}) {
-  console.log(`Creating ${count} polyhedron instances with options:`, options);
-  const instances = [];
-
-  // Create shared resources
-  const sharedResources = createSharedResources(container, options.debug);
-
-  // Create instances with staggered start times and different properties
-  for (let i = 0; i < count; i++) {
-    // Create a custom polyhedron instance that uses shared resources
-    const instanceOptions = {
-      startDelay: 2500 + (i * 500), // Stagger start times
-      colorIndex: i % (options.colors ? options.colors.length : 1), // Pass the color index
-      colors: options.colors, // Pass the entire colors array
-      darkModeColors: options.darkModeColors, // Pass the dark mode colors array
-      size: options.sizes ? options.sizes[i % options.sizes.length] : 1.0 + (i * 0.2),
-      position: options.positions ? options.positions[i] : {
-        x: (Math.random() - 0.5) * 4,
-        y: 15 + i * 2,
-        z: (Math.random() - 0.5) * 3
-      },
-      debug: options.debug || false
-    };
-
-    console.log(`Creating instance ${i} with colorIndex: ${instanceOptions.colorIndex}`);
-
-    const instance = new CustomPolyhedronInstance(
-      container,
-      sharedResources.scene,
-      sharedResources.camera,
-      sharedResources.renderer,
-      sharedResources.world,
-      sharedResources.raycaster,
-      sharedResources.clock,
-      sharedResources.boundaries,
-      instanceOptions
-    );
-    instances.push(instance);
-  }
-
-  // Set up shared event handlers
-  setupSharedEventHandlers(container, instances, sharedResources);
-
-  // Start the animation loop
-  startAnimationLoop(instances, sharedResources);
-
-  return instances;
-};
-
-// Helper function to create shared resources
-function createSharedResources(container, debug = false) {
-  // Create a shared renderer
-  const width = container.clientWidth;
-  const height = container.clientHeight;
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    alpha: true
-  });
-  renderer.setSize(width, height);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  container.appendChild(renderer.domElement);
-
-  // Create a shared scene
-  const scene = new THREE.Scene();
-
-  // Create a shared physics world with optimized settings
-  const world = new CANNON.World();
-  world.gravity.set(0, -0.5, 0);
-  world.broadphase = new CANNON.NaiveBroadphase();
-  world.solver.iterations = 8;
-  world.allowSleep = true;
-  world.sleepSpeedLimit = 0.05;
-  world.sleepTimeLimit = 0.5;
-
-  // Add lights to the shared scene
-  addLightsToScene(scene);
-
-  // Create shared boundaries
-  const boundaries = addSharedBoundaries(world, scene, debug);
-
-  // Create a shared camera
-  const camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 1000);
-  camera.position.z = 6;
-  camera.position.y = 3;
-  camera.lookAt(0, -1, 0);
-
-  // Create a shared clock and raycaster
-  const clock = new THREE.Clock();
-  const raycaster = new THREE.Raycaster();
-
-  // Add window resize handler for shared resources
-  window.addEventListener('resize', () => {
-    // Update camera aspect ratio
-    camera.aspect = container.clientWidth / container.clientHeight;
-    camera.updateProjectionMatrix();
-
-    // Update renderer size
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-
-    if (debug) {
-      console.log(`Window resized: ${container.clientWidth}x${container.clientHeight}`);
-    }
-  });
-
-  return {
-    renderer,
-    scene,
-    world,
-    boundaries,
-    camera,
-    clock,
-    raycaster,
-    width,
-    height
-  };
-}
-
-// Helper function to add lights to scene
-function addLightsToScene(scene) {
-  // Ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-  scene.add(ambientLight);
-
-  // Directional light (sun-like)
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  directionalLight.position.set(5, 5, 5);
-  scene.add(directionalLight);
-
-  // Point light (for highlights)
-  const pointLight = new THREE.PointLight(0x0088ff, 1, 100);
-  pointLight.position.set(0, 0, 5);
-  scene.add(pointLight);
-}
-
-// Helper function to add shared boundaries
-function addSharedBoundaries(world, scene, debug = false) {
-  const boundarySize = 10;
-  const boundaryDepth = 0.5;
-  const wallMaterial = new CANNON.Material({
-    friction: 0.1,
-    restitution: 0.8
-  });
-
-  // Create all boundaries
-  const boundaries = [
-    // Floor - raised to be more visible in the camera view
-    {
-      shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundaryDepth, boundarySize)),
-      position: new CANNON.Vec3(0, -2, 0), // Raised from -3 to -2
-      dimensions: [boundarySize * 2, boundaryDepth * 2, boundarySize * 2],
-      isFloor: true // Mark this as the floor for special visualization
-    },
-    // Ceiling
-    {
-      shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundaryDepth, boundarySize)),
-      position: new CANNON.Vec3(0, 20, 0),
-      dimensions: [boundarySize * 2, boundaryDepth * 2, boundarySize * 2]
-    },
-    // Left wall
-    {
-      shape: new CANNON.Box(new CANNON.Vec3(boundaryDepth, boundarySize, boundarySize)),
-      position: new CANNON.Vec3(-5, 0, 0),
-      dimensions: [boundaryDepth * 2, boundarySize * 2, boundarySize * 2]
-    },
-    // Right wall
-    {
-      shape: new CANNON.Box(new CANNON.Vec3(boundaryDepth, boundarySize, boundarySize)),
-      position: new CANNON.Vec3(5, 0, 0),
-      dimensions: [boundaryDepth * 2, boundarySize * 2, boundarySize * 2]
-    },
-    // Back wall
-    {
-      shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundarySize, boundaryDepth)),
-      position: new CANNON.Vec3(0, 0, -5),
-      dimensions: [boundarySize * 2, boundarySize * 2, boundaryDepth * 2]
-    },
-    // Front wall - moved closer to camera
-    {
-      shape: new CANNON.Box(new CANNON.Vec3(boundarySize, boundarySize, boundaryDepth)),
-      position: new CANNON.Vec3(0, 0, 4), // Moved from 5 to 4 to be in front of camera
-      dimensions: [boundarySize * 2, boundarySize * 2, boundaryDepth * 2]
-    }
-  ];
-
-  const boundaryMeshes = [];
-
-  // Create all boundary bodies and meshes
-  boundaries.forEach(boundary => {
-    const body = new CANNON.Body({
-      mass: 0,
-      shape: boundary.shape,
-      position: boundary.position,
-      material: wallMaterial
-    });
-    world.addBody(body);
-
-    // Only create visualization in debug mode or for the floor
-    if (debug || boundary.isFloor) {
-      const geometry = new THREE.BoxGeometry(
-        boundary.dimensions[0],
-        boundary.dimensions[1],
-        boundary.dimensions[2]
-      );
-
-      // Use a different material for the floor to make it more visible
-      const material = boundary.isFloor ?
-        new THREE.MeshBasicMaterial({
-          color: window.matchMedia('(prefers-color-scheme: dark)').matches ? 0x090909 : 0xeeeeee,
-          transparent: true,
-          opacity: 0.0,
-          wireframe: false
-        }) :
-        new THREE.MeshBasicMaterial({
-          color: 0x444444,
-          wireframe: true,
-          transparent: true,
-          opacity: 0.08,
-          wireframeLinewidth: 1
-        });
-
-      const mesh = new THREE.Mesh(geometry, material);
-      mesh.position.copy(body.position);
-      mesh.quaternion.copy(body.quaternion);
-      scene.add(mesh);
-      boundaryMeshes.push({ mesh, body });
-    } else {
-      boundaryMeshes.push({ mesh: null, body });
-    }
-  });
-
-  return boundaryMeshes;
-}
-
-// Helper function to set up shared event handlers
-function setupSharedEventHandlers(container, instances, resources) {
-  let activeInstance = null;
-  let mouse = new THREE.Vector2();
-
-  // Mouse down event handler
-  container.addEventListener('mousedown', (event) => {
-    // Get mouse coordinates
-    const rect = resources.renderer.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-    // Set up raycaster
-    resources.raycaster.setFromCamera(mouse, resources.camera);
-
-    // Find intersections with all polyhedra
-    const polyhedronMeshes = instances.map(instance => instance.polyhedron);
-    const intersects = resources.raycaster.intersectObjects(polyhedronMeshes);
-
-    if (intersects.length > 0) {
-      // Get the first intersected polyhedron
-      const intersectedMesh = intersects[0].object;
-
-      // Find the instance that owns this mesh
-      activeInstance = instances.find(instance =>
-        instance.polyhedron === intersectedMesh ||
-        instance.polyhedron.children.includes(intersectedMesh)
-      );
-
-      if (activeInstance) {
-        // Start dragging this instance
-        activeInstance.startDragging(mouse, event.clientX, event.clientY);
-      }
-    }
-  });
-
-  // Mouse move event handler
-  window.addEventListener('mousemove', (event) => {
-    // Update mouse coordinates
-    const rect = resources.renderer.domElement.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-    // Handle active instance dragging
-    if (activeInstance && activeInstance.isDragging) {
-      activeInstance.updateDragging(mouse, event.clientX, event.clientY);
-    } else {
-      // Check for hover state on all instances
-      resources.raycaster.setFromCamera(mouse, resources.camera);
-      const polyhedronMeshes = instances.map(instance => instance.polyhedron);
-      const intersects = resources.raycaster.intersectObjects(polyhedronMeshes);
-
-      // Reset hover state on all instances
-      instances.forEach(instance => {
-        instance.isHovering = false;
-      });
-
-      if (intersects.length > 0) {
-        // Get the first intersected polyhedron
-        const intersectedMesh = intersects[0].object;
-
-        // Find the instance that owns this mesh
-        const hoveredInstance = instances.find(instance =>
-          instance.polyhedron === intersectedMesh ||
-          instance.polyhedron.children.includes(intersectedMesh)
-        );
-
-        if (hoveredInstance) {
-          hoveredInstance.isHovering = true;
-          document.body.style.cursor = 'grab';
-        } else {
-          document.body.style.cursor = 'auto';
-        }
-      } else {
-        document.body.style.cursor = 'auto';
-      }
-    }
-  });
-
-  // Mouse up event handler
-  window.addEventListener('mouseup', () => {
-    if (activeInstance && activeInstance.isDragging) {
-      activeInstance.endDragging();
-      activeInstance = null;
-    }
-  });
-
-  // Touch event handlers
-  container.addEventListener('touchstart', (event) => {
-    if (event.touches.length > 0) {
-      // Get touch coordinates
-      const rect = resources.renderer.domElement.getBoundingClientRect();
-      mouse.x = ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((event.touches[0].clientY - rect.top) / rect.height) * 2 + 1;
-
-      // Set up raycaster
-      resources.raycaster.setFromCamera(mouse, resources.camera);
-
-      // Find intersections with all polyhedra
-      const polyhedronMeshes = instances.map(instance => instance.polyhedron);
-      const intersects = resources.raycaster.intersectObjects(polyhedronMeshes);
-
-      if (intersects.length > 0) {
-        // Prevent default to avoid scrolling
-        event.preventDefault();
-
-        // Get the first intersected polyhedron
-        const intersectedMesh = intersects[0].object;
-
-        // Find the instance that owns this mesh
-        activeInstance = instances.find(instance =>
-          instance.polyhedron === intersectedMesh ||
-          instance.polyhedron.children.includes(intersectedMesh)
-        );
-
-        if (activeInstance) {
-          // Start dragging this instance
-          activeInstance.startDragging(mouse, event.touches[0].clientX, event.touches[0].clientY);
-        }
-      }
-    }
-  }, { passive: false });
-
-  container.addEventListener('touchmove', (event) => {
-    if (activeInstance && activeInstance.isDragging && event.touches.length > 0) {
-      // Prevent default to avoid scrolling
-      event.preventDefault();
-
-      // Get touch coordinates
-      const rect = resources.renderer.domElement.getBoundingClientRect();
-      mouse.x = ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
-      mouse.y = -((event.touches[0].clientY - rect.top) / rect.height) * 2 + 1;
-
-      // Update dragging
-      activeInstance.updateDragging(mouse, event.touches[0].clientX, event.touches[0].clientY);
-    }
-  }, { passive: false });
-
-  container.addEventListener('touchend', () => {
-    if (activeInstance && activeInstance.isDragging) {
-      activeInstance.endDragging();
-      activeInstance = null;
-    }
-  });
-}
-
-// Helper function to start the animation loop
-function startAnimationLoop(instances, resources) {
-  const animateAll = function() {
-    requestAnimationFrame(animateAll);
-
-    // Update physics world
-    const deltaTime = resources.clock.getDelta();
-    resources.world.step(1/60, deltaTime, 3);
-
-    // Update all instances
-    instances.forEach(instance => instance.update(deltaTime));
-
-    // Render the scene
-    resources.renderer.render(resources.scene, resources.camera);
-  };
-
-  // Start the animation loop
-  animateAll();
-}
-
-// Custom polyhedron instance class that uses shared resources
-class CustomPolyhedronInstance {
-  constructor(container, scene, camera, renderer, world, raycaster, clock, boundaries, options = {}) {
-    this.container = container;
-    this.scene = scene;
-    this.camera = camera;
-    this.renderer = renderer;
-    this.world = world;
-    this.raycaster = raycaster;
-    this.clock = clock;
-    this.boundaries = boundaries;
-
-    // Store options for later use
-    this.options = options;
-
-    // Set options with defaults
-    this.startDelay = options.startDelay || 2500;
-    this.startTime = performance.now() + this.startDelay;
-    this.isActive = false;
-    this.debug = options.debug || false;
-    this.size = options.size || 1.0;
-
-    // Store color options for later use
-    this.colorOptions = {
-      colors: options.colors || [],
-      darkModeColors: options.darkModeColors || [],
-      colorIndex: options.colorIndex || 0,
-      defaultColor: options.color || 0x1a73e8,
-      darkModeBackground: 0x090909, // Dark mode background color #090909
-      lightModeBackground: 0xffffff // Light mode background color #ffffff
-    };
-
-    // Set initial color based on current color scheme
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    this.updateColorFromScheme(isDarkMode);
-
-    this.initialPosition = options.position || { x: 0, y: 15, z: 0 };
-
-    // Create the polyhedron mesh and physics body
-    this.createPolyhedron();
-
-    // Initialize interaction state
-    this.isDragging = false;
-    this.isHovering = false;
-
-    // Set grabSmoothness property for smooth dragging
-    this.grabSmoothness = 0.3;
-
-    // Initialize mouse/touch tracking properties
-    this.dragPositions = [];
-    this.targetPosition = null;
-    this.savedGravity = null;
-    this.savedAngularVelocity = null;
-
-    // Add media query listener to update colors when color scheme changes
-    this.colorSchemeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    this.colorSchemeMediaQuery.addEventListener('change', (e) => {
-      console.log('Color scheme changed to:', e.matches ? 'dark' : 'light');
-      this.updateColorFromScheme(e.matches);
-      this.updatePolyhedronColor();
-    });
-  }
-
-  createPolyhedron() {
-    // Create Three.js geometry
-    const radius = 1 * this.size;
-    const detail = 0;
-    const geometry = new THREE.IcosahedronGeometry(radius, detail);
-
-    // Determine background color based on color scheme
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const backgroundColor = isDarkMode ? this.colorOptions.darkModeBackground : this.colorOptions.lightModeBackground;
-
-    // Create material with appropriate background color
-    const material = new THREE.MeshBasicMaterial({
-      color: backgroundColor,
-      transparent: true,
-      opacity: 0,
-      side: THREE.DoubleSide
-    });
-
-    // Ensure we have a valid color before creating edges
-    if (!this.color) {
-      this.updateColorFromScheme(isDarkMode);
-      console.log(`Set initial color to 0x${this.color.toString(16)}`);
-    }
-
-    // Create edges with the correct color
-    const edgesGeometry = new THREE.EdgesGeometry(geometry);
-    const edgesMaterial = new THREE.LineBasicMaterial({
-      color: this.color,
-      linewidth: 2,
-      transparent: true,
-      opacity: 0
-    });
-
-    console.log(`Creating polyhedron edges with color: 0x${this.color.toString(16)}`);
-
-    const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-
-    // Create mesh
-    this.polyhedron = new THREE.Mesh(geometry, material);
-    this.polyhedron.add(edges);
-    this.polyhedron.scale.set(1.2, 1.2, 1.2);
-    this.polyhedron.visible = false;
-    this.polyhedron.userData.instance = this; // Store reference to this instance
-    this.scene.add(this.polyhedron);
-
-    // Create physics body
-    const shape = new CANNON.Sphere(radius * 1.2);
-    this.polyhedronBody = new CANNON.Body({
-      mass: 5,
-      shape: shape,
-      position: new CANNON.Vec3(this.initialPosition.x, this.initialPosition.y, this.initialPosition.z),
-      material: new CANNON.Material({
-        friction: 0.3,
-        restitution: 0.8
-      }),
-      linearDamping: 0.05,
-      angularDamping: 0.05,
-      allowSleep: true
-    });
-
-    // Initially set the body to sleep until the delay is over
-    this.polyhedronBody.sleep();
-    this.world.addBody(this.polyhedronBody);
-  }
-
-  update(deltaTime) {
-    // Check if we should activate the polyhedron
-    const currentTime = performance.now();
-    if (!this.isActive && currentTime > this.startTime) {
-      this.activatePolyhedron();
-      this.isActive = true;
-    }
-
-    // Handle fade-in animation
-    this.updateFadeInAnimation();
-
-    // Handle dragging with smooth movement
-    if (this.isActive && this.isDragging && this.targetPosition) {
-      this.snapPolyhedronToCursor();
-    }
-
-    // Update mesh position and rotation from physics body
-    if (this.isActive) {
-      this.polyhedron.position.copy(this.polyhedronBody.position);
-      this.polyhedron.quaternion.copy(this.polyhedronBody.quaternion);
-
-      // Check bounds
-      this.checkBounds();
-    }
-
-    // Visual feedback for hover state
-    this.highlightPolyhedron();
-  }
-
-  // Handle fade-in animation
-  updateFadeInAnimation() {
-    if (this.polyhedron.visible && this.polyhedron.material.opacity < 1.0) {
-      // Gradually increase opacity
-      this.polyhedron.material.opacity += 0.02;
-
-      // Also increase edge opacity
-      if (this.polyhedron.children.length > 0) {
-        this.polyhedron.children[0].material.opacity += 0.02;
-      }
-
-      // Ensure we don't exceed 1.0 opacity
-      if (this.polyhedron.material.opacity >= 1.0) {
-        this.polyhedron.material.opacity = 1.0;
-        this.polyhedron.material.transparent = false;
-
-        if (this.polyhedron.children.length > 0) {
-          this.polyhedron.children[0].material.opacity = 1.0;
-          this.polyhedron.children[0].material.transparent = false;
-        }
-      }
-
-      // Mark materials for update
-      this.polyhedron.material.needsUpdate = true;
-      if (this.polyhedron.children.length > 0) {
-        this.polyhedron.children[0].material.needsUpdate = true;
-      }
-    }
-  }
-
-  // Smoothly move polyhedron to cursor position
-  snapPolyhedronToCursor() {
-    // Use the grabSmoothness property to control the interpolation speed
-    const lerpFactor = this.grabSmoothness || 0.3; // Default to 0.3 if not set
-
-    // Calculate the new position by interpolating between current and target
-    const newPosition = new THREE.Vector3();
-    newPosition.copy(this.polyhedronBody.position);
-    newPosition.lerp(this.targetPosition, lerpFactor);
-
-    // Set the polyhedron's position to this interpolated point
-    this.polyhedronBody.position.copy(newPosition);
-  }
-
-  // Visual feedback for hover/drag state
-  highlightPolyhedron() {
-    if (this.polyhedron.children.length > 0) {
-      const edgeMaterial = this.polyhedron.children[0].material;
-      if (edgeMaterial) {
-        if (this.isHovering && !this.isDragging) {
-          // Highlight the edges when hovering
-          edgeMaterial.linewidth = 3; // Note: this may not work in all browsers
-        } else {
-          // Reset to normal appearance
-          edgeMaterial.linewidth = 2;
-        }
-        edgeMaterial.needsUpdate = true;
-      }
-    }
-  }
-
-  activatePolyhedron() {
-    debugLog(this, 'Activating polyhedron after delay');
-
-    // Make the polyhedron visible
-    this.polyhedron.visible = true;
-
-    // Wake up the physics body
-    this.polyhedronBody.wakeUp();
-
-    // Set initial position
-    this.polyhedronBody.position.set(
-      this.initialPosition.x,
-      this.initialPosition.y,
-      this.initialPosition.z
-    );
-
-    // Add gentle initial rotation
-    this.polyhedronBody.angularVelocity.set(
-      (Math.random() - 0.5) * 2,
-      (Math.random() - 0.5) * 2,
-      (Math.random() - 0.5) * 2
-    );
-
-    // Add a downward velocity to create a falling effect
-    this.polyhedronBody.velocity.set(
-      (Math.random() - 0.5) * 0.8,
-      -4,
-      (Math.random() - 0.5) * 0.8
-    );
-
-    // Ensure we're in fast movement state when activating
-    this.isMovingFast = true;
-
-    // Make the polyhedron visible with a slight fade-in
-    this.setupFadeInMaterials();
-
-    debugLog(this, `Polyhedron activated at position (${this.polyhedronBody.position.x.toFixed(2)}, ${this.polyhedronBody.position.y.toFixed(2)}, ${this.polyhedronBody.position.z.toFixed(2)})`);
-    debugLog(this, `Initial velocity: (${this.polyhedronBody.velocity.x.toFixed(2)}, ${this.polyhedronBody.velocity.y.toFixed(2)}, ${this.polyhedronBody.velocity.z.toFixed(2)})`);
-  }
-
-  // Start dragging the polyhedron
-  startDragging(mouse, clientX, clientY) {
-    this.isDragging = true;
-    this.isHovering = true;
-
-    // Update cursor style
-    document.body.style.cursor = 'grabbing';
-
-    // Store initial mouse position for velocity calculation
-    this.dragPositions = [{
-      time: performance.now(),
-      x: clientX,
-      y: clientY
-    }];
-
-    // Wake up the physics body
-    this.polyhedronBody.wakeUp();
-
-    // Store the current gravity for later restoration
-    this.savedGravity = new CANNON.Vec3().copy(this.world.gravity);
-
-    // Disable gravity while dragging
-    this.world.gravity.set(0, 0, 0);
-
-    // Set the body type to kinematic to prevent other forces from affecting it
-    this.polyhedronBody.type = CANNON.BODY_TYPES.KINEMATIC;
-
-    // Completely stop all motion by zeroing out velocities
-    this.polyhedronBody.velocity.set(0, 0, 0);
-    this.polyhedronBody.angularVelocity.scale(0.7);
-
-    // Zero out forces and torques
-    this.polyhedronBody.force.set(0, 0, 0);
-    this.polyhedronBody.torque.set(0, 0, 0);
-
-    // Initialize the target position for smooth transition
-    const distance = 4; // Distance from camera
-    this.targetPosition = new THREE.Vector3();
-    this.targetPosition.copy(this.raycaster.ray.direction);
-    this.targetPosition.multiplyScalar(distance);
-    this.targetPosition.add(this.camera.position);
-
-    debugLog(this, 'Started dragging polyhedron');
-  }
-
-  // Update dragging position
-  updateDragging(mouse, clientX, clientY) {
     // Store position for velocity calculation
     this.dragPositions.push({
       time: performance.now(),
@@ -1740,275 +682,443 @@ class CustomPolyhedronInstance {
       y: clientY
     });
 
-    // Keep only the last 5 positions for velocity calculation
+    // Keep only recent positions for better throw velocity calculation
     if (this.dragPositions.length > 5) {
       this.dragPositions.shift();
     }
 
     // Update target position
-    this.raycaster.setFromCamera(mouse, this.camera);
-    const distance = 4; // Distance from camera
-    this.targetPosition.copy(this.raycaster.ray.direction);
-    this.targetPosition.multiplyScalar(distance);
-    this.targetPosition.add(this.camera.position);
-
-    // Constrain the target position to keep it within visible bounds
-    this.targetPosition.x = Math.max(-4, Math.min(4, this.targetPosition.x));
-    this.targetPosition.y = Math.max(-1.5, Math.min(5, this.targetPosition.y));
-    this.targetPosition.z = Math.max(-4, Math.min(3, this.targetPosition.z));
+    this.updateDragTarget(coords);
   }
 
-  // End dragging and apply throw velocity
+  /**
+   * End dragging and apply throw velocity
+   */
   endDragging() {
-    // Calculate throw velocity
-    const throwVelocity = this.calculateThrowVelocity();
+    if (!this.isDragging || !this.body) return;
 
-    // Resume physics with a throw
-    this.polyhedronBody.type = CANNON.BODY_TYPES.DYNAMIC;
-    this.polyhedronBody.velocity.copy(throwVelocity);
-
-    // Restore the original gravity
-    if (this.savedGravity) {
-      this.world.gravity.copy(this.savedGravity);
-    } else {
-      this.world.gravity.set(0, -0.5, 0);
-    }
-
-    // Blend saved angular velocity with new random component
-    const randomAngVel = new CANNON.Vec3(
-      (Math.random() - 0.5) * 2,
-      (Math.random() - 0.5) * 2,
-      (Math.random() - 0.5) * 2
-    );
-
-    this.polyhedronBody.angularVelocity.set(
-      this.polyhedronBody.angularVelocity.x * 0.5 + randomAngVel.x * 0.5,
-      this.polyhedronBody.angularVelocity.y * 0.5 + randomAngVel.y * 0.5,
-      this.polyhedronBody.angularVelocity.z * 0.5 + randomAngVel.z * 0.5
-    );
-
-    // Reset state
     this.isDragging = false;
 
-    // Reset cursor based on hover state
-    document.body.style.cursor = 'auto';
+    // Update cursor based on hover state
+    document.body.style.cursor = this.isHovering ? 'grab' : 'auto';
 
-    debugLog(this, `Ended dragging with velocity: (${throwVelocity.x.toFixed(2)}, ${throwVelocity.y.toFixed(2)}, ${throwVelocity.z.toFixed(2)})`);
+    // Calculate throw velocity from drag positions
+    const throwVelocity = this.calculateThrowVelocity();
+
+    // Restore physics body to dynamic
+    this.body.setBodyType(this.RAPIER.RigidBodyType.Dynamic);
+
+    // Apply throw velocity
+    this.body.setLinvel(throwVelocity);
+
+    // Restore gravity
+    this.world.gravity = this.savedGravity || { x: 0, y: -0.5, z: 0 };
+
+    // Add some random rotation
+    const angVel = {
+      x: this.savedAngVel.x * 0.3 + (Math.random() - 0.5) * 2,
+      y: this.savedAngVel.y * 0.3 + (Math.random() - 0.5) * 2,
+      z: this.savedAngVel.z * 0.3 + (Math.random() - 0.5) * 2
+    };
+
+    this.body.setAngvel(angVel);
+
+    // Clear drag-related properties
+    this.dragPositions = null;
+    this.targetPosition = null;
+    this.interactionPoint = null;
   }
 
-  // Calculate throw velocity based on drag history
+  /**
+   * Calculate velocity to apply when throwing the polyhedron
+   * @returns {Object} Velocity vector to apply
+   */
   calculateThrowVelocity() {
-    let throwVelocity = new CANNON.Vec3(0, 0, 0);
+    const velocity = { x: 0, y: 0, z: 0 };
 
-    if (this.dragPositions.length >= 2) {
-      const latest = this.dragPositions[this.dragPositions.length - 1];
-      const previous = this.dragPositions[0];
+    if (!this.dragPositions || this.dragPositions.length < 2) {
+      return velocity;
+    }
 
-      // Calculate time difference in seconds
-      const timeDiff = (latest.time - previous.time) / 1000;
-      if (timeDiff > 0) {
-        // Calculate pixel velocity
-        const pixelVelocityX = (latest.x - previous.x) / timeDiff;
-        const pixelVelocityY = (latest.y - previous.y) / timeDiff;
+    // Get the most recent and oldest tracked positions
+    const latest = this.dragPositions[this.dragPositions.length - 1];
+    const oldest = this.dragPositions[0];
 
-        // Convert to 3D space
-        const velocityX = pixelVelocityX / this.container.clientWidth * 2;
-        const velocityY = -pixelVelocityY / this.container.clientHeight * 2;
+    // Calculate time difference in seconds
+    const timeDiff = (latest.time - oldest.time) / 1000;
 
-        // Add some randomness to Z velocity
-        const velocityZ = (Math.random() - 0.5) * Math.abs(velocityX + velocityY) * 0.5;
+    if (timeDiff > 0) {
+      // Calculate pixel velocity
+      const pixelVelocityX = (latest.x - oldest.x) / timeDiff;
+      const pixelVelocityY = (latest.y - oldest.y) / timeDiff;
 
-        throwVelocity = new CANNON.Vec3(velocityX, velocityY, velocityZ);
+      // Convert to world space velocity - scale based on screen size and distance from camera
+      // Apply reduced motion scaling if needed
+      const velocityFactor = 0.02 * this.applyForceMultiplier;
+      const screenSizeFactor = Math.min(this.width, this.height) / 1000;
+
+      // Convert screen velocity to world velocity using the camera's basis vectors
+      const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(this.camera.quaternion);
+      const right = new THREE.Vector3(1, 0, 0).applyQuaternion(this.camera.quaternion);
+      const up = new THREE.Vector3(0, 1, 0).applyQuaternion(this.camera.quaternion);
+
+      // Calculate world velocity
+      velocity.x = (right.x * pixelVelocityX - up.x * pixelVelocityY) * velocityFactor * screenSizeFactor;
+      velocity.y = (right.y * pixelVelocityX - up.y * pixelVelocityY) * velocityFactor * screenSizeFactor;
+      velocity.z = (right.z * pixelVelocityX - up.z * pixelVelocityY) * velocityFactor * screenSizeFactor;
+
+      // Apply velocity limits to prevent extreme throws
+      // Use lower max velocity for reduced motion
+      const maxVelocity = this.prefersReducedMotion ? 5 : 10;
+      const velocityMagnitude = Math.sqrt(
+        velocity.x * velocity.x + velocity.y * velocity.y + velocity.z * velocity.z
+      );
+
+      if (velocityMagnitude > maxVelocity) {
+        const scaleFactor = maxVelocity / velocityMagnitude;
+        velocity.x *= scaleFactor;
+        velocity.y *= scaleFactor;
+        velocity.z *= scaleFactor;
       }
     }
 
-    return throwVelocity;
+    return velocity;
   }
 
-  checkBounds() {
-    const pos = this.polyhedronBody.position;
-    const vel = this.polyhedronBody.velocity;
-
-    // Check for out of bounds or unstable velocity
-    if (Math.abs(pos.x) > 10 ||
-        pos.y > 25 ||
-        pos.y < -8 ||
-        Math.abs(pos.z) > 10 ||
-        Math.abs(vel.x) > 20 ||
-        Math.abs(vel.y) > 20 ||
-        Math.abs(vel.z) > 20) {
-
-      this.resetPolyhedron();
-    }
-  }
-
-  // Reset polyhedron to a safe position
-  resetPolyhedron() {
-    // Reset position to match the initial spawn position
-    this.polyhedronBody.position.set(
-      (Math.random() - 0.5) * 4,
-      15,
-      (Math.random() - 0.5) * 3
-    );
-
-    // Reset velocity to match the initial spawn velocity
-    this.polyhedronBody.velocity.set(
-      (Math.random() - 0.5) * 0.8,
-      -4,
-      (Math.random() - 0.5) * 0.8
-    );
-
-    // Add gentle initial rotation
-    this.polyhedronBody.angularVelocity.set(
-      (Math.random() - 0.5) * 2,
-      (Math.random() - 0.5) * 2,
-      (Math.random() - 0.5) * 2
-    );
-
-    // Wake up the body if it was sleeping
-    this.polyhedronBody.wakeUp();
-
-    debugLog(this, 'Polyhedron reset due to out-of-bounds position or velocity');
-  }
-
-  // Helper method to set up fade-in materials
-  setupFadeInMaterials() {
-    if (this.polyhedron.material) {
-      this.polyhedron.material.transparent = true;
-      this.polyhedron.material.opacity = 0.9;
-      this.polyhedron.material.needsUpdate = true;
-    }
-
-    // Make edges visible too
-    if (this.polyhedron.children.length > 0 && this.polyhedron.children[0].material) {
-      this.polyhedron.children[0].material.transparent = true;
-      this.polyhedron.children[0].material.opacity = 0.9;
-      this.polyhedron.children[0].material.needsUpdate = true;
-    }
-  }
-
-  // Helper method to update color based on color scheme
-  updateColorFromScheme(isDarkMode) {
-    const options = this.colorOptions;
-
-    if (isDarkMode && options.darkModeColors && options.darkModeColors.length > 0) {
-      this.color = options.darkModeColors[options.colorIndex % options.darkModeColors.length];
-      console.log(`Using dark mode color: 0x${this.color.toString(16)}`);
-    } else if (options.colors && options.colors.length > 0) {
-      this.color = options.colors[options.colorIndex % options.colors.length];
-      console.log(`Using light mode color: 0x${this.color.toString(16)}`);
-    } else {
-      this.color = options.defaultColor;
-      console.log(`Using default color: 0x${this.color.toString(16)}`);
-    }
-  }
-
-  // Update the polyhedron color immediately
-  updatePolyhedronColor() {
-    if (!this.polyhedron) {
-      console.warn('Cannot update color: polyhedron not initialized');
-      return;
-    }
-
-    // Update edge color
-    if (this.polyhedron.children.length > 0) {
-      const edgeMaterial = this.polyhedron.children[0].material;
-      if (edgeMaterial) {
-        const oldColor = edgeMaterial.color.getHex();
-        edgeMaterial.color.setHex(this.color);
-        edgeMaterial.needsUpdate = true;
-        console.log(`Updated polyhedron edge color from 0x${oldColor.toString(16)} to 0x${this.color.toString(16)}`);
-      }
-    }
-
-    // Update background color based on color scheme
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const backgroundColor = isDarkMode ? this.colorOptions.darkModeBackground : this.colorOptions.lightModeBackground;
-
-    if (this.polyhedron.material) {
-      this.polyhedron.material.color.setHex(backgroundColor);
-      this.polyhedron.material.needsUpdate = true;
-      console.log(`Updated polyhedron background color to 0x${backgroundColor.toString(16)}`);
-    }
-  }
-
-  // Add a method to update colors based on color scheme
+  /**
+   * Update colors based on color scheme
+   */
   updateColors() {
     const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    console.log('Updating colors, dark mode:', isDarkMode);
+    this.color = isDarkMode ? this.options.darkModeColor : this.options.color;
 
-    // Update the color based on color scheme
-    this.updateColorFromScheme(isDarkMode);
+    // Update background color
+    this.bgColor = this.getComputedBackgroundColor();
 
-    // Update the edge material color
-    this.updatePolyhedronColor();
-  }
-}
+    // Update polyhedron materials
+    if (this.polyhedron) {
+      // Update main mesh color to match background
+      if (this.polyhedron.material) {
+        this.polyhedron.material.color.set(this.bgColor);
 
-// Initialize when script is loaded (for lazy loading)
-console.log('Polyhedron script loaded, looking for grid-canvas container...');
-const container = document.querySelector('#grid-canvas');
-
-if (container) {
-  console.log('Grid canvas container found, dimensions:', container.clientWidth, 'x', container.clientHeight);
-  try {
-    // Clear any existing canvas elements to prevent duplicates
-    while (container.firstChild) {
-      container.removeChild(container.firstChild);
-    }
-    console.log('Container cleared of any existing elements');
-
-    // Define color schemes
-    const lightModeColors = [0x1a73e8, 0x9c27b0, 0x00c971]; // Blue, purple, and green for light mode
-    const darkModeColors = [0x00c971, 0x9c27b0, 0x1a73e8]; // Green, purple, and blue for dark mode
-
-    // Set to true for debugging, false for production
-    const debugMode = false;
-
-    if (debugMode) {
-      console.log('Light mode colors:', lightModeColors.map(c => '0x' + c.toString(16)));
-      console.log('Dark mode colors:', darkModeColors.map(c => '0x' + c.toString(16)));
-    }
-
-    // Create multiple polyhedron instances with shared resources
-    const instances = InteractivePolyhedron.createInstances(container, 1, {
-      debug: debugMode,
-      colors: lightModeColors,
-      darkModeColors: darkModeColors,
-      sizes: [1.0, 1, 1], // Different sizes for visual interest
-      positions: [
-        { x: -2, y: 15, z: -1 },
-        { x: 0.5, y: 18, z: 0 },
-        { x: 2, y: 16, z: 1 }
-      ]
-    });
-
-    // Expose instances to global scope for debugging
-    window.heroPolyhedrons = instances;
-
-    console.log(`${instances.length} polyhedron instances created with shared resources`);
-
-    // Add a click handler to the container to help with mobile devices
-    container.addEventListener('click', () => {
-      // This empty click handler helps ensure touch events work properly on some mobile devices
-    });
-
-    // Force an initial color update to ensure correct colors on load
-    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (debugMode) {
-      console.log('Initial color scheme is:', isDarkMode ? 'dark' : 'light');
-    }
-
-    setTimeout(() => {
-      instances.forEach((instance, index) => {
-        if (debugMode) {
-          console.log(`Forcing color update for instance ${index}`);
+        // Update other material properties if using advanced materials
+        if (this.materialTier === 'high' && this.polyhedron.material.transmission !== undefined) {
+          // High tier material adjustments
+          this.polyhedron.material.clearcoat = 0.5;
+          this.polyhedron.material.transmission = 0.5;
+        } else if (this.materialTier === 'medium' && this.polyhedron.material.envMap) {
+          // Medium tier material adjustments
+          this.polyhedron.material.envMapIntensity = 0.5;
         }
-        instance.updateColors();
-      });
-    }, 500); // Small delay to ensure everything is initialized
+      }
 
-  } catch (error) {
-    console.error('Error initializing polyhedron:', error);
+      // Update edge color
+      if (this.polyhedron.children.length > 0) {
+        const edges = this.polyhedron.children[0];
+        if (edges.material && !this.isHovering) {
+          edges.material.color.set(this.color);
+        }
+      }
+    }
+  }
+
+  /**
+   * Activate the polyhedron animation
+   */
+  activatePolyhedron() {
+    if (this.isActive) return;
+
+    // Make polyhedron visible
+    this.polyhedron.visible = true;
+
+    // Start fade-in animation
+    this.fadeInTime = performance.now();
+
+    // Use shorter duration for reduced motion
+    this.fadeInDuration = this.prefersReducedMotion ? 500 : 1000; // 0.5 or 1 second fade-in
+
+    this.isActive = true;
+  }
+
+  /**
+   * Handle fade-in animation
+   */
+  handleFadeIn() {
+    if (!this.isActive || !this.fadeInTime) return;
+
+    const elapsedTime = performance.now() - this.fadeInTime;
+    let progress = Math.min(elapsedTime / this.fadeInDuration, 1);
+
+    // If reduced motion is preferred, accelerate the fade-in
+    if (this.prefersReducedMotion) {
+      progress = Math.min(progress * 2, 1); // Twice as fast
+    }
+
+    // Update opacity based on progress
+    if (this.polyhedron) {
+      // Update main material
+      if (this.polyhedron.material) {
+        this.polyhedron.material.opacity = progress * 0.2; // Semi-transparent body
+      }
+
+      // Update edges
+      if (this.polyhedron.children.length > 0) {
+        const edges = this.polyhedron.children[0];
+        if (edges.material) {
+          edges.material.opacity = progress;
+        }
+      }
+    }
+
+    // Animation complete
+    if (progress >= 1) {
+      this.fadeInTime = null;
+    }
+  }
+
+  /**
+   * Update polyhedron while being dragged
+   */
+  updateDraggedPolyhedron() {
+    if (!this.isDragging || !this.body || !this.targetPosition) return;
+
+    // Current position
+    const current = this.body.translation();
+    const currentPos = new THREE.Vector3(current.x, current.y, current.z);
+
+    // Calculate smooth movement towards target
+    const smoothFactor = 0.3; // Higher = faster response
+    const newPos = new THREE.Vector3(
+      currentPos.x + (this.targetPosition.x - currentPos.x) * smoothFactor,
+      currentPos.y + (this.targetPosition.y - currentPos.y) * smoothFactor,
+      currentPos.z + (this.targetPosition.z - currentPos.z) * smoothFactor
+    );
+
+    // Update physics body position
+    this.body.setTranslation({
+      x: newPos.x,
+      y: newPos.y,
+      z: newPos.z
+    });
+  }
+
+  /**
+   * Main animation loop
+   */
+  animate() {
+    requestAnimationFrame(this.animate);
+
+    const currentTime = performance.now();
+
+    // Check if we should activate the polyhedron
+    if (!this.isActive && currentTime > this.startTime) {
+      // Only activate if physics is ready or we don't need it yet
+      if (this.physicsReady) {
+        this.activatePolyhedron();
+      } else {
+        // Extend delay if physics isn't ready yet
+        this.startTime = performance.now() + 500;
+      }
+    }
+
+    // Handle fade-in animation
+    this.handleFadeIn();
+
+    // Update physics if ready
+    if (this.physicsReady && this.world && this.body) {
+      // Get delta time from clock
+      const deltaTime = Math.min(this.clock.getDelta(), 0.1); // Cap delta time
+
+      // Update dragged position if being dragged
+      if (this.isDragging) {
+        this.updateDraggedPolyhedron();
+      }
+
+      // Step the physics world
+      this.world.step();
+
+      // Calculate velocity magnitude for material effects
+      if (this.isActive && !this.prefersReducedMotion) {
+        const velocity = this.body.linvel();
+        const speed = Math.sqrt(
+          velocity.x * velocity.x +
+          velocity.y * velocity.y +
+          velocity.z * velocity.z
+        );
+
+        // Update material effects based on speed
+        this.updateMaterialEffects(speed);
+      }
+
+      // Update polyhedron position and rotation from physics
+      const position = this.body.translation();
+      const rotation = this.body.rotation();
+
+      this.polyhedron.position.set(position.x, position.y, position.z);
+      this.polyhedron.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+    }
+
+    // Render the scene
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  /**
+   * Detect device capabilities for material tier selection
+   * @returns {Object} Device capabilities
+   */
+  detectCapabilities() {
+    return {
+      // Check if device is likely high-performance
+      highPerformance: this.isHighPerformanceDevice(),
+      // Check if device supports WebGL2
+      webgl2: !!window.WebGL2RenderingContext &&
+              !!this.renderer.capabilities.isWebGL2,
+      // Check maximum texture size as performance proxy
+      maxTextureSize: this.renderer.capabilities.maxTextureSize,
+      // Mobile detection
+      isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+      // GPU memory limit detection (rough estimate)
+      gpuMemory: this.estimateGPUMemory()
+    };
+  }
+
+  /**
+   * Estimate if device is high performance
+   * @returns {boolean} Whether the device is likely high performance
+   */
+  isHighPerformanceDevice() {
+    // Simple heuristic based on hardware concurrency (CPU cores)
+    const hardwareConcurrency = navigator.hardwareConcurrency || 2;
+    const highPerformanceCPU = hardwareConcurrency >= 4;
+
+    // Check for mobile
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // Check for recent Safari/Chrome/Firefox
+    const isModernBrowser = (
+      (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome') &&
+       parseInt(navigator.userAgent.match(/Version\/(\d+)/)?.[1] || '0', 10) >= 14) ||
+      (navigator.userAgent.includes('Chrome') &&
+       parseInt(navigator.userAgent.match(/Chrome\/(\d+)/)?.[1] || '0', 10) >= 80) ||
+      (navigator.userAgent.includes('Firefox') &&
+       parseInt(navigator.userAgent.match(/Firefox\/(\d+)/)?.[1] || '0', 10) >= 80)
+    );
+
+    // Return high performance if: not mobile AND (good CPU OR modern browser)
+    return !isMobile && (highPerformanceCPU || isModernBrowser);
+  }
+
+  /**
+   * Estimate available GPU memory (very rough approximation)
+   * @returns {string} 'high', 'medium', or 'low'
+   */
+  estimateGPUMemory() {
+    // WebGL context attributes
+    const gl = this.renderer.getContext();
+
+    // Try to get extension information if available
+    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+    if (!debugInfo) return 'medium'; // Default if can't detect
+
+    const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+
+    // Look for indicators of high-end GPUs
+    const isHighEnd = /NVIDIA|AMD|RTX|GTX|Radeon/i.test(renderer);
+    const isLowEnd = /Intel|HD Graphics|Iris|Mobile|Mali|Adreno/i.test(renderer);
+
+    // See if max textures and max texture size indicate capabilities
+    const maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+    const maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+
+    // Combine factors
+    if (isHighEnd || (maxTextureUnits >= 16 && maxTextureSize >= 8192)) {
+      return 'high';
+    } else if (isLowEnd || maxTextureSize <= 4096) {
+      return 'low';
+    } else {
+      return 'medium';
+    }
+  }
+
+  /**
+   * Select appropriate material tier based on capabilities and preferences
+   * @returns {string} 'high', 'medium', or 'low'
+   */
+  selectMaterialTier() {
+    // Always respect reduced motion preference
+    if (this.prefersReducedMotion) {
+      return 'low';
+    }
+
+    // Check if we're on a battery-powered device and if battery is low
+    let isBatteryLow = false;
+    if ('getBattery' in navigator) {
+      try {
+        navigator.getBattery().then(battery => {
+          isBatteryLow = battery.level < 0.2;
+        });
+      } catch (e) {
+        // Ignore errors with battery API
+      }
+    }
+
+    // Low power mode detection (where available)
+    const isLowPowerMode = window.matchMedia &&
+                           window.matchMedia('(prefers-reduced-data: reduce)').matches;
+
+    // If battery is low or in low power mode, drop to low tier
+    if (isBatteryLow || isLowPowerMode) {
+      return 'low';
+    }
+
+    // Select tier based on capabilities
+    if (this.capabilities.highPerformance &&
+        this.capabilities.webgl2 &&
+        this.capabilities.gpuMemory === 'high') {
+      return 'high';
+    } else if (!this.capabilities.isMobile &&
+              this.capabilities.gpuMemory !== 'low') {
+      return 'medium';
+    } else {
+      return 'low';
+    }
+  }
+
+  /**
+   * Update material based on velocity for dynamic effects
+   * @param {number} speed - Current speed of the polyhedron
+   */
+  updateMaterialEffects(speed) {
+    if (!this.polyhedron || !this.polyhedron.material) return;
+
+    switch(this.materialTier) {
+      case 'high':
+        // Update glass material properties based on motion
+        this.polyhedron.material.clearcoat = Math.min(0.5 + (speed * 2), 1.0);
+        this.polyhedron.material.transmission = Math.min(0.5 + speed, 0.9);
+        break;
+
+      case 'medium':
+        // Update environment mapping intensity
+        if (this.polyhedron.material.envMap) {
+          this.polyhedron.material.envMapIntensity = 0.5 + (speed * 5);
+        }
+        break;
+
+      case 'low':
+      default:
+        // Just update edge colors for the basic tier
+        if (this.edges && this.edges.material) {
+          const pulseIntensity = Math.min(0.85 + speed * 5, 1.3);
+          const baseColor = new THREE.Color(this.color);
+          const brightColor = new THREE.Color(this.color).multiplyScalar(1.3);
+          this.edges.material.color.lerpColors(baseColor, brightColor, pulseIntensity);
+        }
+        break;
+    }
   }
 }
+
+// Export for use in main.js
+export default RapierPolyhedron;

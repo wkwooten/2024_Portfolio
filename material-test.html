@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Polyhedron Material Effects Test</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      color: #333;
+      background-color: #f5f5f5;
+    }
+    #container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+    #controls {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+      max-width: 300px;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    .control-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    select, button {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      background-color: white;
+    }
+    button {
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+    button:hover {
+      background-color: #1557b0;
+    }
+    .status {
+      font-size: 14px;
+      color: #666;
+      margin-top: 5px;
+    }
+    .dark-mode {
+      background-color: #222;
+      color: #eee;
+    }
+    .dark-mode #controls {
+      background-color: rgba(50, 50, 50, 0.8);
+      color: #eee;
+    }
+    .dark-mode select, .dark-mode button {
+      background-color: #333;
+      color: #eee;
+      border-color: #555;
+    }
+    .dark-mode button {
+      background-color: #00c971;
+    }
+    .dark-mode button:hover {
+      background-color: #00a55e;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+
+  <div id="controls">
+    <h2>Material Effect Tester</h2>
+
+    <div class="control-group">
+      <label for="material-select">Material Effect:</label>
+      <select id="material-select">
+        <option value="default">Default</option>
+        <option value="glass">Glass/Crystal Effect</option>
+        <option value="edge-highlight">Edge Highlighting</option>
+        <option value="env-map">Environment Mapping</option>
+        <option value="rim-light">Rim Lighting</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label for="color-scheme">Color Scheme:</label>
+      <select id="color-scheme">
+        <option value="light">Light Mode</option>
+        <option value="dark">Dark Mode</option>
+      </select>
+    </div>
+
+    <button id="apply-force">Apply Random Force</button>
+    <div class="status" id="status">Loading physics engine...</div>
+  </div>
+
+  <!-- Import scripts -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+
+    let RAPIER;
+    let physicsReady = false;
+
+    // DOM elements
+    const container = document.getElementById('container');
+    const materialSelect = document.getElementById('material-select');
+    const colorSchemeSelect = document.getElementById('color-scheme');
+    const applyForceButton = document.getElementById('apply-force');
+    const statusElement = document.getElementById('status');
+
+    // Material effect options
+    const EFFECTS = {
+      DEFAULT: 'default',
+      GLASS: 'glass',
+      EDGE_HIGHLIGHT: 'edge-highlight',
+      ENV_MAP: 'env-map',
+      RIM_LIGHT: 'rim-light'
+    };
+
+    // Main class
+    class MaterialTestPolyhedron {
+      constructor(container) {
+        // Store container
+        this.container = container;
+
+        // Configuration
+        this.lightModeColor = 0x1a73e8; // Blue
+        this.darkModeColor = 0x00c971;  // Green
+        this.isDarkMode = false;
+        this.currentEffect = EFFECTS.DEFAULT;
+        this.envMap = null;
+
+        // State
+        this.width = container.clientWidth;
+        this.height = container.clientHeight;
+        this.isActive = false;
+        this.isDragging = false;
+        this.velocity = { x: 0, y: 0, z: 0 };
+        this.lastPosition = new THREE.Vector3();
+
+        // Initialize Three.js
+        this.initThreeJs();
+
+        // Initialize event listeners
+        this.setupEventListeners();
+
+        // Set animation loop
+        this.animate = this.animate.bind(this);
+        requestAnimationFrame(this.animate);
+
+        // Load Rapier physics
+        this.loadRapierAsync();
+      }
+
+      async loadRapierAsync() {
+        try {
+          // Import Rapier.js
+          RAPIER = await import('https://cdn.skypack.dev/@dimforge/rapier3d-compat');
+          await RAPIER.init();
+
+          // Initialize physics
+          this.initPhysics();
+
+          // Update status
+          physicsReady = true;
+          statusElement.textContent = 'Physics engine loaded. Ready for testing!';
+
+          // Make buttons active
+          applyForceButton.disabled = false;
+        } catch (error) {
+          console.error('Failed to load Rapier:', error);
+          statusElement.textContent = 'Error loading physics engine!';
+        }
+      }
+
+      initThreeJs() {
+        // Scene
+        this.scene = new THREE.Scene();
+
+        // Camera
+        this.camera = new THREE.PerspectiveCamera(55, this.width / this.height, 0.1, 1000);
+        this.camera.position.set(0, 0, 5);
+        this.camera.lookAt(0, 0, 0);
+
+        // Renderer
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer.setSize(this.width, this.height);
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.container.appendChild(this.renderer.domElement);
+
+        // Lights
+        this.addLights();
+
+        // Load environment map for reflections
+        this.loadEnvironmentMap();
+
+        // Create visual polyhedron
+        this.createVisualPolyhedron();
+
+        // Setup interaction
+        this.raycaster = new THREE.Raycaster();
+        this.mouse = new THREE.Vector2();
+        this.clock = new THREE.Clock();
+      }
+
+      addLights() {
+        // Ambient light
+        this.ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        this.scene.add(this.ambientLight);
+
+        // Directional light
+        this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        this.directionalLight.position.set(5, 5, 5);
+        this.scene.add(this.directionalLight);
+
+        // Color lights for visual interest
+        this.blueLight = new THREE.PointLight(0x0088ff, 1, 10);
+        this.blueLight.position.set(0, 0, 5);
+        this.scene.add(this.blueLight);
+
+        this.pinkLight = new THREE.PointLight(0xff3366, 0.8, 10);
+        this.pinkLight.position.set(-5, 3, -5);
+        this.scene.add(this.pinkLight);
+      }
+
+      async loadEnvironmentMap() {
+        // Use a simple gradient environment for reflections
+        const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+        pmremGenerator.compileEquirectangularShader();
+
+        try {
+          // Try to load HDR environment
+          const loader = new RGBELoader();
+          const texture = await loader.loadAsync('https://threejs.org/examples/textures/equirectangular/venice_sunset_1k.hdr');
+
+          const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+          this.envMap = envMap;
+          texture.dispose();
+
+          // Update material if using environment mapping
+          if (this.currentEffect === EFFECTS.ENV_MAP && this.polyhedron) {
+            this.polyhedron.material.envMap = this.envMap;
+            this.polyhedron.material.needsUpdate = true;
+          }
+        } catch (error) {
+          console.error('Error loading environment map:', error);
+          // Create a simple environment cube
+          const cubeRenderTarget = pmremGenerator.fromScene(new THREE.Scene());
+          this.envMap = cubeRenderTarget.texture;
+        }
+
+        pmremGenerator.dispose();
+      }
+
+      createVisualPolyhedron() {
+        // Create geometry
+        const radius = 1.2;
+        const geometry = new THREE.IcosahedronGeometry(radius, 0);
+
+        // Set color based on mode
+        this.color = this.isDarkMode ? this.darkModeColor : this.lightModeColor;
+        this.bgColor = this.isDarkMode ? 0x222222 : 0xf5f5f5;
+
+        // Create material based on selected effect
+        let material, edges;
+
+        switch (this.currentEffect) {
+          case EFFECTS.GLASS:
+            material = new THREE.MeshPhysicalMaterial({
+              color: this.bgColor,
+              transparent: true,
+              opacity: 0.7,
+              metalness: 0.1,
+              roughness: 0.2,
+              transmission: 0.5,
+              thickness: .1,
+              clearcoat: 0.5
+            });
+            break;
+
+          case EFFECTS.ENV_MAP:
+            material = new THREE.MeshStandardMaterial({
+              color: this.bgColor,
+              metalness: 0.5,
+              roughness: 0.5,
+              envMap: this.envMap,
+              envMapIntensity: 0.5
+            });
+            break;
+
+          case EFFECTS.RIM_LIGHT:
+            // Create custom shader material for rim lighting
+            material = new THREE.ShaderMaterial({
+              uniforms: {
+                color: { value: new THREE.Color(this.bgColor) },
+                rimColor: { value: new THREE.Color(this.color) },
+                rimPower: { value: 2.0 },
+                rimIntensity: { value: 0.5 }
+              },
+              vertexShader: `
+                varying vec3 vNormal;
+                varying vec3 vViewPosition;
+
+                void main() {
+                  vNormal = normalize(normalMatrix * normal);
+                  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+                  vViewPosition = -mvPosition.xyz;
+                  gl_Position = projectionMatrix * mvPosition;
+                }
+              `,
+              fragmentShader: `
+                uniform vec3 color;
+                uniform vec3 rimColor;
+                uniform float rimPower;
+                uniform float rimIntensity;
+
+                varying vec3 vNormal;
+                varying vec3 vViewPosition;
+
+                void main() {
+                  vec3 normal = normalize(vNormal);
+                  vec3 viewDir = normalize(vViewPosition);
+                  float rim = 1.0 - max(dot(viewDir, normal), 0.0);
+                  rim = pow(rim, rimPower) * rimIntensity;
+
+                  vec3 finalColor = mix(color, rimColor, rim);
+                  gl_FragColor = vec4(finalColor, 1.0);
+                }
+              `
+            });
+            break;
+
+          case EFFECTS.EDGE_HIGHLIGHT:
+          case EFFECTS.DEFAULT:
+          default:
+            // Default material
+            material = new THREE.MeshStandardMaterial({
+              color: this.bgColor,
+              metalness: 0.2,
+              roughness: 0.8
+            });
+            break;
+        }
+
+        // Create edges
+        const edgesGeometry = new THREE.EdgesGeometry(geometry);
+        const edgesMaterial = new THREE.LineBasicMaterial({
+          color: this.color,
+          transparent: this.currentEffect === EFFECTS.EDGE_HIGHLIGHT,
+          opacity: 1
+        });
+
+        edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+
+        // Create main mesh and add edges
+        this.polyhedron = new THREE.Mesh(geometry, material);
+        this.polyhedron.add(edges);
+
+        // Add to scene
+        this.scene.add(this.polyhedron);
+
+        // Store references
+        this.edges = edges;
+        this.originalEdgeColor = this.color;
+      }
+
+      initPhysics() {
+        if (!RAPIER) return;
+
+        // Create world
+        this.world = new RAPIER.World({ x: 0, y: 0, z: 0 });
+
+        // Create boundaries (invisible walls)
+        this.createBoundaries();
+
+        // Create physics body for polyhedron
+        this.createPhysicsBody();
+      }
+
+      createBoundaries() {
+        // Create invisible boundaries for physics
+        const boundarySize = 10;
+        const halfSize = boundarySize / 2;
+
+        // Floor
+        this.createBoundary({ x: 0, y: -halfSize, z: 0 }, { x: halfSize, y: 0.1, z: halfSize });
+
+        // Ceiling
+        this.createBoundary({ x: 0, y: halfSize, z: 0 }, { x: halfSize, y: 0.1, z: halfSize });
+
+        // Left wall
+        this.createBoundary({ x: -halfSize, y: 0, z: 0 }, { x: 0.1, y: halfSize, z: halfSize });
+
+        // Right wall
+        this.createBoundary({ x: halfSize, y: 0, z: 0 }, { x: 0.1, y: halfSize, z: halfSize });
+
+        // Back wall
+        this.createBoundary({ x: 0, y: 0, z: -halfSize }, { x: halfSize, y: halfSize, z: 0.1 });
+
+        // Front wall (invisible, behind camera)
+        this.createBoundary({ x: 0, y: 0, z: halfSize }, { x: halfSize, y: halfSize, z: 0.1 });
+      }
+
+      createBoundary(position, halfExtents) {
+        // Create static rigid body for boundary
+        const bodyDesc = RAPIER.RigidBodyDesc.fixed();
+        bodyDesc.setTranslation(position.x, position.y, position.z);
+        const body = this.world.createRigidBody(bodyDesc);
+
+        // Create collider for boundary
+        const colliderDesc = RAPIER.ColliderDesc.cuboid(
+          halfExtents.x,
+          halfExtents.y,
+          halfExtents.z
+        );
+
+        // Set restitution (bounciness)
+        colliderDesc.setRestitution(0.7);
+
+        // Create collider
+        this.world.createCollider(colliderDesc, body);
+      }
+
+      createPhysicsBody() {
+        // Create rigid body
+        const bodyDesc = RAPIER.RigidBodyDesc.dynamic();
+        bodyDesc.setTranslation(0, 0, 0);
+        this.body = this.world.createRigidBody(bodyDesc);
+
+        // Create collider - approximate with a ball for simplicity
+        const colliderDesc = RAPIER.ColliderDesc.ball(1.2);
+        colliderDesc.setRestitution(0.7); // Bounciness
+        colliderDesc.setFriction(0.2);    // Friction
+
+        // Create collider
+        this.world.createCollider(colliderDesc, this.body);
+
+        // Initialize position for velocity tracking
+        this.lastPosition = new THREE.Vector3(0, 0, 0);
+      }
+
+      setupEventListeners() {
+        // Handle window resize
+        window.addEventListener('resize', this.onResize.bind(this));
+
+        // Mouse events for dragging
+        this.container.addEventListener('mousedown', this.onMouseDown.bind(this));
+        window.addEventListener('mousemove', this.onMouseMove.bind(this));
+        window.addEventListener('mouseup', this.onMouseUp.bind(this));
+
+        // Touch events for mobile
+        this.container.addEventListener('touchstart', this.onTouchStart.bind(this));
+        window.addEventListener('touchmove', this.onTouchMove.bind(this));
+        window.addEventListener('touchend', this.onTouchEnd.bind(this));
+
+        // UI control events
+        materialSelect.addEventListener('change', this.onMaterialChange.bind(this));
+        colorSchemeSelect.addEventListener('change', this.onColorSchemeChange.bind(this));
+        applyForceButton.addEventListener('click', this.applyRandomForce.bind(this));
+      }
+
+      onResize() {
+        // Update sizes
+        this.width = this.container.clientWidth;
+        this.height = this.container.clientHeight;
+
+        // Update camera aspect ratio
+        this.camera.aspect = this.width / this.height;
+        this.camera.updateProjectionMatrix();
+
+        // Update renderer
+        this.renderer.setSize(this.width, this.height);
+      }
+
+      getInputCoordinates(event, isTouch = false) {
+        // Normalize coordinates
+        const rect = this.container.getBoundingClientRect();
+        const clientX = isTouch ? event.touches[0].clientX : event.clientX;
+        const clientY = isTouch ? event.touches[0].clientY : event.clientY;
+
+        const x = ((clientX - rect.left) / this.width) * 2 - 1;
+        const y = -((clientY - rect.top) / this.height) * 2 + 1;
+
+        return { x, y, clientX, clientY };
+      }
+
+      onMouseDown(event) {
+        const coords = this.getInputCoordinates(event);
+        this.startDragging(coords, event.clientX, event.clientY);
+      }
+
+      onMouseMove(event) {
+        const coords = this.getInputCoordinates(event);
+
+        if (this.isDragging) {
+          this.updateDragging(coords, event.clientX, event.clientY);
+        } else {
+          this.updateHoverState(coords);
+        }
+      }
+
+      onMouseUp() {
+        this.endDragging();
+      }
+
+      onTouchStart(event) {
+        if (event.touches.length === 1) {
+          event.preventDefault();
+          const coords = this.getInputCoordinates(event, true);
+          this.startDragging(coords, event.touches[0].clientX, event.touches[0].clientY);
+        }
+      }
+
+      onTouchMove(event) {
+        if (this.isDragging && event.touches.length === 1) {
+          event.preventDefault();
+          const coords = this.getInputCoordinates(event, true);
+          this.updateDragging(coords, event.touches[0].clientX, event.touches[0].clientY);
+        }
+      }
+
+      onTouchEnd() {
+        this.endDragging();
+      }
+
+      updateHoverState(coords) {
+        if (!this.polyhedron) return;
+
+        // Update raycaster
+        this.mouse.x = coords.x;
+        this.mouse.y = coords.y;
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+
+        // Check for intersection
+        const intersects = this.raycaster.intersectObject(this.polyhedron, true);
+        const wasHovering = this.isHovering;
+        this.isHovering = intersects.length > 0;
+
+        // Update cursor
+        if (wasHovering !== this.isHovering) {
+          document.body.style.cursor = this.isHovering ? 'grab' : 'auto';
+        }
+      }
+
+      startDragging(coords, clientX, clientY) {
+        if (!this.polyhedron || !this.body) return;
+
+        // Update mouse position
+        this.mouse.x = coords.x;
+        this.mouse.y = coords.y;
+
+        // Cast ray
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+
+        // Check for intersection
+        const intersects = this.raycaster.intersectObject(this.polyhedron, true);
+
+        if (intersects.length > 0) {
+          this.isDragging = true;
+          this.isHovering = true;
+
+          // Change cursor
+          document.body.style.cursor = 'grabbing';
+
+          // Store intersection point
+          this.interactionPoint = intersects[0].point.clone();
+
+          // Store distance
+          this.dragDistance = this.camera.position.distanceTo(this.interactionPoint);
+
+          // Store physics state
+          this.savedGravity = {
+            x: this.world.gravity.x,
+            y: this.world.gravity.y,
+            z: this.world.gravity.z
+          };
+
+          // Disable gravity while dragging
+          this.world.gravity = { x: 0, y: 0, z: 0 };
+
+          // Switch to kinematic
+          this.body.setBodyType(RAPIER.RigidBodyType.KinematicPositionBased);
+
+          // Stop velocity
+          this.body.setLinvel({ x: 0, y: 0, z: 0 });
+
+          // Calculate target position
+          this.targetPosition = new THREE.Vector3();
+          this.updateDragTarget(coords);
+        }
+      }
+
+      updateDragTarget(coords) {
+        // Calculate target position based on mouse/touch position
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+
+        // Create a ray going into the scene
+        const ray = new THREE.Vector3(this.mouse.x, this.mouse.y, -1).unproject(this.camera);
+        ray.sub(this.camera.position).normalize();
+
+        // Calculate position at dragDistance along ray
+        this.targetPosition.copy(this.camera.position).add(
+          ray.multiplyScalar(this.dragDistance)
+        );
+      }
+
+      updateDragging(coords, clientX, clientY) {
+        if (!this.isDragging || !this.body) return;
+
+        // Update mouse position
+        this.mouse.x = coords.x;
+        this.mouse.y = coords.y;
+
+        // Update target position
+        this.updateDragTarget(coords);
+      }
+
+      endDragging() {
+        if (!this.isDragging || !this.body) return;
+
+        this.isDragging = false;
+
+        // Update cursor
+        document.body.style.cursor = this.isHovering ? 'grab' : 'auto';
+
+        // Switch back to dynamic
+        this.body.setBodyType(RAPIER.RigidBodyType.Dynamic);
+
+        // Calculate velocity based on recent movement
+        const throwVelocity = {
+          x: this.velocity.x * 2,
+          y: this.velocity.y * 2,
+          z: this.velocity.z * 2
+        };
+
+        // Apply velocity
+        this.body.setLinvel(throwVelocity);
+
+        // Restore gravity
+        this.world.gravity = this.savedGravity || { x: 0, y: -0.5, z: 0 };
+
+        // Add rotation
+        const angVel = {
+          x: (Math.random() - 0.5) * 2,
+          y: (Math.random() - 0.5) * 2,
+          z: (Math.random() - 0.5) * 2
+        };
+
+        this.body.setAngvel(angVel);
+      }
+
+      applyRandomForce() {
+        if (!this.body || !physicsReady) return;
+
+        // Apply random impulse
+        const impulse = {
+          x: (Math.random() - 0.5) * 10,
+          y: (Math.random() - 0.5) * 10,
+          z: (Math.random() - 0.5) * 10
+        };
+
+        this.body.applyImpulse(impulse, true);
+
+        // Apply random torque
+        const torque = {
+          x: (Math.random() - 0.5) * 5,
+          y: (Math.random() - 0.5) * 5,
+          z: (Math.random() - 0.5) * 5
+        };
+
+        this.body.applyTorqueImpulse(torque, true);
+      }
+
+      onMaterialChange(event) {
+        this.currentEffect = event.target.value;
+
+        // Clean up old polyhedron
+        if (this.polyhedron) {
+          this.scene.remove(this.polyhedron);
+        }
+
+        // Create new polyhedron with selected material
+        this.createVisualPolyhedron();
+
+        // Reconnect physics if active
+        if (this.body && this.polyhedron) {
+          const position = this.body.translation();
+          const rotation = this.body.rotation();
+
+          this.polyhedron.position.set(position.x, position.y, position.z);
+          this.polyhedron.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+        }
+      }
+
+      onColorSchemeChange(event) {
+        this.isDarkMode = event.target.value === 'dark';
+
+        // Apply dark mode class to body
+        if (this.isDarkMode) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+
+        // Update colors
+        this.color = this.isDarkMode ? this.darkModeColor : this.lightModeColor;
+        this.bgColor = this.isDarkMode ? 0x222222 : 0xf5f5f5;
+
+        // Update material
+        this.onMaterialChange({ target: { value: this.currentEffect } });
+      }
+
+      animate() {
+        requestAnimationFrame(this.animate);
+
+        // Step physics if ready
+        if (physicsReady && this.world && this.body && this.polyhedron) {
+          // Step the world
+          this.world.step();
+
+          // Update position and rotation
+          const position = this.body.translation();
+          const rotation = this.body.rotation();
+
+          this.polyhedron.position.set(position.x, position.y, position.z);
+          this.polyhedron.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+
+          // Calculate velocity - smoothed over multiple frames
+          const currentPos = new THREE.Vector3(position.x, position.y, position.z);
+          const speedFactor = 0.2; // Smoothing factor
+
+          this.velocity.x = (currentPos.x - this.lastPosition.x) * speedFactor + this.velocity.x * (1 - speedFactor);
+          this.velocity.y = (currentPos.y - this.lastPosition.y) * speedFactor + this.velocity.y * (1 - speedFactor);
+          this.velocity.z = (currentPos.z - this.lastPosition.z) * speedFactor + this.velocity.z * (1 - speedFactor);
+
+          this.lastPosition.copy(currentPos);
+
+          // Update material based on velocity
+          const speed = Math.sqrt(
+            this.velocity.x * this.velocity.x +
+            this.velocity.y * this.velocity.y +
+            this.velocity.z * this.velocity.z
+          );
+
+          // Apply dynamic material effects based on velocity
+          switch (this.currentEffect) {
+            case EFFECTS.GLASS:
+              if (this.polyhedron.material) {
+                // Increase clearcoat and transmission with speed
+                this.polyhedron.material.clearcoat = Math.min(0.5 + (speed * 2), 1.0);
+                this.polyhedron.material.transmission = Math.min(0.5 + speed, 0.9);
+              }
+              break;
+
+            case EFFECTS.EDGE_HIGHLIGHT:
+              if (this.edges && this.edges.material) {
+                // Pulse the edge color based on speed
+                const pulseIntensity = Math.min(0.85 + speed * 5, 1.5);
+                const baseColor = new THREE.Color(this.color);
+                const brightColor = new THREE.Color(this.color).multiplyScalar(1.5);
+                this.edges.material.color.lerpColors(baseColor, brightColor, pulseIntensity);
+              }
+              break;
+
+            case EFFECTS.ENV_MAP:
+              if (this.polyhedron.material && this.polyhedron.material.envMap) {
+                // Increase environment map intensity with speed
+                this.polyhedron.material.envMapIntensity = 0.5 + (speed * 5);
+              }
+              break;
+
+            case EFFECTS.RIM_LIGHT:
+              if (this.polyhedron.material && this.polyhedron.material.uniforms) {
+                // Increase rim glow with speed
+                this.polyhedron.material.uniforms.rimIntensity.value = 0.5 + (speed * 3);
+                this.polyhedron.material.uniforms.rimPower.value = 2.0 - (speed * 0.5);
+              }
+              break;
+          }
+
+          // Update dragged position if dragging
+          if (this.isDragging && this.targetPosition) {
+            // Smooth movement towards target
+            const currentPos = new THREE.Vector3(position.x, position.y, position.z);
+            const smoothFactor = 0.3;
+            const newPos = new THREE.Vector3(
+              currentPos.x + (this.targetPosition.x - currentPos.x) * smoothFactor,
+              currentPos.y + (this.targetPosition.y - currentPos.y) * smoothFactor,
+              currentPos.z + (this.targetPosition.z - currentPos.z) * smoothFactor
+            );
+
+            // Update body position
+            this.body.setTranslation({
+              x: newPos.x,
+              y: newPos.y,
+              z: newPos.z
+            });
+          }
+        }
+
+        // Render
+        this.renderer.render(this.scene, this.camera);
+      }
+    }
+
+    // Initialize
+    const app = new MaterialTestPolyhedron(container);
+
+    // Set initial defaults
+    applyForceButton.disabled = true;
+  </script>
+</body>
+</html>
