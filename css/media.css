@@ -285,6 +285,10 @@
 @media screen and (max-width: 900px) {
 
 	/* Table Styles */
+	.navbar {
+		margin-top: var(--space-m);
+	}
+
 	.subsection_body table {
 		display: block;
 		width: 100%;

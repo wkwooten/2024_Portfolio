@@ -31,7 +31,7 @@
 	flex-direction: row;
 	justify-items: center;
 	justify-content: space-between;
-	margin-top: var(--space-l);
+	/* margin-top: var(--space-l); */
 	margin-inline: var(--space-s);
 	/* max-width: 1200px; */
 	align-items: end;
@@ -236,7 +236,7 @@
 /* Hero Components */
 .hero_full {
 	display: flex;
-	min-height: 100vh;
+	min-height: var(--adjusted-viewport-height, 100vh);
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
@@ -367,9 +367,12 @@
 	pointer-events: auto;
 	background: linear-gradient(to bottom,
 			rgba(26, 115, 232, 0.08) 0%,
-			rgba(31, 191, 84, 0.05) 50%,
+			rgba(26, 115, 232, 0.06) 20%,
+			rgba(31, 191, 84, 0.05) 40%,
+			rgba(31, 191, 84, 0.03) 60%,
+			rgba(31, 191, 84, 0.01) 80%,
 			rgba(255, 255, 255, 0) 100%);
-	/* Smoother light mode gradient */
+	/* Smoother light mode gradient with more steps */
 }
 
 /* Dark mode gradient for the canvas */
@@ -377,9 +380,12 @@
 	#grid-canvas {
 		background: linear-gradient(-180deg,
 				rgba(0, 201, 113, 0.15) 0%,
-				rgba(160, 44, 255, 0.18) 60%,
+				rgba(0, 201, 113, 0.12) 20%,
+				rgba(80, 122, 184, 0.09) 40%,
+				rgba(160, 44, 255, 0.06) 60%,
+				rgba(160, 44, 255, 0.03) 80%,
 				rgba(0, 0, 0, 0) 100%);
-		/* Smoother dark mode gradient */
+		/* Smoother dark mode gradient with more steps */
 	}
 }
 

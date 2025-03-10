@@ -25,6 +25,12 @@ class RapierPolyhedron {
       debug: false                // Debug mode flag
     }, options);
 
+    // Add debug indicator in top-left corner if requested through URL
+    this.debugMode = window.location.search.includes('debug=true') || this.options.debug;
+    if (this.debugMode) {
+      this.setupDebugDisplay();
+    }
+
     // Check for reduced motion preference
     this.prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -123,15 +129,18 @@ class RapierPolyhedron {
     // Scene setup
     this.scene = new THREE.Scene();
 
+    // Initialize camera target
+    this.cameraTarget = new THREE.Vector3(-0.30, 1.60, 0);
+
     // Camera setup
     this.camera = new THREE.PerspectiveCamera(
-      55, // FOV
+      44, // FOV
       this.width / this.height,
       0.1,
       1000
     );
-    this.camera.position.set(0, 3.9, 7.5);
-    this.camera.lookAt(0, 0, 0);
+    this.camera.position.set(0.60, -0.30, 13.70);
+    this.camera.lookAt(this.cameraTarget);
 
     // Renderer setup with transparency
     this.renderer = new THREE.WebGLRenderer({
@@ -148,12 +157,263 @@ class RapierPolyhedron {
     // Create visual polyhedron (physics will be added later)
     this.createVisualPolyhedron();
 
+    // Add the subtle gradient floor
+    this.createGradientFloor();
+
     // Setup raycaster for interaction
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
 
     // Setup clock for animation timing
     this.clock = new THREE.Clock();
+
+    // Set up camera controls for dev purposes
+    this.setupCameraControls();
+  }
+
+  /**
+   * Set up camera controls panel for development
+   */
+  setupCameraControls() {
+    // Create controls panel - hidden by default
+    this.cameraControlsActive = false;
+
+    const controlsPanel = document.createElement('div');
+    controlsPanel.style.cssText = `
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      z-index: 1000;
+      display: none;
+      width: 200px;
+    `;
+    this.container.appendChild(controlsPanel);
+
+    // Create panel title
+    const title = document.createElement('div');
+    title.textContent = 'Camera Controls';
+    title.style.fontWeight = 'bold';
+    title.style.marginBottom = '10px';
+    title.style.borderBottom = '1px solid rgba(255, 255, 255, 0.3)';
+    title.style.paddingBottom = '5px';
+    controlsPanel.appendChild(title);
+
+    // Helper to create control groups
+    const createControlGroup = (label, initialValue, min, max, step, onChange) => {
+      const group = document.createElement('div');
+      group.style.marginBottom = '8px';
+
+      const labelEl = document.createElement('div');
+      labelEl.textContent = label;
+      labelEl.style.marginBottom = '3px';
+
+      const controlContainer = document.createElement('div');
+      controlContainer.style.display = 'flex';
+
+      const input = document.createElement('input');
+      input.type = 'range';
+      input.min = min;
+      input.max = max;
+      input.step = step;
+      input.value = initialValue;
+      input.style.flex = '1';
+      input.style.marginRight = '5px';
+
+      const valueDisplay = document.createElement('div');
+      valueDisplay.textContent = initialValue;
+      valueDisplay.style.width = '40px';
+      valueDisplay.style.textAlign = 'right';
+
+      input.addEventListener('input', () => {
+        valueDisplay.textContent = parseFloat(input.value).toFixed(2);
+        onChange(parseFloat(input.value));
+      });
+
+      controlContainer.appendChild(input);
+      controlContainer.appendChild(valueDisplay);
+
+      group.appendChild(labelEl);
+      group.appendChild(controlContainer);
+
+      return {
+        group,
+        input,
+        valueDisplay,
+        setValue: (val) => {
+          input.value = val;
+          valueDisplay.textContent = parseFloat(val).toFixed(2);
+        }
+      };
+    };
+
+    // Camera position controls
+    const posXControl = createControlGroup('Position X', this.camera.position.x, -20, 20, 0.1,
+      (value) => {
+        this.camera.position.x = value;
+        this.updateCameraTarget();
+      }
+    );
+    controlsPanel.appendChild(posXControl.group);
+
+    const posYControl = createControlGroup('Position Y', this.camera.position.y, -20, 20, 0.1,
+      (value) => {
+        this.camera.position.y = value;
+        this.updateCameraTarget();
+      }
+    );
+    controlsPanel.appendChild(posYControl.group);
+
+    const posZControl = createControlGroup('Position Z', this.camera.position.z, -20, 20, 0.1,
+      (value) => {
+        this.camera.position.z = value;
+        this.updateCameraTarget();
+      }
+    );
+    controlsPanel.appendChild(posZControl.group);
+
+    // Target position controls
+    const targetXControl = createControlGroup('Target X', this.cameraTarget.x, -10, 10, 0.1,
+      (value) => {
+        this.cameraTarget.x = value;
+        this.updateCameraTarget();
+      }
+    );
+    controlsPanel.appendChild(targetXControl.group);
+
+    const targetYControl = createControlGroup('Target Y', this.cameraTarget.y, -10, 10, 0.1,
+      (value) => {
+        this.cameraTarget.y = value;
+        this.updateCameraTarget();
+      }
+    );
+    controlsPanel.appendChild(targetYControl.group);
+
+    const targetZControl = createControlGroup('Target Z', this.cameraTarget.z, -10, 10, 0.1,
+      (value) => {
+        this.cameraTarget.z = value;
+        this.updateCameraTarget();
+      }
+    );
+    controlsPanel.appendChild(targetZControl.group);
+
+    // FOV control
+    const fovControl = createControlGroup('FOV', this.camera.fov, 20, 100, 1,
+      (value) => {
+        this.camera.fov = value;
+        this.camera.updateProjectionMatrix();
+      }
+    );
+    controlsPanel.appendChild(fovControl.group);
+
+    // Button to copy camera settings
+    const copyButton = document.createElement('button');
+    copyButton.textContent = 'Copy Settings';
+    copyButton.style.width = '100%';
+    copyButton.style.padding = '5px';
+    copyButton.style.marginTop = '10px';
+    copyButton.style.backgroundColor = '#2a2a2a';
+    copyButton.style.color = 'white';
+    copyButton.style.border = '1px solid #444';
+    copyButton.style.borderRadius = '3px';
+    copyButton.style.cursor = 'pointer';
+
+    copyButton.addEventListener('click', () => {
+      const settings = {
+        camera: {
+          position: {
+            x: this.camera.position.x,
+            y: this.camera.position.y,
+            z: this.camera.position.z
+          },
+          target: {
+            x: this.cameraTarget.x,
+            y: this.cameraTarget.y,
+            z: this.cameraTarget.z
+          },
+          fov: this.camera.fov
+        }
+      };
+
+      // Format as JavaScript code
+      const codeString = `// Camera settings for simplihedron
+this.camera = new THREE.PerspectiveCamera(
+  ${settings.camera.fov}, // FOV
+  this.width / this.height,
+  0.1,
+  1000
+);
+this.camera.position.set(${settings.camera.position.x.toFixed(2)}, ${settings.camera.position.y.toFixed(2)}, ${settings.camera.position.z.toFixed(2)});
+this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.target.y.toFixed(2)}, ${settings.camera.target.z.toFixed(2)});`;
+
+      // Copy to clipboard
+      navigator.clipboard.writeText(codeString)
+        .then(() => {
+          copyButton.textContent = 'Copied!';
+          setTimeout(() => {
+            copyButton.textContent = 'Copy Settings';
+          }, 2000);
+        })
+        .catch(err => {
+          console.error('Failed to copy settings:', err);
+          copyButton.textContent = 'Copy Failed';
+          setTimeout(() => {
+            copyButton.textContent = 'Copy Settings';
+          }, 2000);
+        });
+    });
+
+    controlsPanel.appendChild(copyButton);
+
+    // Store references
+    this.cameraControlsPanel = controlsPanel;
+    this.cameraControls = {
+      posX: posXControl,
+      posY: posYControl,
+      posZ: posZControl,
+      targetX: targetXControl,
+      targetY: targetYControl,
+      targetZ: targetZControl,
+      fov: fovControl
+    };
+
+    // Add keyboard listener to toggle panel (Ctrl+Shift+C)
+    window.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.code === 'KeyC') {
+        this.toggleCameraControls();
+      }
+    });
+  }
+
+  /**
+   * Toggle camera controls panel visibility
+   */
+  toggleCameraControls() {
+    this.cameraControlsActive = !this.cameraControlsActive;
+    this.cameraControlsPanel.style.display = this.cameraControlsActive ? 'block' : 'none';
+
+    // Update sliders to match current camera state
+    if (this.cameraControlsActive) {
+      this.cameraControls.posX.setValue(this.camera.position.x);
+      this.cameraControls.posY.setValue(this.camera.position.y);
+      this.cameraControls.posZ.setValue(this.camera.position.z);
+      this.cameraControls.targetX.setValue(this.cameraTarget.x);
+      this.cameraControls.targetY.setValue(this.cameraTarget.y);
+      this.cameraControls.targetZ.setValue(this.cameraTarget.z);
+      this.cameraControls.fov.setValue(this.camera.fov);
+    }
+  }
+
+  /**
+   * Update camera to look at the target
+   */
+  updateCameraTarget() {
+    this.camera.lookAt(this.cameraTarget);
   }
 
   /**
@@ -289,6 +549,23 @@ class RapierPolyhedron {
     // If the container has a transparent background, try the document body
     if (bgColorStr === 'rgba(0, 0, 0, 0)' || bgColorStr === 'transparent') {
       bgColorStr = getComputedStyle(document.body).backgroundColor;
+
+      // If body is also transparent, try to get the CSS variable
+      if (bgColorStr === 'rgba(0, 0, 0, 0)' || bgColorStr === 'transparent') {
+        const bgColorVar = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim();
+        if (bgColorVar) {
+          // If it's a hex color
+          if (bgColorVar.startsWith('#')) {
+            if (this.debugMode) console.log('Using CSS variable for bg color:', bgColorVar);
+            return parseInt(bgColorVar.substring(1), 16);
+          }
+          // If it's an rgb color string
+          else if (bgColorVar.startsWith('rgb')) {
+            bgColorStr = bgColorVar;
+            if (this.debugMode) console.log('Using CSS rgb variable for bg color:', bgColorStr);
+          }
+        }
+      }
     }
 
     // Convert the CSS color format to hex
@@ -301,6 +578,7 @@ class RapierPolyhedron {
         const g = parseInt(rgbValues[1]);
         const b = parseInt(rgbValues[2]);
         bgColor = (r << 16) | (g << 8) | b;
+        if (this.debugMode) console.log('Parsed RGB color:', bgColorStr, 'to hex:', '#' + bgColor.toString(16).padStart(6, '0'));
       }
     }
 
@@ -333,6 +611,9 @@ class RapierPolyhedron {
 
     // Floor - slightly below the visible area
     this.createBoundary({ x: 0, y: -2, z: 0 }, { x: 10, y: 0.5, z: 10 });
+
+    // Remove reference to visible floor
+    // this.addVisibleFloor();
 
     // Ceiling - to prevent flying too high
     this.createBoundary({ x: 0, y: 10, z: 0 }, { x: 10, y: 0.5, z: 10 });
@@ -960,6 +1241,11 @@ class RapierPolyhedron {
 
     // Render the scene
     this.renderer.render(this.scene, this.camera);
+
+    // Update debug display if active
+    if (this.debugMode) {
+      this.updateDebugDisplay();
+    }
   }
 
   /**
@@ -1117,6 +1403,227 @@ class RapierPolyhedron {
         }
         break;
     }
+  }
+
+  /**
+   * Creates a subtle circular gradient floor that blends with the background
+   * This provides spatial reference without breaking the visual flow
+   */
+  createGradientFloor() {
+    // Create a circular plane for the floor - deliberately smaller than boundaries
+    // for a contained, intentional look
+    const floorRadius = 5; // Smaller radius for contained effect
+    const floorGeometry = new THREE.CircleGeometry(floorRadius, 64);
+
+    // Get the current background color
+    const bgColor = this.getComputedBackgroundColor();
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (this.debugMode) {
+      console.log('Creating gradient floor:');
+      console.log('Background color:', '#' + new THREE.Color(bgColor).getHexString());
+      console.log('Dark mode:', isDarkMode);
+    }
+
+    // Create a simpler implementation without shaders to avoid WebGL warnings
+    // Use a radial texture instead of shader code
+    const canvas = document.createElement('canvas');
+    const size = 256;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // Create a radial gradient
+    const gradient = ctx.createRadialGradient(
+      size/2, size/2, 0,            // Inner circle (center point, 0 radius)
+      size/2, size/2, size/2 * 0.9  // Outer circle (90% of radius)
+    );
+
+    // Get base color as hex
+    const baseColor = '#' + new THREE.Color(bgColor).getHexString();
+
+    // Create gradient colors based on theme
+    let centerColor;
+    if (isDarkMode) {
+      // For dark mode, slightly lighter center
+      centerColor = new THREE.Color(bgColor).multiplyScalar(1.2);
+    } else {
+      // For light mode, make center much darker for better visibility
+      centerColor = new THREE.Color(bgColor).multiplyScalar(0.65);
+    }
+    const centerColorHex = '#' + centerColor.getHexString();
+
+    // Set gradient stops
+    gradient.addColorStop(0, centerColorHex);
+    gradient.addColorStop(0.7, baseColor);
+    gradient.addColorStop(1, baseColor);
+
+    // Fill the canvas
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+
+    // Create texture from canvas
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    // Create material with the gradient texture
+    const floorMaterial = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      opacity: isDarkMode ? 0.12 : 0.25, // Significantly higher opacity for light mode
+      depthWrite: false,
+      side: THREE.DoubleSide
+    });
+
+    // Create and position the floor mesh
+    const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.rotation.x = -Math.PI / 2; // Lay flat
+    floor.position.y = -1.9; // Position below the physics floor (-2.0) but slightly above
+    floor.renderOrder = -1; // Render before other objects
+
+    // Add to scene
+    this.scene.add(floor);
+    this.gradientFloor = floor;
+
+    // Update floor when color scheme changes
+    this.setupFloorThemeUpdates();
+
+    // Update debug display if active
+    if (this.debugMode) {
+      this.updateDebugDisplay();
+    }
+  }
+
+  /**
+   * Sets up listeners to update the floor when theme changes
+   */
+  setupFloorThemeUpdates() {
+    if (!this.gradientFloor) return;
+
+    // Listen for color scheme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      this.updateFloorColors();
+    });
+  }
+
+  /**
+   * Updates floor colors when theme changes
+   */
+  updateFloorColors() {
+    if (!this.gradientFloor) return;
+
+    const bgColor = this.getComputedBackgroundColor();
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    // Update canvas texture
+    const material = this.gradientFloor.material;
+
+    // Create a new canvas
+    const canvas = document.createElement('canvas');
+    const size = 256;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+
+    // Create a radial gradient
+    const gradient = ctx.createRadialGradient(
+      size/2, size/2, 0,            // Inner circle
+      size/2, size/2, size/2 * 0.9  // Outer circle
+    );
+
+    // Get base color as hex
+    const baseColor = '#' + new THREE.Color(bgColor).getHexString();
+
+    // Create gradient colors based on theme
+    let centerColor;
+    if (isDarkMode) {
+      // For dark mode, slightly lighter center
+      centerColor = new THREE.Color(bgColor).multiplyScalar(1.2);
+    } else {
+      // For light mode, make center much darker for better visibility
+      centerColor = new THREE.Color(bgColor).multiplyScalar(0.65);
+    }
+    const centerColorHex = '#' + centerColor.getHexString();
+
+    // Set gradient stops
+    gradient.addColorStop(0, centerColorHex);
+    gradient.addColorStop(0.7, baseColor);
+    gradient.addColorStop(1, baseColor);
+
+    // Fill the canvas
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+
+    // Update the texture
+    if (material.map) {
+      material.map.dispose();
+    }
+    material.map = new THREE.CanvasTexture(canvas);
+    material.map.needsUpdate = true;
+    material.opacity = isDarkMode ? 0.12 : 0.25;
+    material.needsUpdate = true;
+  }
+
+  /**
+   * Creates a debug display in the top-left corner
+   */
+  setupDebugDisplay() {
+    // Create container for debug info
+    this.debugDisplay = document.createElement('div');
+    this.debugDisplay.style.cssText = `
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 12px;
+      z-index: 1000;
+      max-width: 250px;
+      pointer-events: none;
+    `;
+    this.container.appendChild(this.debugDisplay);
+  }
+
+  /**
+   * Updates the debug display with current values
+   */
+  updateDebugDisplay() {
+    if (!this.debugDisplay) return;
+
+    const bgColor = this.getComputedBackgroundColor();
+    const bgColorHex = '#' + new THREE.Color(bgColor).getHexString();
+
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    // Calculate center color based on current logic
+    let centerColor;
+    if (isDarkMode) {
+      centerColor = new THREE.Color(bgColor).multiplyScalar(1.2);
+    } else {
+      centerColor = new THREE.Color(bgColor).multiplyScalar(0.65);
+    }
+    const centerColorHex = '#' + centerColor.getHexString();
+
+    // Floor opacity
+    const floorOpacity = isDarkMode ? 0.12 : 0.25;
+
+    // Build debug info HTML
+    this.debugDisplay.innerHTML = `
+      <div style="margin-bottom:5px;font-weight:bold;">Floor Debug</div>
+      <div>Theme: ${isDarkMode ? 'Dark Mode' : 'Light Mode'}</div>
+      <div style="display:flex;align-items:center;margin:5px 0;">
+        Detected BG: <span style="display:inline-block;width:12px;height:12px;background:${bgColorHex};margin:0 5px;border:1px solid white;"></span>${bgColorHex}
+      </div>
+      <div style="display:flex;align-items:center;margin:5px 0;">
+        Center Color: <span style="display:inline-block;width:12px;height:12px;background:${centerColorHex};margin:0 5px;border:1px solid white;"></span>${centerColorHex}
+      </div>
+      <div>Opacity: ${floorOpacity.toFixed(2)}</div>
+      <div>Floor Radius: 5.0</div>
+      <div>Floor Height: -1.9</div>
+    `;
   }
 }
 
