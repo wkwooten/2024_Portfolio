@@ -500,7 +500,7 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
       case 'low':
       default:
         // Low-tier: Simple material that ignores lighting
-        material = new THREE.MeshToonMaterial({
+        material = new THREE.MeshBasicMaterial({
           color: this.bgColor,
           transparent: false,
           opacity: 0.9
