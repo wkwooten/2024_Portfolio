@@ -470,7 +470,7 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
         material = new THREE.MeshPhysicalMaterial({
           color: this.bgColor,
           transparent: true,
-          opacity: 0.7,
+          opacity: 0.9,
           metalness: 0.1,
           roughness: 0.2,
           transmission: 0.5,
@@ -499,11 +499,11 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
 
       case 'low':
       default:
-        // Low-tier: Simple material
-        material = new THREE.MeshStandardMaterial({
+        // Low-tier: Simple material that ignores lighting
+        material = new THREE.MeshToonMaterial({
           color: this.bgColor,
-          metalness: 0.2,
-          roughness: 0.8
+          transparent: false,
+          opacity: 0.9
         });
         break;
     }

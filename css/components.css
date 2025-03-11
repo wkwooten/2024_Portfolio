@@ -251,11 +251,11 @@
 	flex-direction: column;
 	align-items: center;
 	padding-block: var(--space-m);
-	color: white;
+	color: var(--primary);
 }
 
 .modal_contact h1 {
-	color: white;
+	color: var(--primary);
 }
 
 /* Hero Components */
