@@ -267,7 +267,6 @@
 	justify-content: center;
 	gap: var(--space-m);
 	width: 100vw;
-	margin-bottom: var(--space-xl);
 	z-index: 1;
 	position: relative;
 	overflow: hidden;
@@ -753,10 +752,10 @@ footer {
 	display: flex;
 	padding: 3.125rem var(--section-spacing);
 	flex-flow: row wrap;
-	align-items: center;
+	align-items: start;
 	justify-content: center;
 	column-gap: var(--space-2xl);
-	text-align: center;
+	/* text-align: center; */
 	border-top: var(--thicc-line-weight) solid var(--primary);
 	background: var(--BG);
 }
@@ -796,9 +795,15 @@ footer svg:active {
 
 .sign {
 	display: flex;
+	flex-direction: column;
+	align-items: end;
+	gap: var(--space-3xs);
 	font-weight: 300;
-	align-items: center;
 	padding: var(--space-s);
+}
+
+.sign p {
+	margin: 0;
 }
 
 .Socials {
@@ -815,6 +820,25 @@ footer svg:active {
 	animation: normal;
 	transform: scale(1.3);
 	-webkit-animation: normal;
+}
+
+.license-notice {
+	font-size: 0.75em;
+	opacity: 0.7;
+	font-weight: 300;
+	letter-spacing: 0.02em;
+}
+
+.license-link {
+	text-decoration: none;
+	transition: opacity 0.2s ease;
+	color: inherit;
+	border-bottom: 1px solid transparent;
+}
+
+.license-link:hover {
+	opacity: 1;
+	border-bottom: 1px solid currentColor;
 }
 
 /* ==========================================================================
@@ -1012,6 +1036,7 @@ footer svg:active {
 	position: relative;
 	z-index: var(--z-index-content);
 	margin-top: var(--navbar-height, 60px);
+	gap: var(--space-l);
 }
 
 /* Update hero section to maintain the same stacking context */

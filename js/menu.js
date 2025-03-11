@@ -23,10 +23,10 @@ document.addEventListener('DOMContentLoaded', function() {
       document.documentElement.style.setProperty('--navbar-height', navHeight + 'px');
 
       // Update main content margin to match navbar height
-      const mainContent = document.getElementById('main-content');
-      if (mainContent) {
-        mainContent.style.marginTop = `${navHeight}px`;
-      }
+      // const mainContent = document.getElementById('main-content');
+      // if (mainContent) {
+      //   mainContent.style.marginTop = `${navHeight}px`;
+      // }
 
       // Directly position the menu below the navbar
       if (modal) {

@@ -84,7 +84,12 @@ document.addEventListener('DOMContentLoaded', function() {
       if (elasticDistance >= THRESHOLD) {
         // Navigate to target page
         const targetUrl = button.getAttribute('href');
-        window.location.href = targetUrl;
+        if (targetUrl) {
+          // Add a small delay to allow the elastic animation to be visible
+          setTimeout(() => {
+            window.location.href = targetUrl;
+          }, 100);
+        }
       } else {
         // Animate back to original position with elastic bounce
         button.classList.remove('dragging');

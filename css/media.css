@@ -358,6 +358,10 @@
 		padding: var(--space-s);
 	}
 
+	.sign {
+		align-items: center;
+	}
+
 	figcaption {
 		font-size: var(--fs-0);
 	}
