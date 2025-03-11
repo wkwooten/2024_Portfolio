@@ -20,6 +20,8 @@ class RapierPolyhedron {
     // Default options merged with provided options
     this.options = Object.assign({
       startDelay: 2500,           // Delay before animation starts (ms)
+      smoothIntro: false,         // Flag for enabling smooth intro animation
+      introFadeDuration: 1500,    // Duration of fade-in animation in ms
       color: 0x1a73e8,            // Default color (blue)
       darkModeColor: 0x00c971,    // Dark mode color (green)
       debug: false                // Debug mode flag
@@ -720,15 +722,20 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
   }
 
   /**
-   * Get standardized input coordinates from mouse or touch event
+   * Get input coordinates from mouse or touch event
    * @param {Event} event - Mouse or touch event
-   * @param {boolean} isTouch - Whether this is a touch event
-   * @returns {Object} Normalized coordinates and client position
+   * @param {boolean} isTouch - Whether the event is a touch event
+   * @returns {Object} Normalized coordinates and raw client coordinates
    */
   getInputCoordinates(event, isTouch = false) {
     const rect = this.renderer.domElement.getBoundingClientRect();
 
-    if (isTouch && event.touches.length > 0) {
+    if (isTouch) {
+      // Touch event handling
+      if (!event.touches || event.touches.length === 0) {
+        return { x: 0, y: 0, clientX: 0, clientY: 0 };
+      }
+
       return {
         x: ((event.touches[0].clientX - rect.left) / rect.width) * 2 - 1,
         y: -((event.touches[0].clientY - rect.top) / rect.height) * 2 + 1,
@@ -1115,8 +1122,30 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     // Start fade-in animation
     this.fadeInTime = performance.now();
 
-    // Use shorter duration for reduced motion
-    this.fadeInDuration = this.prefersReducedMotion ? 500 : 1000; // 0.5 or 1 second fade-in
+    // Set fade duration based on animation preferences
+    this.fadeInDuration = this.options.smoothIntro ?
+      this.options.introFadeDuration : // Use longer fade for smooth intro
+      (this.prefersReducedMotion ? 500 : 1000); // Original duration logic
+
+    // If smooth intro is enabled, start with fully transparent polyhedron and floor
+    if (this.options.smoothIntro) {
+      // Set polyhedron and edges to fully transparent
+      if (this.polyhedron.material) {
+        this.polyhedron.material.opacity = 0;
+      }
+
+      if (this.polyhedron.children.length > 0) {
+        const edges = this.polyhedron.children[0];
+        if (edges.material) {
+          edges.material.opacity = 0;
+        }
+      }
+
+      // Start with slightly reduced scale for a "grow" effect
+      this.polyhedron.scale.set(0.95, 0.95, 0.95);
+
+      // Note: Floor opacity is now handled in createGradientFloor and handleFadeIn
+    }
 
     this.isActive = true;
   }
@@ -1149,6 +1178,24 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
           edges.material.opacity = progress;
         }
       }
+
+      // If using smooth intro, also scale up slightly from initial 0.95 to 1.0
+      if (this.options.smoothIntro) {
+        const scaleProgress = 0.95 + (0.05 * progress);
+        this.polyhedron.scale.set(scaleProgress, scaleProgress, scaleProgress);
+      }
+    }
+
+    // Animate the floor as well if it exists and we're using smooth intro
+    if (this.options.smoothIntro && this.gradientFloor && this.gradientFloor.material) {
+      // Use the stored target opacity or fall back to calculated value
+      const targetOpacity = this.targetFloorOpacity ||
+                         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 0.15 : 0.35);
+
+      // Delay the floor slightly so it fades in after the polyhedron starts appearing
+      // This creates a more natural progression from nothing to full scene
+      const floorProgress = Math.max(0, progress - 0.2) * 1.25; // Delay by 20%, then accelerate slightly
+      this.gradientFloor.material.opacity = Math.min(1, floorProgress) * targetOpacity;
     }
 
     // Animation complete
@@ -1410,9 +1457,8 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
    * This provides spatial reference without breaking the visual flow
    */
   createGradientFloor() {
-    // Create a circular plane for the floor - deliberately smaller than boundaries
-    // for a contained, intentional look
-    const floorRadius = 5; // Smaller radius for contained effect
+    // Create a circular plane for the floor - sized to match the physics boundary
+    const floorRadius = 5; // Match the physics boundary width (10 units across)
     const floorGeometry = new THREE.CircleGeometry(floorRadius, 64);
 
     // Get the current background color
@@ -1445,11 +1491,11 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     // Create gradient colors based on theme
     let centerColor;
     if (isDarkMode) {
-      // For dark mode, slightly lighter center
-      centerColor = new THREE.Color(bgColor).multiplyScalar(1.2);
+      // For dark mode, significantly higher contrast center
+      centerColor = new THREE.Color(bgColor).multiplyScalar(1.8);
     } else {
-      // For light mode, make center much darker for better visibility
-      centerColor = new THREE.Color(bgColor).multiplyScalar(0.65);
+      // For light mode, make center MUCH darker for better visibility
+      centerColor = new THREE.Color(bgColor).multiplyScalar(0.4);
     }
     const centerColorHex = '#' + centerColor.getHexString();
 
@@ -1466,11 +1512,18 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
 
+    // Set initial opacity based on theme and animation settings
+    // Store the target opacity so we can animate to it
+    this.targetFloorOpacity = isDarkMode ? 0.15 : 0.35; // Increased opacity for better visibility
+
+    // Initial opacity is 0 if using smooth intro, otherwise target opacity
+    const initialOpacity = this.options.smoothIntro ? 0 : this.targetFloorOpacity;
+
     // Create material with the gradient texture
     const floorMaterial = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
-      opacity: isDarkMode ? 0.12 : 0.25, // Significantly higher opacity for light mode
+      opacity: initialOpacity,
       depthWrite: false,
       side: THREE.DoubleSide
     });
@@ -1478,7 +1531,7 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     // Create and position the floor mesh
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2; // Lay flat
-    floor.position.y = -1.9; // Position below the physics floor (-2.0) but slightly above
+    floor.position.y = -1.5; // Adjusted to match where the polyhedron actually rests
     floor.renderOrder = -1; // Render before other objects
 
     // Add to scene
@@ -1515,10 +1568,7 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     const bgColor = this.getComputedBackgroundColor();
     const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-    // Update canvas texture
-    const material = this.gradientFloor.material;
-
-    // Create a new canvas
+    // Create canvas for texture
     const canvas = document.createElement('canvas');
     const size = 256;
     canvas.width = size;
@@ -1527,25 +1577,25 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
 
     // Create a radial gradient
     const gradient = ctx.createRadialGradient(
-      size/2, size/2, 0,            // Inner circle
+      size/2, size/2, 0,            // Inner circle (center)
       size/2, size/2, size/2 * 0.9  // Outer circle
     );
 
     // Get base color as hex
     const baseColor = '#' + new THREE.Color(bgColor).getHexString();
 
-    // Create gradient colors based on theme
+    // Create gradient colors with higher contrast for better visibility
     let centerColor;
     if (isDarkMode) {
-      // For dark mode, slightly lighter center
-      centerColor = new THREE.Color(bgColor).multiplyScalar(1.2);
+      // For dark mode, much brighter center
+      centerColor = new THREE.Color(bgColor).multiplyScalar(1.8);
     } else {
-      // For light mode, make center much darker for better visibility
-      centerColor = new THREE.Color(bgColor).multiplyScalar(0.65);
+      // For light mode, much darker center
+      centerColor = new THREE.Color(bgColor).multiplyScalar(0.4);
     }
     const centerColorHex = '#' + centerColor.getHexString();
 
-    // Set gradient stops
+    // Update gradient stops
     gradient.addColorStop(0, centerColorHex);
     gradient.addColorStop(0.7, baseColor);
     gradient.addColorStop(1, baseColor);
@@ -1554,14 +1604,25 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, size, size);
 
-    // Update the texture
-    if (material.map) {
-      material.map.dispose();
+    // Create texture from canvas
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+
+    // Update material
+    const material = this.gradientFloor.material;
+    material.map = texture;
+
+    // Set target opacity (but don't change current opacity during animation)
+    this.targetFloorOpacity = isDarkMode ? 0.15 : 0.35; // Increased contrast
+
+    // Only update actual opacity if not in the middle of a fade animation
+    if (!this.fadeInTime || !this.options.smoothIntro) {
+      material.opacity = this.targetFloorOpacity;
     }
-    material.map = new THREE.CanvasTexture(canvas);
-    material.map.needsUpdate = true;
-    material.opacity = isDarkMode ? 0.12 : 0.25;
-    material.needsUpdate = true;
+
+    if (this.debugMode) {
+      this.updateDebugDisplay();
+    }
   }
 
   /**
@@ -1622,7 +1683,7 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
       </div>
       <div>Opacity: ${floorOpacity.toFixed(2)}</div>
       <div>Floor Radius: 5.0</div>
-      <div>Floor Height: -1.9</div>
+      <div>Floor Height: -1.5</div>
     `;
   }
 }

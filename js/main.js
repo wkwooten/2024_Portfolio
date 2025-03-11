@@ -315,7 +315,11 @@ document.addEventListener('DOMContentLoaded', function() {
     import('./simplihedron.js')
       .then(module => {
         const RapierPolyhedron = module.default;
-        new RapierPolyhedron(container);
+        // Pass options to disable internal delay and enable smooth intro
+        new RapierPolyhedron(container, {
+          startDelay: 0,      // Remove the internal delay completely
+          smoothIntro: true   // Enable smooth intro animation
+        });
         console.log('Loaded high-performance Rapier.js polyhedron');
       })
       .catch(error => {
@@ -340,5 +344,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Delay polyhedron loading to prioritize critical content
-  setTimeout(loadPolyhedron, 100);
+  // Increased from 100ms to 3500ms for better performance
+  setTimeout(loadPolyhedron, 3500);
 });
