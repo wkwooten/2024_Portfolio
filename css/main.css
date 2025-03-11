@@ -11,6 +11,9 @@
 /* Import component styles */
 @import url("components.css");
 
+/* Import pull-tabs component */
+@import url("pull-tabs.css");
+
 /* Import page-specific styles */
 @import url("pages.css");
 
@@ -19,3 +22,76 @@
 
 /* Import media queries (always last) */
 @import url("media.css");
+
+/* Accessibility */
+.sr-only {
+   position: absolute;
+   width: 1px;
+   height: 1px;
+   padding: 0;
+   margin: -1px;
+   overflow: hidden;
+   clip: rect(0, 0, 0, 0);
+   white-space: nowrap;
+   border-width: 0;
+}
+
+/* Heart animation */
+@keyframes heartbeat {
+   0% {
+      transform: scale(1);
+   }
+
+   10% {
+      transform: scale(1.2);
+   }
+
+   20% {
+      transform: scale(1.1);
+   }
+
+   30% {
+      transform: scale(1.2);
+   }
+
+   40% {
+      transform: scale(1);
+   }
+
+   100% {
+      transform: scale(1);
+   }
+}
+
+.heart {
+   display: inline-block;
+   animation: heartbeat 3s infinite;
+   animation-delay: 1s;
+   transform-origin: center;
+}
+
+/* Skip link */
+.skip-link:focus {
+   position: fixed;
+   width: auto;
+   height: auto;
+   margin: 10px;
+   padding: 10px 20px;
+   background: var(--primary);
+   color: var(--background);
+   clip: auto;
+   z-index: 9999;
+   text-decoration: none;
+   font-weight: bold;
+   border-radius: 4px;
+}
+
+/* Mobile menu button styles */
+.modal_menu_btn,
+.modal_back_btn {
+   background: none;
+   color: var(--primary);
+   border: none;
+   cursor: pointer;
+   padding: 0;
+}

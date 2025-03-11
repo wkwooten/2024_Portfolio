@@ -25,6 +25,16 @@
 	--button-primary-dark: #00c971;
 	--button-primary-dark-hover: #17a346;
 
+	/* Layout Variables */
+	--navbar-height: 60px;
+	/* Height of the navbar */
+
+	/* Z-index Stacking Order */
+	--z-index-content: 1;
+	--z-index-menu: 100;
+	--z-index-navbar: 1010;
+	--z-index-menu-button: 1020;
+
 	/* Animation Timings */
 	--modal-time: 1s;
 	--accordion_time: 1s;

@@ -11,15 +11,18 @@
 	justify-content: center;
 	overflow: hidden;
 	width: 100%;
-	z-index: 2;
+	z-index: var(--z-index-navbar);
 	transition: transform 0.3s ease;
-	position: sticky;
+	position: fixed;
 	top: 0;
+	left: 0;
+	right: 0;
+	isolation: isolate;
 }
 
 .cs_page .nav_full {
 	position: relative;
-	z-index: 2;
+	z-index: var(--z-index-navbar);
 }
 
 .nav_hidden {
@@ -31,11 +34,10 @@
 	flex-direction: row;
 	justify-items: center;
 	justify-content: space-between;
-	/* margin-top: var(--space-l); */
 	margin-inline: var(--space-s);
-	/* max-width: 1200px; */
 	align-items: end;
-	z-index: 3;
+	z-index: var(--z-index-navbar);
+	position: relative;
 }
 
 .nav_logo {
@@ -151,6 +153,17 @@
 .modal_button {
 	display: none;
 	align-self: center;
+	position: relative;
+	z-index: var(--z-index-menu-button);
+}
+
+.modal_menu_btn,
+.modal_back_btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	position: relative;
+	z-index: var(--z-index-menu-button);
 }
 
 .switch {
@@ -162,15 +175,25 @@
 	grid-template-rows: 2fr 1fr 1fr;
 	overflow: hidden;
 	overscroll-behavior: none;
-	height: 100vh;
+	height: calc(100vh - var(--navbar-height, 60px));
 	width: 100%;
-	transition: height var(--modal-time) ease;
+	position: fixed;
+	top: var(--navbar-height, 60px);
+	left: 0;
+	z-index: var(--z-index-menu);
+	background-color: var(--bg-color);
+	transform: translateY(calc(-100% - var(--navbar-height, 60px)));
+	transition: transform var(--modal-time) ease, visibility var(--modal-time);
+	visibility: hidden;
+	pointer-events: none;
+	will-change: transform, visibility;
 }
 
-.collapsed {
-	overflow: hidden;
-	height: 0;
-	transition: height var(--modal-time) ease;
+.modal.open {
+	transform: translateY(0);
+	transition: transform var(--modal-time) ease, visibility 0s;
+	visibility: visible;
+	pointer-events: auto;
 }
 
 .modal_nav {
@@ -188,7 +211,7 @@
 	height: 60px;
 	text-decoration: none;
 	list-style: none;
-	color: var(--primary);
+	color: white;
 }
 
 .modal_nav_button h2 {
@@ -228,9 +251,11 @@
 	flex-direction: column;
 	align-items: center;
 	padding-block: var(--space-m);
-	border-top: var(--primary) var(--line-weight) solid;
-	justify-content: space-evenly;
-	margin: var(--space-s) 0;
+	color: white;
+}
+
+.modal_contact h1 {
+	color: white;
 }
 
 /* Hero Components */
@@ -678,7 +703,8 @@
 .project_tags {
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--space-xs);
+	justify-content: space-evenly;
+	gap: var(--space-2xs);
 	margin: var(--space-s) 0;
 }
 
@@ -689,6 +715,11 @@
 	background: rgba(255, 255, 255, 0.1);
 	color: inherit;
 	border: none;
+}
+
+.ug_tag {
+	border: #c0c79b solid !important;
+	background-color: none !important;
 }
 
 .button {
@@ -783,6 +814,7 @@ footer svg:active {
 	color: rgb(248, 96, 96);
 	animation: normal;
 	transform: scale(1.3);
+	-webkit-animation: normal;
 }
 
 /* ==========================================================================
@@ -974,4 +1006,24 @@ footer svg:active {
 .image_modal_overlay.active .image_modal_content {
 	opacity: 1;
 	transform: scale(1);
+}
+
+#main-content {
+	position: relative;
+	z-index: var(--z-index-content);
+	margin-top: var(--navbar-height, 60px);
+}
+
+/* Update hero section to maintain the same stacking context */
+.hero_full {
+	position: relative;
+	z-index: 1;
+	/* Same as main content */
+}
+
+/* Could consolidate these into CSS variables in variables.css */
+:root {
+	--z-index-nav: 1010;
+	--z-index-nav-button: 1020;
+	--z-index-modal: 100;
 }

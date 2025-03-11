@@ -1,0 +1,47 @@
+/* Pull tab system styling */
+.modal_nav_button {
+	position: relative;
+	overflow: hidden;
+	touch-action: pan-y;
+	/* Allow vertical scrolling */
+	transform: translateX(0);
+	/* Initial position */
+}
+
+/* Style while dragging */
+.modal_nav_button.dragging {
+	transition: none;
+	/* No transition during active drag */
+	cursor: grabbing;
+}
+
+/* Bouncy return animation */
+.modal_nav_button.returning {
+	transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Pull indicator that fills as user drags */
+.pull-indicator {
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 0%;
+	background: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2));
+	opacity: 0;
+	pointer-events: none;
+	/* Don't interfere with touch events */
+	transition: opacity 0.3s ease;
+	z-index: -1;
+}
+
+/* Add a subtle hint that items can be pulled */
+.modal_nav_button:after {
+	content: "→";
+	position: absolute;
+	right: 15px;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0.6;
+	font-size: 14px;
+}

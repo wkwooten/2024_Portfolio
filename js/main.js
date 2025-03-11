@@ -25,24 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Mobile menu toggle
-  const menuBtn = document.querySelector('.modal_menu_btn');
-  const backBtn = document.querySelector('.modal_back_btn');
-  const modal = document.querySelector('.modal');
-
-  if (menuBtn && backBtn && modal) {
-    menuBtn.addEventListener('click', function() {
-      modal.classList.remove('collapsed');
-      menuBtn.classList.add('switch');
-      backBtn.classList.remove('switch');
-    });
-
-    backBtn.addEventListener('click', function() {
-      modal.classList.add('collapsed');
-      menuBtn.classList.remove('switch');
-      backBtn.classList.add('switch');
-    });
-  }
+  // Mobile menu functionality moved to menu.js
 
   // =========================================================================
   // LAZY LOADING IMAGES
