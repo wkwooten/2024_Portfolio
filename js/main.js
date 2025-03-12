@@ -46,35 +46,30 @@ document.addEventListener('DOMContentLoaded', function() {
   // SCROLL ANIMATIONS
   // =========================================================================
 
-  // Journey timeline animations with Intersection Observer
-  const journeyItems = document.querySelectorAll('.journey_item');
+  // Journey timeline animation
+  if ('IntersectionObserver' in window) {
+    const journeyItems = document.querySelectorAll('.journey_item');
 
-  if (journeyItems.length > 0) {
-    if ('IntersectionObserver' in window) {
-      const options = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.2
-      };
-
-      const observer = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
-            observer.unobserve(entry.target);
-          }
-        });
-      }, options);
-
-      journeyItems.forEach(item => {
-        observer.observe(item);
+    const journeyObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+          journeyObserver.unobserve(entry.target);
+        }
       });
-    } else {
-      // Fallback for browsers that don't support Intersection Observer
-      journeyItems.forEach(item => {
-        item.classList.add('animate-in');
-      });
-    }
+    }, {
+      threshold: 0.2,
+      rootMargin: '0px 0px -100px 0px'
+    });
+
+    journeyItems.forEach(item => {
+      journeyObserver.observe(item);
+    });
+  } else {
+    // Fallback for browsers that don't support IntersectionObserver
+    document.querySelectorAll('.journey_item').forEach(item => {
+      item.classList.add('animate-in');
+    });
   }
 
   // =========================================================================

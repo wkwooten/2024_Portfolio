@@ -2,7 +2,10 @@
    Components Styles
    ========================================================================== */
 
-/* Navigation Styles */
+/* ==========================================================================
+   Navigation Components
+   ========================================================================== */
+
 .nav_full {
 	display: flex;
 	flex-direction: column;
@@ -80,7 +83,6 @@
 	margin: 0rem;
 }
 
-/* Navigation Buttons */
 .nav_button {
 	display: flex;
 	align-items: flex-start;
@@ -149,7 +151,10 @@
 	background: var(--color3);
 }
 
-/* Modal */
+/* ==========================================================================
+   Modal Components
+   ========================================================================== */
+
 .modal_button {
 	display: none;
 	align-self: center;
@@ -258,7 +263,10 @@
 	color: var(--primary);
 }
 
-/* Hero Components */
+/* ==========================================================================
+   Hero Components
+   ========================================================================== */
+
 .hero_full {
 	display: flex;
 	min-height: var(--adjusted-viewport-height, 100vh);
@@ -274,7 +282,6 @@
 	background: transparent;
 }
 
-/* Create interactive zones around the hero */
 .hero_full::before {
 	content: "";
 	position: absolute;
@@ -284,7 +291,6 @@
 	height: 100%;
 	z-index: 0;
 	pointer-events: none;
-	/* Allow events to pass through to the polyhedron */
 }
 
 /* Glass panel effect */
@@ -342,44 +348,36 @@
 	-webkit-backdrop-filter: blur(4px); */
 	margin: 0 auto;
 	pointer-events: none;
-	/* Allow interaction with polyhedron through the hero */
 }
 
-/* Create interactive margins around specific hero elements */
 .frame {
 	pointer-events: none;
-	/* Allow interaction with polyhedron through the frame */
 	position: relative;
 	z-index: 2;
 }
 
 .intro {
 	pointer-events: none;
-	/* Allow interaction with polyhedron through the intro */
 	position: relative;
 	z-index: 2;
 }
 
-/* Create interactive gaps between hero elements */
 .hero > * {
 	position: relative;
 }
 
-/* Add padding around elements to create larger hit areas */
 .frame,
 .intro {
 	padding: 15px;
 	margin: -15px;
 }
 
-/* Make the hero text more legible with subtle text shadow */
 .name,
 #intro_blurb1,
 #intro_blurb2 {
 	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Ensure the grid canvas can receive events */
 #grid-canvas {
 	position: fixed;
 	top: 0;
@@ -396,21 +394,6 @@
 			rgba(31, 191, 84, 0.03) 60%,
 			rgba(31, 191, 84, 0.01) 80%,
 			rgba(255, 255, 255, 0) 100%);
-	/* Smoother light mode gradient with more steps */
-}
-
-/* Dark mode gradient for the canvas */
-@media (prefers-color-scheme: dark) {
-	#grid-canvas {
-		background: linear-gradient(-180deg,
-				rgba(0, 201, 113, 0.15) 0%,
-				rgba(0, 201, 113, 0.12) 20%,
-				rgba(80, 122, 184, 0.09) 40%,
-				rgba(160, 44, 255, 0.06) 60%,
-				rgba(160, 44, 255, 0.03) 80%,
-				rgba(0, 0, 0, 0) 100%);
-		/* Smoother dark mode gradient with more steps */
-	}
 }
 
 #grid-canvas canvas {
@@ -451,7 +434,6 @@
 	color: var(--primary);
 	position: relative;
 	pointer-events: none;
-	/* Allow interaction with polyhedron through the name */
 }
 
 .name span {
@@ -513,6 +495,10 @@
 	width: 100%;
 }
 
+/* ==========================================================================
+   Contact Components
+   ========================================================================== */
+
 .contact {
 	display: flex;
 	margin-block: var(--space-m);
@@ -522,7 +508,6 @@
 	width: 100%;
 	align-self: center;
 	pointer-events: auto;
-	/* Ensure contact area is clickable */
 }
 
 .mail {
@@ -540,7 +525,6 @@
 	overflow: hidden;
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	pointer-events: auto;
-	/* Ensure mail button is clickable */
 }
 
 .mail::before {
@@ -595,7 +579,10 @@
 	text-overflow: ellipsis;
 }
 
-/* Project Cards */
+/* ==========================================================================
+   Project Components
+   ========================================================================== */
+
 .projects {
 	display: block;
 	align-items: center;
@@ -747,7 +734,10 @@
 	opacity: .8;
 }
 
-/* Footer */
+/* ==========================================================================
+   Footer Components
+   ========================================================================== */
+
 footer {
 	display: flex;
 	padding: 3.125rem var(--section-spacing);
@@ -755,7 +745,6 @@ footer {
 	align-items: start;
 	justify-content: center;
 	column-gap: var(--space-2xl);
-	/* text-align: center; */
 	border-top: var(--thicc-line-weight) solid var(--primary);
 	background: var(--BG);
 }
@@ -930,7 +919,6 @@ footer svg:active {
 	padding-right: var(--space-xs);
 }
 
-/* Styling scrollbar for the description */
 .illustration_modal_text::-webkit-scrollbar {
 	width: 6px;
 }
@@ -1032,6 +1020,10 @@ footer svg:active {
 	transform: scale(1);
 }
 
+/* ==========================================================================
+   Layout Utilities
+   ========================================================================== */
+
 #main-content {
 	position: relative;
 	z-index: var(--z-index-content);
@@ -1039,14 +1031,6 @@ footer svg:active {
 	gap: var(--space-l);
 }
 
-/* Update hero section to maintain the same stacking context */
-.hero_full {
-	position: relative;
-	z-index: 1;
-	/* Same as main content */
-}
-
-/* Could consolidate these into CSS variables in variables.css */
 :root {
 	--z-index-nav: 1010;
 	--z-index-nav-button: 1020;

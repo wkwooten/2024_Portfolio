@@ -20,7 +20,9 @@
 /* Import experiment styles */
 @import url("experiments.css");
 
-/* Import media queries (always last) */
+/* Import media queries (always last)
+   NOTE: All media queries should be placed in media.css unless absolutely necessary.
+   See STYLE_GUIDE.md for complete documentation. */
 @import url("media.css");
 
 /* Accessibility */

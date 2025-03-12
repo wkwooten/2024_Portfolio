@@ -1,6 +1,24 @@
 /* ==========================================================================
    Media Queries and Responsive Styles
+   ==========================================================================
+
+   IMPORTANT: This file is the central location for all media queries.
+
+   - All responsive styles should be placed here unless they meet the
+     exception criteria outlined in STYLE_GUIDE.md
+   - Follow the new 3-breakpoint system:
+     * Mobile: max-width: 600px
+     * Tablet: max-width: 1000px
+     * Desktop: min-width: 1001px
+   - Feature detection queries (prefers-color-scheme, prefers-reduced-motion)
+     should be placed before breakpoints
+   - Group related styles within the same media query block
+   - Comment your media queries with descriptive headers
+
+   See STYLE_GUIDE.md and MEDIA_QUERY_MIGRATION_PLAN.md for complete documentation.
    ========================================================================== */
+
+/* Feature Detection Queries */
 
 /* Dark Mode */
 @media (prefers-color-scheme: dark) {
@@ -16,12 +34,16 @@
 		--vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
 	}
 
-	/* .hero {
-		background: linear-gradient(135deg,
-				rgba(0, 201, 113, 0.3),
-				rgba(160, 44, 255, 0.3));
-		box-shadow: 0 0 20px rgba(208, 10, 145, 0.1);
-	} */
+	#grid-canvas {
+		background: linear-gradient(-180deg,
+				rgba(0, 201, 113, 0.15) 0%,
+				rgba(0, 201, 113, 0.12) 20%,
+				rgba(80, 122, 184, 0.09) 40%,
+				rgba(160, 44, 255, 0.06) 60%,
+				rgba(160, 44, 255, 0.03) 80%,
+				rgba(0, 0, 0, 0) 100%);
+		/* Smoother dark mode gradient with more steps */
+	}
 
 	.cs_nav {
 		background: var(--bg-color);
@@ -174,10 +196,10 @@
 	}
 
 	/* .hero_full {
-		background: linear-gradient(-15deg, rgba(45, 199, 251, 0.00), rgba(12, 246, 67, 0.08), rgba(45, 199, 251, 0.0));
-		background-size: 200% 200%;
-		animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-		-webkit-animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+	background: linear-gradient(-15deg, rgba(45, 199, 251, 0.00), rgba(12, 246, 67, 0.08), rgba(45, 199, 251, 0.0));
+	background-size: 200% 200%;
+	animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+	-webkit-animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
 	} */
 
 	/* Navigation Components */
@@ -267,18 +289,6 @@
 	.cs_nav .nav_label {
 		font-size: 0.9em;
 	}
-
-	/* Dark mode specific styles for this breakpoint */
-	/* @media (prefers-color-scheme: dark) {
-		.hero_full {
-			background: linear-gradient(135deg,
-					rgba(0, 201, 113, 0.15),
-					rgba(160, 44, 255, 0.18),
-					rgba(0, 201, 114, 0));
-			background-size: 200% 200%;
-			animation: heroGradient 15s cubic-bezier(0.23, 1, 0.32, 1) infinite;
-		}
-	} */
 }
 
 /* Tablet and Medium Screen Styles */
@@ -410,7 +420,7 @@
 		display: none;
 	}
 
-	.journey_item {
+	.timeline_heading {
 		padding-left: 0;
 	}
 
@@ -418,9 +428,119 @@
 		display: none;
 	}
 
+	.journey_timeline::before {
+		display: none;
+	}
+
+	.journey_timeline {
+		padding: 0;
+		gap: 0;
+	}
+
+	.journey_item {
+		padding-left: var(--space-s);
+		border-left: 3px solid var(--primary);
+		margin-left: 10px;
+	}
+
+	.timeline_marker {
+		left: -15px;
+		transform: none;
+	}
+
+	.journey_item:hover .timeline_marker {
+		transform: scale(1.1);
+	}
+
 	.section_header,
 	.subsection_header {
 		font-size: calc(var(--fs-3) + 0.2rem);
+	}
+}
+
+@media screen and (max-width: 480px) {
+
+	/* Gallery and skill card adjustments */
+	.gallery_item,
+	.skillCard {
+		flex: 1 1 100%;
+		margin-left: 0;
+		margin-right: 0;
+		margin-bottom: var(--space-s);
+	}
+
+	.gallery_container,
+	.skill_container {
+		padding: 0;
+		gap: var(--space-s);
+	}
+
+	.about_pic_image {
+		max-width: 100%;
+	}
+
+	.about_pic::after {
+		max-width: 100%;
+		left: 15px;
+		width: calc(100% - 30px);
+	}
+
+	/* Case study adjustments */
+	.cs_section {
+		padding: var(--space-l) var(--space-xs);
+	}
+
+	.cs_section_content {
+		padding-inline: var(--space-xs);
+	}
+
+	.cs_section_header {
+		padding: var(--space-s) var(--space-xs);
+	}
+
+	.cs_hero_title {
+		font-size: var(--fs-4);
+		padding: var(--space-m) var(--space-s);
+	}
+
+	.cs_hero {
+		padding: 0 var(--space-s);
+	}
+
+	.cs_info {
+		gap: var(--space-m);
+	}
+}
+
+@media (min-width: 992px) {
+
+	/* About page desktop layout */
+	.about_bio {
+		flex-direction: row;
+		align-items: flex-start;
+		gap: var(--space-xl);
+	}
+
+	.about_pic {
+		flex: 0 0 350px;
+	}
+
+	.journey_timeline {
+		flex: 1;
+		margin-top: 0;
+	}
+
+	/* Sketch gallery desktop layout */
+	.gallery_container {
+		justify-content: space-between;
+	}
+}
+
+@media (min-width: 768px) {
+	.skill_container {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 20px;
 	}
 }
 
@@ -521,83 +641,5 @@
 
 	50% {
 		filter: drop-shadow(0 0 2rem white);
-	}
-}
-
-@media screen and (max-width: 480px) {
-
-	/* Gallery and skill card adjustments */
-	.gallery_item,
-	.skillCard {
-		flex: 1 1 100%;
-		margin-left: 0;
-		margin-right: 0;
-		margin-bottom: var(--space-s);
-	}
-
-	.gallery_container,
-	.skill_container {
-		padding: 0;
-		gap: var(--space-s);
-	}
-
-	.about_pic_image {
-		max-width: 100%;
-	}
-
-	.about_pic::after {
-		max-width: 100%;
-		left: 15px;
-		width: calc(100% - 30px);
-	}
-
-	/* Case study adjustments */
-	.cs_section {
-		padding: var(--space-l) var(--space-xs);
-	}
-
-	.cs_section_content {
-		padding-inline: var(--space-xs);
-	}
-
-	.cs_section_header {
-		padding: var(--space-s) var(--space-xs);
-	}
-
-	.cs_hero_title {
-		font-size: var(--fs-4);
-		padding: var(--space-m) var(--space-s);
-	}
-
-	.cs_hero {
-		padding: 0 var(--space-s);
-	}
-
-	.cs_info {
-		gap: var(--space-m);
-	}
-}
-
-@media (min-width: 992px) {
-
-	/* About page desktop layout */
-	.about_bio {
-		flex-direction: row;
-		align-items: flex-start;
-		gap: var(--space-xl);
-	}
-
-	.about_pic {
-		flex: 0 0 350px;
-	}
-
-	.journey_timeline {
-		flex: 1;
-		margin-top: 0;
-	}
-
-	/* Sketch gallery desktop layout */
-	.gallery_container {
-		justify-content: space-between;
 	}
 }

@@ -215,15 +215,10 @@ blockquote::before {
 }
 
 .timeline_heading {
-	text-align: left;
 	margin-bottom: var(--space-m);
 	padding-bottom: var(--space-xs);
 	padding-left: var(--space-l);
 	border-bottom: var(--basic-line-weight) solid var(--primary);
-	color: var(--primary);
-	text-transform: capitalize;
-	font-weight: 600;
-	font-size: var(--fs-3);
 	width: calc(100% - var(--space-l));
 }
 
@@ -279,26 +274,47 @@ blockquote::before {
 	}
 }
 
-/* .journey_item::before {
-	content: '';
+/* Timeline markers styling */
+.timeline_marker {
 	position: absolute;
-	left: var(--space-m);
-	top: 8px;
-	width: 16px;
-	height: 16px;
+	left: 0;
+	top: 0;
+	width: 28px;
+	height: 28px;
 	border-radius: 50%;
 	background-color: var(--primary);
-} */
+	color: var(--bg-color);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+	transform: translateX(calc(var(--space-m) - 14px));
+	z-index: 2;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+	transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.journey_item:hover .timeline_marker {
+	transform: translateX(calc(var(--space-m) - 14px)) scale(1.1);
+	background-color: var(--accent, var(--primary));
+}
 
 .journey_item h3 {
 	margin-bottom: var(--space-xs);
 	color: var(--primary);
 	font-weight: 600;
+	position: relative;
+	transition: transform 0.3s ease;
+}
+
+.journey_item:hover h3 {
+	transform: translateX(5px);
 }
 
 .journey_item p {
 	line-height: 1.6;
 }
+
 
 /* Personal Section - Improved Layout */
 .personal {
