@@ -57,7 +57,9 @@ CSS is organized in this order of imports:
 
 ## Media Queries
 
-- **Centralize in media.css** - All responsive styles belong here
+- **Theme variables in variables.css** - Dark mode color variables belong in variables.css
+- **Component-specific dark mode styles in media.css** - Component-specific dark mode adjustments belong in media.css
+- **Centralize responsive styles in media.css** - All responsive layout styles belong here
 - **Use our 3-breakpoint system**:
   - **Mobile**: `max-width: 600px` (small devices and phones)
   - **Tablet**: `max-width: 1000px` (tablets and small laptops)
@@ -69,19 +71,22 @@ CSS is organized in this order of imports:
 - **Comment media queries** with descriptive headers
 
 ```css
+/* In variables.css */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark mode color variables */
+  }
+}
+
+/* In media.css */
+/* Dark Mode Component Adjustments */
+@media (prefers-color-scheme: dark) {
+  /* Component-specific dark mode styles */
+}
+
 /* Mobile Styles */
 @media screen and (max-width: 600px) {
   /* Your mobile styles here */
-}
-
-/* Tablet Styles */
-@media screen and (max-width: 1000px) {
-  /* Your tablet styles here */
-}
-
-/* Desktop Styles */
-@media screen and (min-width: 1001px) {
-  /* Your desktop styles here */
 }
 ```
 

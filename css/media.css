@@ -18,21 +18,13 @@
    See STYLE_GUIDE.md and MEDIA_QUERY_MIGRATION_PLAN.md for complete documentation.
    ========================================================================== */
 
-/* Feature Detection Queries */
+/* ==========================================================================
+   Feature Detection Queries
+   ========================================================================== */
 
-/* Dark Mode */
+/* Dark Mode Component Adjustments */
 @media (prefers-color-scheme: dark) {
-	:root {
-		--bg-color: #090909;
-		--primary: rgb(255, 255, 255);
-		--secondary: #090909;
-		--color1: #1d3383;
-		--color2: #126743;
-		--color3: #cc3037;
-		--gradient_color1: #00c971;
-		--gradient_color2: #a02cff;
-		--vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
-	}
+	/* Note: Dark mode color variables are now defined in variables.css */
 
 	#grid-canvas {
 		background: linear-gradient(-180deg,
@@ -73,9 +65,19 @@
 		transition-duration: 0.01ms !important;
 		scroll-behavior: auto !important;
 	}
+
+	/* Journey items animation reduction */
+	.journey_item {
+		transition: none;
+		opacity: 1;
+		transform: none;
+	}
 }
 
-/* Height-based Media Queries */
+/* ==========================================================================
+   Height-based Media Queries
+   ========================================================================== */
+
 @media screen and (max-height: 62.5rem) {
 	.hero_full {
 		justify-content: center;
@@ -90,8 +92,120 @@
 	}
 }
 
-/* Width-based Media Queries - Large Screens to Small */
-@media screen and (max-width: 62.5rem) {
+/* ==========================================================================
+   Mobile Styles - max-width: 600px
+   ========================================================================== */
+
+@media screen and (max-width: 600px) {
+
+	/* Gallery and skill card adjustments */
+	.gallery_item,
+	.skillCard {
+		flex: 1 1 100%;
+		margin-left: 0;
+		margin-right: 0;
+		margin-bottom: var(--space-s);
+	}
+
+	.gallery_container,
+	.skill_container {
+		padding: 0;
+		gap: var(--space-s);
+	}
+
+	.about_pic_image {
+		max-width: 100%;
+	}
+
+	.about_pic::after {
+		max-width: 100%;
+		left: 15px;
+		width: calc(100% - 30px);
+	}
+
+	/* Case study adjustments */
+	.cs_section {
+		padding: var(--space-l) var(--space-xs);
+	}
+
+	.cs_section_content {
+		padding-inline: var(--space-xs);
+	}
+
+	.cs_section_header {
+		padding: var(--space-s) var(--space-xs);
+	}
+
+	.cs_hero_title {
+		font-size: var(--fs-4);
+		padding: var(--space-m) var(--space-s);
+	}
+
+	.cs_hero {
+		padding: 0 var(--space-s);
+	}
+
+	.cs_info {
+		gap: var(--space-m);
+	}
+
+	/* Hero and layout adjustments */
+	.hero {
+		padding: var(--space-s);
+		margin: var(--space-s);
+	}
+
+	.frame {
+		padding: 3.125rem 0.9375rem;
+		margin: 5%;
+	}
+
+	.intro {
+		padding: var(--space-s);
+	}
+
+	.sign {
+		align-items: center;
+	}
+
+	figcaption {
+		font-size: var(--fs-0);
+	}
+
+	figure {
+		margin: var(--space-s) 0;
+	}
+
+	figure img {
+		margin-bottom: var(--space-xs);
+	}
+
+	.lucky_feature {
+		flex-direction: column;
+		padding: var(--space-m);
+	}
+
+	.lucky_img_container {
+		width: 100%;
+		margin-bottom: var(--space-m);
+	}
+
+	/* Journey item adjustments */
+	.journey_item {
+		padding-right: 0;
+	}
+
+	/* Personal section adjustments */
+	.personal {
+		padding: var(--space-m);
+	}
+}
+
+/* ==========================================================================
+   Tablet Styles - max-width: 1000px
+   ========================================================================== */
+
+@media screen and (max-width: 1000px) {
 
 	/* Navigation */
 	.menu_bar {
@@ -125,6 +239,7 @@
 		gap: var(--space-l);
 	}
 
+	/* Modal adjustments */
 	.illustration_modal_content {
 		max-width: 95%;
 		padding: var(--space-m);
@@ -185,7 +300,7 @@
 		margin-top: auto;
 	}
 
-	/* Hero Section Mobile Styles */
+	/* Hero Section Styles */
 	.hero {
 		background: none !important;
 		box-shadow: none !important;
@@ -289,10 +404,6 @@
 	.cs_nav .nav_label {
 		font-size: 0.9em;
 	}
-}
-
-/* Tablet and Medium Screen Styles */
-@media screen and (max-width: 900px) {
 
 	/* Table Styles */
 	.navbar {
@@ -349,49 +460,6 @@
 	.subsection_body td li {
 		margin-bottom: var(--space-xs);
 		width: 100%;
-	}
-}
-
-/* Mobile Styles */
-@media screen and (max-width: 768px) {
-	.hero {
-		padding: var(--space-s);
-		margin: var(--space-s);
-	}
-
-	.frame {
-		padding: 3.125rem 0.9375rem;
-		margin: 5%;
-	}
-
-	.intro {
-		padding: var(--space-s);
-	}
-
-	.sign {
-		align-items: center;
-	}
-
-	figcaption {
-		font-size: var(--fs-0);
-	}
-
-	figure {
-		margin: var(--space-s) 0;
-	}
-
-	figure img {
-		margin-bottom: var(--space-xs);
-	}
-
-	.lucky_feature {
-		flex-direction: column;
-		padding: var(--space-m);
-	}
-
-	.lucky_img_container {
-		width: 100%;
-		margin-bottom: var(--space-m);
 	}
 
 	/* Gallery adjustments for tablets */
@@ -458,61 +526,11 @@
 	}
 }
 
-@media screen and (max-width: 480px) {
+/* ==========================================================================
+   Desktop Styles - min-width: 1001px
+   ========================================================================== */
 
-	/* Gallery and skill card adjustments */
-	.gallery_item,
-	.skillCard {
-		flex: 1 1 100%;
-		margin-left: 0;
-		margin-right: 0;
-		margin-bottom: var(--space-s);
-	}
-
-	.gallery_container,
-	.skill_container {
-		padding: 0;
-		gap: var(--space-s);
-	}
-
-	.about_pic_image {
-		max-width: 100%;
-	}
-
-	.about_pic::after {
-		max-width: 100%;
-		left: 15px;
-		width: calc(100% - 30px);
-	}
-
-	/* Case study adjustments */
-	.cs_section {
-		padding: var(--space-l) var(--space-xs);
-	}
-
-	.cs_section_content {
-		padding-inline: var(--space-xs);
-	}
-
-	.cs_section_header {
-		padding: var(--space-s) var(--space-xs);
-	}
-
-	.cs_hero_title {
-		font-size: var(--fs-4);
-		padding: var(--space-m) var(--space-s);
-	}
-
-	.cs_hero {
-		padding: 0 var(--space-s);
-	}
-
-	.cs_info {
-		gap: var(--space-m);
-	}
-}
-
-@media (min-width: 992px) {
+@media screen and (min-width: 1001px) {
 
 	/* About page desktop layout */
 	.about_bio {
@@ -534,9 +552,8 @@
 	.gallery_container {
 		justify-content: space-between;
 	}
-}
 
-@media (min-width: 768px) {
+	/* Skill container layout */
 	.skill_container {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
@@ -544,7 +561,10 @@
 	}
 }
 
-/* Animations */
+/* ==========================================================================
+   Animation Keyframes
+   ========================================================================== */
+
 @keyframes heroGradient {
 	0% {
 		background-position: 0% 50%;
@@ -558,6 +578,33 @@
 		background-position: 0% 50%;
 	}
 }
+
+@keyframes heartbeat {
+	0% {
+		transform: scale(1);
+	}
+
+	10% {
+		transform: scale(1.2);
+	}
+
+	20% {
+		transform: scale(1.1);
+	}
+
+	30% {
+		transform: scale(1.2);
+	}
+
+	40% {
+		transform: scale(1);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
+
 
 @keyframes gradient {
 	0% {

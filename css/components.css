@@ -8,6 +8,7 @@
 
 .nav_full {
 	display: flex;
+	align-items: center;
 	flex-direction: column;
 	background: var(--bg-color);
 	border-bottom: var(--thicc-line-weight) var(--primary) solid;
@@ -41,10 +42,40 @@
 	align-items: end;
 	z-index: var(--z-index-navbar);
 	position: relative;
+	max-width: 1980px;
+	width: 100%;
+}
+
+.skip-link:focus {
+	position: fixed;
+	width: auto;
+	height: auto;
+	margin: 10px;
+	padding: 10px 20px;
+	background: var(--primary);
+	color: var(--background);
+	clip: auto;
+	z-index: 9999;
+	text-decoration: none;
+	font-weight: bold;
+	border-radius: 4px;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
 }
 
 .nav_logo {
 	font-weight: bold;
+	margin-inline: var(--space-s);
 	font-size: 3rem;
 	color: var(--primary);
 	transition: .3s ease;
@@ -159,6 +190,7 @@
 	display: none;
 	align-self: center;
 	position: relative;
+	margin-inline: var(--space-s);
 	z-index: var(--z-index-menu-button);
 }
 
@@ -587,14 +619,15 @@
 	display: block;
 	align-items: center;
 	justify-content: center;
+	padding-inline: var(--space-2xs);
 	width: 100%;
 }
 
 .project_container {
 	display: grid;
-	gap: var(--space-3xl);
+	gap: var(--space-2xl);
 	justify-content: center;
-	margin-bottom: 10%;
+	margin-bottom: var(--space-3xl);
 }
 
 .project_card {
@@ -704,8 +737,9 @@
 }
 
 .ug_tag {
-	border: #c0c79b solid !important;
-	background-color: none !important;
+	border: #818d40 solid !important;
+	background-color: #818d40 !important;
+	color: white !important;
 }
 
 .button {
@@ -758,6 +792,14 @@ footer svg:active {
 	transform: scale(.95);
 	opacity: .8;
 }
+
+.heart {
+	display: inline-block;
+	animation: heartbeat 3s infinite;
+	animation-delay: 1s;
+	transform-origin: center;
+}
+
 
 .social_Container {
 	display: flex;

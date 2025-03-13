@@ -5,10 +5,8 @@
 	/* Colors */
 	--bg-color: #e0f7ff;
 	--bg-color-rgb: 224, 247, 255;
-	/* RGB values for #e0f7ff */
 	--primary: #14175c;
 	--primary-rgb: 20, 23, 92;
-	/* RGB values for #14175c */
 	--secondary: #f0f0f0;
 	--color1: #007bff;
 	--color2: #28a745;
@@ -17,7 +15,6 @@
 	--gradient_color2: #1fbf54;
 	--vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
 	--bg-transparent: rgba(224, 247, 255, 0.7);
-	--bg-transparent-dark: rgba(9, 9, 9, 0.8);
 
 	/* Button Colors */
 	--button-primary: #1a73e8;
@@ -52,6 +49,8 @@
 	--pretentious-ratio: 1.618033988749894;
 	--fig-width: 50rem;
 
+	/* Spacing and type scale sourced from https://utopia.fyi, check them out! */
+
 	/* Spacing Scale */
 	--space-3xs: clamp(0.3125rem, 0.3125rem + 0vw, 0.3125rem);
 	--space-2xs: clamp(0.5625rem, 0.5408rem + 0.1087vw, 0.625rem);
@@ -70,4 +69,25 @@
 	--fs-3: clamp(1.4238rem, 1.3353rem + 0.4426vw, 1.8222rem);
 	--fs-4: clamp(1.6018rem, 1.5257rem + 0.3805vw, 1.9442rem);
 	--fs-5: clamp(1.802rem, 1.7415rem + 0.3027vw, 2.0745rem);
+}
+
+/* ==========================================================================
+   Dark Mode Theme Variables
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg-color: #090909;
+		--primary: rgb(255, 255, 255);
+		--secondary: #090909;
+		--color1: #1d3383;
+		--color2: #126743;
+		--color3: #cc3037;
+		--gradient_color1: #00c971;
+		--gradient_color2: #a02cff;
+		--vibes: linear-gradient(45deg, var(--gradient_color1), var(--gradient_color2));
+		--bg-transparent: rgba(9, 9, 9, 0.7);
+		--bg-transparent-dark: rgba(9, 9, 9, 0.8);
+		--button-primary: #00c971;
+		--button-primary-hover: #17a346;
+	}
 }

@@ -1,5 +1,10 @@
 /* ==========================================================================
    Page-Specific Styles
+   ==========================================================================
+
+   IMPORTANT:
+   Please add any new responsive styles to media.css following the style guide.
+
    ========================================================================== */
 
 /* About Page Styles */
@@ -7,7 +12,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
-	padding: var(--space-xl) var(--space-m);
+	padding: var(--space-l) var(--space-s);
 	max-width: 1200px;
 	margin: 0 auto;
 	box-sizing: border-box;
@@ -265,15 +270,6 @@ blockquote::before {
 	transition-delay: 0.4s;
 }
 
-/* Respect user's reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-	.journey_item {
-		transition: none;
-		opacity: 1;
-		transform: none;
-	}
-}
-
 /* Timeline markers styling */
 .timeline_marker {
 	position: absolute;
@@ -315,8 +311,6 @@ blockquote::before {
 	line-height: 1.6;
 }
 
-
-/* Personal Section - Improved Layout */
 .personal {
 	display: flex;
 	flex-direction: column;
@@ -393,53 +387,6 @@ blockquote::before {
 
 .gallery_item:hover .sketch_img {
 	transform: scale(1.05);
-}
-
-/* Responsive adjustments for sketch gallery */
-@media (max-width: 768px) {
-	.gallery_container {
-		justify-content: center;
-	}
-
-	.gallery_item {
-		flex: 0 0 calc(50% - var(--space-m));
-		min-width: 200px;
-	}
-}
-
-@media (max-width: 480px) {
-
-	.gallery_item,
-	.skillCard {
-		flex: 1 1 100%;
-		margin-left: 0;
-		margin-right: 0;
-		margin-bottom: var(--space-s);
-	}
-
-	.gallery_container,
-	.skill_container {
-		padding: 0;
-		gap: var(--space-s);
-	}
-
-	.about_pic_image {
-		max-width: 100%;
-	}
-
-	.about_pic::after {
-		max-width: 100%;
-		left: 15px;
-		width: calc(100% - 30px);
-	}
-
-	.journey_item {
-		padding-right: 0;
-	}
-
-	.personal {
-		padding: var(--space-m);
-	}
 }
 
 /* lucky Feature - Improved Layout */
@@ -902,76 +849,6 @@ blockquote::before {
 	border-left: 4px solid #1A1A1A;
 	background: rgba(26, 26, 26, 0.1);
 	color: var(--primary);
-}
-
-/* Dark mode adjustments */
-@media (prefers-color-scheme: dark) {
-	#bumble {
-		background: rgba(255, 198, 41, 0.15);
-	}
-
-	#tinder {
-		background: rgba(254, 60, 114, 0.15);
-	}
-
-	#hinge {
-		background: rgba(26, 26, 26, 0.2);
-	}
-}
-
-/* Mobile Table Styles */
-@media screen and (max-width: 900px) {
-	.subsection_body table {
-		display: block;
-		width: 100%;
-		margin: var(--space-m) 0;
-		min-width: unset;
-		overflow-x: hidden;
-	}
-
-	.subsection_body tbody {
-		display: block;
-		width: 100%;
-	}
-
-	.subsection_body thead {
-		display: none;
-	}
-
-	.subsection_body tbody tr {
-		display: block;
-		margin-bottom: var(--space-m);
-		border-radius: 8px;
-		overflow: hidden;
-	}
-
-	.subsection_body td {
-		display: grid;
-		grid-template-columns: minmax(120px, 30%) 1fr;
-		width: 100%;
-		padding: var(--space-xs) var(--space-s);
-		align-items: start;
-		gap: var(--space-s);
-		box-sizing: border-box;
-	}
-
-	.subsection_body td::before {
-		content: attr(data-label);
-		font-weight: 600;
-		min-width: 120px;
-	}
-
-	.subsection_body td ul {
-		margin: 0;
-		padding: 0;
-		width: 100%;
-		box-sizing: border-box;
-	}
-
-	.subsection_body td li {
-		margin-bottom: var(--space-xs);
-		width: 100%;
-	}
 }
 
 /* Case Study Navigation */
