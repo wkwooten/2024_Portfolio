@@ -24,8 +24,43 @@ class RapierPolyhedron {
       introFadeDuration: 1500,    // Duration of fade-in animation in ms
       color: 0x1a73e8,            // Default color (blue)
       darkModeColor: 0x00c971,    // Dark mode color (green)
-      debug: false                // Debug mode flag
+      debug: false,               // Debug mode flag
+      polyhedronCount: 3,         // Reduced number of polyhedra for better balance
+      spawnStaggerMs: 800,        // Time between spawning each polyhedron (ms)
+      polyhedronTypes: ['icosahedron', 'dodecahedron', 'octahedron'], // Use different shapes
+      horizontalSpacing: 5,       // Increased spacing between polyhedra
+      flowDirection: 0.05         // Subtle directional flow (x-axis)
     }, options);
+
+    // Arrays to store multiple polyhedra and their physics bodies
+    this.polyhedra = [];
+    this.bodies = [];
+    this.colliders = [];
+    this.polyhedronStartTimes = [];
+
+    // Available polyhedron types and their mapping to THREE.js geometries and physics colliders
+    this.polyhedronTypes = {
+      'icosahedron': {
+        geometry: THREE.IcosahedronGeometry,
+        physicsFactor: 1.0  // Scaling factor for physics collider
+      },
+      'dodecahedron': {
+        geometry: THREE.DodecahedronGeometry,
+        physicsFactor: 1.0
+      },
+      'octahedron': {
+        geometry: THREE.OctahedronGeometry,
+        physicsFactor: 1.0
+      },
+      'tetrahedron': {
+        geometry: THREE.TetrahedronGeometry,
+        physicsFactor: 0.8  // Tetrahedron is smaller visually, adjust collider
+      },
+      'cube': {
+        geometry: THREE.BoxGeometry,
+        physicsFactor: 0.85  // For box geometry, use a slightly smaller collider
+      }
+    };
 
     // Add debug indicator in top-left corner if requested through URL
     this.debugMode = window.location.search.includes('debug=true') || this.options.debug;
@@ -82,8 +117,12 @@ class RapierPolyhedron {
 
       // Update physics world settings if it exists
       if (this.world) {
-        // Increase gravity to make objects settle faster
-        this.world.gravity = { x: 0, y: -9.8 * 1.5, z: 0 };
+        // Lower gravity and flow for reduced motion
+        this.world.gravity = {
+          x: this.options.flowDirection * 0.5, // Half the flow speed
+          y: -0.3,                             // Gentler gravity
+          z: 0
+        };
       }
     } else {
       // Normal motion settings
@@ -93,7 +132,11 @@ class RapierPolyhedron {
 
       // Reset physics world settings if it exists
       if (this.world) {
-        this.world.gravity = { x: 0, y: -0.5, z: 0 }; // Normal gravity
+        this.world.gravity = {
+          x: this.options.flowDirection, // Normal flow
+          y: -.5,                       // Normal floaty gravity
+          z: 0
+        };
       }
     }
   }
@@ -158,9 +201,6 @@ class RapierPolyhedron {
 
     // Create visual polyhedron (physics will be added later)
     this.createVisualPolyhedron();
-
-    // Add the subtle gradient floor
-    this.createGradientFloor();
 
     // Setup raycaster for interaction
     this.raycaster = new THREE.Raycaster();
@@ -443,11 +483,31 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
 
   /**
    * Create the visual representation of the polyhedron
+   * @param {number} index - Index of the polyhedron to create
    */
-  createVisualPolyhedron() {
-    // Create the geometry - icosahedron for interesting shape
+  createVisualPolyhedron(index = 0) {
+    // Determine which polyhedron type to use based on the index
+    const typeIndex = index % this.options.polyhedronTypes.length;
+    const polyhedronType = this.options.polyhedronTypes[typeIndex];
+    const detailLevel = 0; // Keep detail level simple for performance
+
+    // Get the geometry class from our type mapping
+    const geometryType = this.polyhedronTypes[polyhedronType] ?
+                        this.polyhedronTypes[polyhedronType].geometry :
+                        THREE.IcosahedronGeometry;
+
+    // Create the geometry based on the selected type
     const radius = 1.2;
-    const geometry = new THREE.IcosahedronGeometry(radius, 0);
+    let geometry;
+
+    // Different geometry types have different constructor arguments
+    if (polyhedronType === 'cube') {
+      // For cube, use BoxGeometry with equal dimensions
+      geometry = new geometryType(radius * 2, radius * 2, radius * 2);
+    } else {
+      // For regular polyhedra, use standard constructor
+      geometry = new geometryType(radius, detailLevel);
+    }
 
     // Determine color based on color scheme
     const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -457,8 +517,10 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     this.bgColor = this.getComputedBackgroundColor();
 
     // Detect device capabilities and select the appropriate tier
-    this.capabilities = this.detectCapabilities();
-    this.materialTier = this.selectMaterialTier();
+    if (!this.capabilities) {
+      this.capabilities = this.detectCapabilities();
+      this.materialTier = this.selectMaterialTier();
+    }
 
     // Create material based on the selected tier
     let material;
@@ -520,22 +582,34 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
 
     // Create main mesh and add edges
-    this.polyhedron = new THREE.Mesh(geometry, material);
-    this.polyhedron.add(edges);
+    const polyhedron = new THREE.Mesh(geometry, material);
+    polyhedron.add(edges);
 
-    // Reference for velocity-based effects
-    this.edges = edges;
+    // Store the polyhedron type and radius for physics body creation
+    if (index === 0) {
+      this.currentPolyhedronType = polyhedronType;
+      this.currentPolyhedronRadius = radius;
+      this.edges = edges; // Reference for velocity-based effects for the first polyhedron
+    }
 
     // Start with polyhedron hidden until animation begins
-    this.polyhedron.visible = false;
+    polyhedron.visible = false;
 
     // Add to scene
-    this.scene.add(this.polyhedron);
+    this.scene.add(polyhedron);
 
-    // Listen for color scheme changes
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener(
-      'change', this.updateColors.bind(this)
-    );
+    // Store in array
+    this.polyhedra[index] = polyhedron;
+
+    // If this is the first polyhedron, set up color scheme change listener
+    if (index === 0 && !this.colorSchemeListenerSet) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener(
+        'change', this.updateColors.bind(this)
+      );
+      this.colorSchemeListenerSet = true;
+    }
+
+    return polyhedron;
   }
 
   /**
@@ -592,14 +666,31 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
    * Initialize Rapier physics (called after Rapier has loaded)
    */
   initPhysics() {
-    // Create physics world with gravity
-    this.world = new this.RAPIER.World({ x: 0, y: -0.5, z: 0 });
+    // Create physics world with more balanced gravity for a dreamlike falling effect
+    this.world = new this.RAPIER.World({
+      x: this.options.flowDirection, // Subtle x-axis flow
+      y: -1.5,                       // Reduced gravity for more floaty movement
+      z: 0
+    });
 
     // Create boundaries (invisible walls and floor)
     this.createBoundaries();
 
-    // Create the polyhedron physics body
-    this.createPhysicsBody();
+    // Calculate the number of polyhedra to create
+    const polyhedronCount = Math.max(1, this.options.polyhedronCount || 1);
+
+    // Create multiple polyhedra with staggered start times
+    for (let i = 0; i < polyhedronCount; i++) {
+      // Calculate staggered start time for this polyhedron
+      const staggerTime = i * (this.options.spawnStaggerMs || 800);
+      this.polyhedronStartTimes[i] = this.startTime + staggerTime;
+
+      // Create a polyhedron with initial visibility set to false
+      this.createVisualPolyhedron(i);
+
+      // Create physics body for this polyhedron
+      this.createPhysicsBody(i);
+    }
 
     // Apply motion settings based on user preferences
     this.updateMotionSettings();
@@ -609,22 +700,17 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
    * Create invisible boundaries for physics
    */
   createBoundaries() {
-    // Create boundary walls to contain the polyhedron
+    // Create boundary walls to contain the polyhedron within horizontal bounds
+    // but allow vertical movement
 
-    // Floor - slightly below the visible area
-    this.createBoundary({ x: 0, y: -2, z: 0 }, { x: 10, y: 0.5, z: 10 });
-
-    // Remove reference to visible floor
-    // this.addVisibleFloor();
-
-    // Ceiling - to prevent flying too high
-    this.createBoundary({ x: 0, y: 10, z: 0 }, { x: 10, y: 0.5, z: 10 });
+    // Remove floor and ceiling to allow falling
+    // Only create side walls to keep the object from moving too far horizontally
 
     // Walls
-    this.createBoundary({ x: -5, y: 3, z: 0 }, { x: 0.5, y: 5, z: 10 }); // Left
-    this.createBoundary({ x: 5, y: 3, z: 0 }, { x: 0.5, y: 5, z: 10 });  // Right
-    this.createBoundary({ x: 0, y: 3, z: -5 }, { x: 10, y: 5, z: 0.5 }); // Back
-    this.createBoundary({ x: 0, y: 3, z: 5 }, { x: 10, y: 5, z: 0.5 });  // Front
+    this.createBoundary({ x: -5, y: 3, z: 0 }, { x: 0.5, y: 30, z: 10 }); // Left
+    this.createBoundary({ x: 5, y: 3, z: 0 }, { x: 0.5, y: 30, z: 10 });  // Right
+    this.createBoundary({ x: 0, y: 3, z: -5 }, { x: 10, y: 30, z: 0.5 }); // Back
+    this.createBoundary({ x: 0, y: 3, z: 5 }, { x: 10, y: 30, z: 0.5 });  // Front
   }
 
   /**
@@ -672,35 +758,81 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
 
   /**
    * Create the physics body for the polyhedron
+   * @param {number} index - Index of the polyhedron to create physics for
    */
-  createPhysicsBody() {
+  createPhysicsBody(index = 0) {
     // Create a dynamic rigid body for the polyhedron
+    // Start position higher above the viewport, with increased horizontal spacing
+    const spacing = this.options.horizontalSpacing || 5;
+
+    // Determine horizontal position - spread them out more evenly
+    // For 3 polyhedra: positions at -spacing, 0, and +spacing
+    const horizontalPosition = (index - (this.options.polyhedronCount - 1) / 2) * spacing;
+
+    // Add some vertical staggering too - middle one a bit higher
+    const verticalOffset = index === 1 ? 3 : 0;
+
     const bodyDesc = this.RAPIER.RigidBodyDesc.dynamic()
-      .setTranslation(0, 4, 0) // Start position
+      .setTranslation(
+        horizontalPosition + (Math.random() * 2 - 1),  // Position + small random variation
+        15 + verticalOffset,                          // Start high above viewport with staggering
+        (Math.random() * 2) - 1                       // Random z position
+      )
       .setLinearDamping(this.dampingFactor)   // Damping to slow linear movement (accessibility-aware)
       .setAngularDamping(this.dampingFactor); // Damping to slow rotation (accessibility-aware)
 
-    this.body = this.world.createRigidBody(bodyDesc);
+    const body = this.world.createRigidBody(bodyDesc);
 
-    // Create a collider for the polyhedron
-    // Using a ball collider for best performance
-    const radius = 1.2; // Same as visual radius
-    const colliderDesc = this.RAPIER.ColliderDesc.ball(radius);
+    // Use the polyhedron type that matches the visual polyhedron
+    const typeIndex = index % this.options.polyhedronTypes.length;
+    const polyhedronType = this.options.polyhedronTypes[typeIndex];
+
+    // Get physics information for this polyhedron type
+    const physicsInfo = this.polyhedronTypes[polyhedronType] || this.polyhedronTypes['icosahedron'];
+    const physicsFactor = physicsInfo.physicsFactor || 1.0;
+
+    // Base radius for the collider
+    const radius = this.currentPolyhedronRadius || 1.2;
+
+    // Create a collider based on the polyhedron type
+    let colliderDesc;
+
+    if (polyhedronType === 'cube') {
+      // For cube, use a cuboid collider
+      const halfExtent = radius * physicsFactor;
+      colliderDesc = this.RAPIER.ColliderDesc.cuboid(halfExtent, halfExtent, halfExtent);
+    } else {
+      // For other shapes, use a ball collider with adjusted radius
+      // This is simpler and more performant while still giving reasonable collision behavior
+      colliderDesc = this.RAPIER.ColliderDesc.ball(radius * physicsFactor);
+    }
 
     // Set physics properties
     colliderDesc.setRestitution(0.7); // Bounciness
     colliderDesc.setFriction(0.2);    // Friction
 
     // Create the collider and attach it to the body
-    this.collider = this.world.createCollider(colliderDesc, this.body);
+    const collider = this.world.createCollider(colliderDesc, body);
 
     // Apply initial random rotation (reduced or normal based on preference)
     const rotationForce = this.prefersReducedMotion ? 0.5 : 2.0;
-    this.body.setAngvel({
+    body.setAngvel({
       x: (Math.random() - 0.5) * rotationForce,
       y: (Math.random() - 0.5) * rotationForce,
       z: (Math.random() - 0.5) * rotationForce
     });
+
+    // Store references to the bodies and colliders
+    this.bodies[index] = body;
+    this.colliders[index] = collider;
+
+    // If this is the first body, keep backward compatibility with existing code
+    if (index === 0) {
+      this.body = body;
+      this.collider = collider;
+    }
+
+    return body;
   }
 
   /**
@@ -836,34 +968,50 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
    * @param {Object} coords - Normalized mouse coordinates
    */
   updateHoverState(coords) {
-    if (!this.isActive || !this.polyhedron) return;
+    if (!this.isActive) return;
 
     // Update raycaster with mouse position
     this.mouse.x = coords.x;
     this.mouse.y = coords.y;
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
-    // Check for intersection with polyhedron
-    const intersects = this.raycaster.intersectObject(this.polyhedron, true);
-
-    // Store previous state to detect changes
+    // Store previous state
     const wasHovering = this.isHovering;
-    this.isHovering = intersects.length > 0;
+    this.isHovering = false;
 
-    // Only update if the hover state changed
+    // Check for intersection with any polyhedron
+    for (let i = 0; i < this.polyhedra.length; i++) {
+      const polyhedron = this.polyhedra[i];
+      if (!polyhedron || !polyhedron.visible) continue;
+
+      const intersects = this.raycaster.intersectObject(polyhedron, true);
+
+      if (intersects.length > 0) {
+        this.isHovering = true;
+        this.hoveringPolyhedronIndex = i;
+
+        // Visual feedback for this specific polyhedron
+        if (polyhedron.children.length > 0) {
+          const edges = polyhedron.children[0];
+          if (edges.material) {
+            edges.material.opacity = 1.0; // Enhanced opacity when hovering
+          }
+        }
+      } else {
+        // Reset opacity if not hovering over this polyhedron
+        if (polyhedron.children.length > 0) {
+          const edges = polyhedron.children[0];
+          if (edges.material) {
+            edges.material.opacity = 0.85; // Normal opacity
+          }
+        }
+      }
+    }
+
+    // Only update cursor if the hover state changed
     if (wasHovering !== this.isHovering) {
       // Update cursor style
       document.body.style.cursor = this.isHovering ? 'grab' : 'auto';
-
-      // Visual feedback - adjust opacity when hovering
-      if (this.polyhedron.children.length > 0) {
-        const edges = this.polyhedron.children[0];
-
-        if (edges.material) {
-          // Enhance opacity when hovering (100% vs 85%)
-          edges.material.opacity = this.isHovering ? 1.0 : 0.85;
-        }
-      }
     }
   }
 
@@ -875,7 +1023,20 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
    * @returns {boolean} Whether dragging started successfully
    */
   startDragging(coords, clientX, clientY) {
-    if (!this.isActive || !this.polyhedron || !this.body) return false;
+    if (!this.isActive || !this.isHovering || !this.physicsReady) return false;
+
+    // Get the index of the polyhedron we're interacting with
+    const polyhedronIndex = this.hoveringPolyhedronIndex;
+    if (polyhedronIndex === undefined || !this.polyhedra[polyhedronIndex]) return false;
+
+    // Store which polyhedron we're dragging
+    this.draggingPolyhedronIndex = polyhedronIndex;
+
+    // References to the polyhedron and its body
+    const polyhedron = this.polyhedra[polyhedronIndex];
+    const body = this.bodies[polyhedronIndex];
+
+    if (!polyhedron || !body) return false;
 
     // Update mouse position
     this.mouse.x = coords.x;
@@ -884,12 +1045,11 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     // Cast ray from camera through mouse position
     this.raycaster.setFromCamera(this.mouse, this.camera);
 
-    // Check for intersection with polyhedron
-    const intersects = this.raycaster.intersectObject(this.polyhedron, true);
+    // Check for intersection with the polyhedron
+    const intersects = this.raycaster.intersectObject(polyhedron, true);
 
     if (intersects.length > 0) {
       this.isDragging = true;
-      this.isHovering = true;
 
       // Change cursor to grabbing
       document.body.style.cursor = 'grabbing';
@@ -913,8 +1073,8 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
         y: this.world.gravity.y,
         z: this.world.gravity.z
       };
-      this.savedLinVel = this.body.linvel();
-      this.savedAngVel = this.body.angvel();
+      this.savedLinVel = body.linvel();
+      this.savedAngVel = body.angvel();
 
       // Disable gravity while dragging
       this.world.gravity = { x: 0, y: 0, z: 0 };
@@ -983,7 +1143,10 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
    * End dragging and apply throw velocity
    */
   endDragging() {
-    if (!this.isDragging || !this.body) return;
+    if (!this.isDragging || this.draggingPolyhedronIndex === undefined) return;
+
+    const body = this.bodies[this.draggingPolyhedronIndex];
+    if (!body) return;
 
     this.isDragging = false;
 
@@ -994,13 +1157,13 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     const throwVelocity = this.calculateThrowVelocity();
 
     // Restore physics body to dynamic
-    this.body.setBodyType(this.RAPIER.RigidBodyType.Dynamic);
+    body.setBodyType(this.RAPIER.RigidBodyType.Dynamic);
 
     // Apply throw velocity
-    this.body.setLinvel(throwVelocity);
+    body.setLinvel(throwVelocity);
 
     // Restore gravity
-    this.world.gravity = this.savedGravity || { x: 0, y: -0.5, z: 0 };
+    this.world.gravity = this.savedGravity || { x: 0, y: -2.5, z: 0 };
 
     // Add some random rotation
     const angVel = {
@@ -1009,12 +1172,13 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
       z: this.savedAngVel.z * 0.3 + (Math.random() - 0.5) * 2
     };
 
-    this.body.setAngvel(angVel);
+    body.setAngvel(angVel);
 
     // Clear drag-related properties
     this.dragPositions = null;
     this.targetPosition = null;
     this.interactionPoint = null;
+    this.draggingPolyhedronIndex = undefined;
   }
 
   /**
@@ -1083,27 +1247,30 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     // Update background color
     this.bgColor = this.getComputedBackgroundColor();
 
-    // Update polyhedron materials
-    if (this.polyhedron) {
+    // Update all polyhedra materials
+    for (let i = 0; i < this.polyhedra.length; i++) {
+      const polyhedron = this.polyhedra[i];
+      if (!polyhedron) continue;
+
       // Update main mesh color to match background
-      if (this.polyhedron.material) {
-        this.polyhedron.material.color.set(this.bgColor);
+      if (polyhedron.material) {
+        polyhedron.material.color.set(this.bgColor);
 
         // Update other material properties if using advanced materials
-        if (this.materialTier === 'high' && this.polyhedron.material.transmission !== undefined) {
+        if (this.materialTier === 'high' && polyhedron.material.transmission !== undefined) {
           // High tier material adjustments
-          this.polyhedron.material.clearcoat = 0.5;
-          this.polyhedron.material.transmission = 0.5;
-        } else if (this.materialTier === 'medium' && this.polyhedron.material.envMap) {
+          polyhedron.material.clearcoat = 0.5;
+          polyhedron.material.transmission = 0.5;
+        } else if (this.materialTier === 'medium' && polyhedron.material.envMap) {
           // Medium tier material adjustments
-          this.polyhedron.material.envMapIntensity = 0.5;
+          polyhedron.material.envMapIntensity = 0.5;
         }
       }
 
       // Update edge color
-      if (this.polyhedron.children.length > 0) {
-        const edges = this.polyhedron.children[0];
-        if (edges.material && !this.isHovering) {
+      if (polyhedron.children.length > 0) {
+        const edges = polyhedron.children[0];
+        if (edges.material) {
           edges.material.color.set(this.color);
         }
       }
@@ -1141,25 +1308,8 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
         }
       }
 
-      // Start with significantly reduced scale for a more dramatic "grow" effect
-      this.polyhedron.scale.set(0.75, 0.75, 0.75);
-
-      // Add a slight initial rotation offset for a more dynamic appearance
-      this.initialRotation = new THREE.Euler(
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2,
-        Math.random() * Math.PI * 2
-      );
-      this.polyhedron.rotation.set(
-        this.initialRotation.x,
-        this.initialRotation.y,
-        this.initialRotation.z
-      );
-
-      // Start with a slightly elevated position and drop in
-      this.initialPositionY = this.polyhedron.position.y + 8.0;
-      this.targetPositionY = this.polyhedron.position.y;
-      this.polyhedron.position.y = this.initialPositionY;
+      // Start with slightly reduced scale for a "grow" effect
+      this.polyhedron.scale.set(0.95, 0.95, 0.95);
 
       // Note: Floor opacity is now handled in createGradientFloor and handleFadeIn
     }
@@ -1181,50 +1331,25 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
       progress = Math.min(progress * 2, 1); // Twice as fast
     }
 
-    // Use easing for smoother animation
-    const easedProgress = this.easeOutCubic(progress);
-
     // Update opacity based on progress
     if (this.polyhedron) {
       // Update main material
       if (this.polyhedron.material) {
-        this.polyhedron.material.opacity = easedProgress * 0.2; // Semi-transparent body
+        this.polyhedron.material.opacity = progress * 0.2; // Semi-transparent body
       }
 
-      // Update edges with slightly delayed appearance for a staggered effect
+      // Update edges
       if (this.polyhedron.children.length > 0) {
         const edges = this.polyhedron.children[0];
         if (edges.material) {
-          // Delay edge appearance slightly (start at 20% through the animation)
-          const edgeProgress = Math.max(0, (progress - 0.2) * 1.25);
-          edges.material.opacity = this.easeOutCubic(Math.min(1, edgeProgress));
+          edges.material.opacity = progress;
         }
       }
 
-      // If using smooth intro, apply additional animation effects
+      // If using smooth intro, also scale up slightly from initial 0.95 to 1.0
       if (this.options.smoothIntro) {
-        // Scale effect: grow from 0.5 to 1.0 with easing
-        const scaleProgress = 0.5 + (0.5 * easedProgress);
+        const scaleProgress = 0.95 + (0.05 * progress);
         this.polyhedron.scale.set(scaleProgress, scaleProgress, scaleProgress);
-
-        // Position effect: gently drop from elevated position
-        if (this.initialPositionY && this.targetPositionY) {
-          this.polyhedron.position.y = this.initialPositionY -
-                                       (this.initialPositionY - this.targetPositionY) * easedProgress;
-        }
-
-        // If physics is not yet active, add a gentle rotation during intro
-        if (!this.physicsReady && this.initialRotation) {
-          // Apply partial rotation for a dynamic effect
-          const rotationEasing = this.easeOutCubic(progress);
-
-          // Gradually stabilize rotation as the object appears
-          this.polyhedron.rotation.set(
-            this.initialRotation.x * (1 - rotationEasing),
-            this.initialRotation.y * (1 - rotationEasing),
-            this.initialRotation.z * (1 - rotationEasing)
-          );
-        }
       }
     }
 
@@ -1243,29 +1368,20 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     // Animation complete
     if (progress >= 1) {
       this.fadeInTime = null;
-      this.initialRotation = null;
-      this.initialPositionY = null;
-      this.targetPositionY = null;
     }
-  }
-
-  /**
-   * Cubic ease-out function for smoother animation
-   * @param {number} t - Input value between 0 and 1
-   * @returns {number} Eased value between 0 and 1
-   */
-  easeOutCubic(t) {
-    return 1 - Math.pow(1 - t, 3);
   }
 
   /**
    * Update polyhedron while being dragged
    */
   updateDraggedPolyhedron() {
-    if (!this.isDragging || !this.body || !this.targetPosition) return;
+    if (!this.isDragging || this.draggingPolyhedronIndex === undefined || !this.targetPosition) return;
+
+    const body = this.bodies[this.draggingPolyhedronIndex];
+    if (!body) return;
 
     // Current position
-    const current = this.body.translation();
+    const current = body.translation();
     const currentPos = new THREE.Vector3(current.x, current.y, current.z);
 
     // Calculate smooth movement towards target
@@ -1277,7 +1393,7 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     );
 
     // Update physics body position
-    this.body.setTranslation({
+    body.setTranslation({
       x: newPos.x,
       y: newPos.y,
       z: newPos.z
@@ -1292,52 +1408,61 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
 
     const currentTime = performance.now();
 
-    // Check if we should activate the polyhedron
-    if (!this.isActive && currentTime > this.startTime) {
-      // Only activate if physics is ready or we don't need it yet
-      if (this.physicsReady) {
-        this.activatePolyhedron();
-      } else {
-        // Extend delay if physics isn't ready yet
-        this.startTime = performance.now() + 500;
+    // Check if we should activate any polyhedra
+    if (this.physicsReady) {
+      // Check each polyhedron
+      for (let i = 0; i < this.polyhedra.length; i++) {
+        const startTime = this.polyhedronStartTimes[i] || this.startTime;
+        // If this polyhedron isn't active yet and its time has come
+        if (!this.polyhedra[i].visible && currentTime > startTime) {
+          this.activatePolyhedron(i);
+        }
       }
+    } else if (!this.isActive && currentTime > this.startTime) {
+      // Physics isn't ready yet, extend delay
+      this.startTime = performance.now() + 500;
     }
 
-    // Handle fade-in animation
-    this.handleFadeIn();
+    // Handle fade-in animation for all active polyhedra
+    this.handleAllFadeIns();
 
     // Update physics if ready
-    if (this.physicsReady && this.world && this.body) {
+    if (this.physicsReady && this.world) {
       // Get delta time from clock
       const deltaTime = Math.min(this.clock.getDelta(), 0.1); // Cap delta time
 
-      // Update dragged position if being dragged
-      if (this.isDragging) {
+      // Check for dragging
+      if (this.isDragging && this.draggingPolyhedronIndex !== undefined) {
         this.updateDraggedPolyhedron();
       }
 
       // Step the physics world
       this.world.step();
 
-      // Calculate velocity magnitude for material effects
-      if (this.isActive && !this.prefersReducedMotion) {
-        const velocity = this.body.linvel();
-        const speed = Math.sqrt(
-          velocity.x * velocity.x +
-          velocity.y * velocity.y +
-          velocity.z * velocity.z
-        );
+      // Check if polyhedra need respawning and update positions
+      for (let i = 0; i < this.polyhedra.length; i++) {
+        if (this.polyhedra[i].visible && this.bodies[i]) {
+          // Check for respawn
+          this.checkRespawnPolyhedron(i);
 
-        // Update material effects based on speed
-        this.updateMaterialEffects(speed);
+          // Update position and rotation
+          const position = this.bodies[i].translation();
+          const rotation = this.bodies[i].rotation();
+          this.polyhedra[i].position.set(position.x, position.y, position.z);
+          this.polyhedra[i].quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
+
+          // Update material effects for the first polyhedron
+          if (i === 0 && !this.prefersReducedMotion) {
+            const velocity = this.bodies[i].linvel();
+            const speed = Math.sqrt(
+              velocity.x * velocity.x +
+              velocity.y * velocity.y +
+              velocity.z * velocity.z
+            );
+            this.updateMaterialEffects(speed);
+          }
+        }
       }
-
-      // Update polyhedron position and rotation from physics
-      const position = this.body.translation();
-      const rotation = this.body.rotation();
-
-      this.polyhedron.position.set(position.x, position.y, position.z);
-      this.polyhedron.quaternion.set(rotation.x, rotation.y, rotation.z, rotation.w);
     }
 
     // Render the scene
@@ -1346,6 +1471,102 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     // Update debug display if active
     if (this.debugMode) {
       this.updateDebugDisplay();
+    }
+  }
+
+  /**
+   * Activate a specific polyhedron
+   * @param {number} index - Index of the polyhedron to activate
+   */
+  activatePolyhedron(index = 0) {
+    if (!this.polyhedra[index] || this.polyhedra[index].visible) return;
+
+    // Make polyhedron visible
+    this.polyhedra[index].visible = true;
+
+    // Start fade-in animation
+    this.polyhedra[index].fadeInTime = performance.now();
+
+    // Set fade duration based on animation preferences
+    this.fadeInDuration = this.options.smoothIntro ?
+      this.options.introFadeDuration : // Use longer fade for smooth intro
+      (this.prefersReducedMotion ? 500 : 1000); // Original duration logic
+
+    // If smooth intro is enabled, start with fully transparent polyhedron
+    if (this.options.smoothIntro) {
+      // Set polyhedron material to fully transparent
+      if (this.polyhedra[index].material) {
+        this.polyhedra[index].material.opacity = 0;
+      }
+
+      // Set edges to fully transparent
+      if (this.polyhedra[index].children.length > 0) {
+        const edges = this.polyhedra[index].children[0];
+        if (edges.material) {
+          edges.material.opacity = 0;
+        }
+      }
+
+      // Start with slightly reduced scale for a "grow" effect
+      this.polyhedra[index].scale.set(0.95, 0.95, 0.95);
+    }
+
+    // If this is the first polyhedron, update global state
+    if (index === 0) {
+      this.isActive = true;
+    }
+  }
+
+  /**
+   * Handle fade-in animation for all polyhedra
+   */
+  handleAllFadeIns() {
+    for (let i = 0; i < this.polyhedra.length; i++) {
+      this.handleFadeIn(i);
+    }
+  }
+
+  /**
+   * Handle fade-in animation for a specific polyhedron
+   * @param {number} index - Index of the polyhedron
+   */
+  handleFadeIn(index = 0) {
+    const polyhedron = this.polyhedra[index];
+    if (!polyhedron || !polyhedron.visible || !polyhedron.fadeInTime) return;
+
+    const elapsedTime = performance.now() - polyhedron.fadeInTime;
+    let progress = Math.min(elapsedTime / this.fadeInDuration, 1);
+
+    // If reduced motion is preferred, accelerate the fade-in
+    if (this.prefersReducedMotion) {
+      progress = Math.min(progress * 2, 1); // Twice as fast
+    }
+
+    // Update opacity based on progress
+    if (polyhedron) {
+      // Update main material
+      if (polyhedron.material) {
+        polyhedron.material.opacity = progress * 0.2; // Semi-transparent body
+      }
+
+      // Update edges
+      if (polyhedron.children.length > 0) {
+        const edges = polyhedron.children[0];
+        if (edges.material) {
+          edges.material.opacity = progress;
+        }
+      }
+
+      // If using smooth intro, also scale up slightly from initial 0.95 to 1.0
+      if (this.options.smoothIntro) {
+        const scaleProgress = 0.95 + (0.05 * progress);
+        polyhedron.scale.set(scaleProgress, scaleProgress, scaleProgress);
+      }
+    }
+
+    // Animation complete
+    if (progress >= 1) {
+      polyhedron.fadeInTime = null;
     }
   }
 
@@ -1553,11 +1774,10 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     }
     const centerColorHex = '#' + centerColor.getHexString();
 
-    // Set gradient stops with transparency at the edge
+    // Set gradient stops
     gradient.addColorStop(0, centerColorHex);
-    gradient.addColorStop(0.5, baseColor);
-    gradient.addColorStop(0.85, baseColor.replace(')', ', 0.5)')); // 50% transparent
-    gradient.addColorStop(1, baseColor.replace(')', ', 0)')); // Fully transparent
+    gradient.addColorStop(0.7, baseColor);
+    gradient.addColorStop(1, baseColor);
 
     // Fill the canvas
     ctx.fillStyle = gradient;
@@ -1650,7 +1870,7 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     }
     const centerColorHex = '#' + centerColor.getHexString();
 
-    // Update gradient stops with transparency at the edge
+    // Update gradient stops
     gradient.addColorStop(0, centerColorHex);
     gradient.addColorStop(0.7, baseColor);
     gradient.addColorStop(1, baseColor);
@@ -1723,24 +1943,140 @@ this.camera.lookAt(${settings.camera.target.x.toFixed(2)}, ${settings.camera.tar
     }
     const centerColorHex = '#' + centerColor.getHexString();
 
-    // Floor opacity
-    const floorOpacity = isDarkMode ? 0.12 : 0.25;
+    // Get current interaction info
+    let interactionInfo = '';
+    if (this.isDragging && this.draggingPolyhedronIndex !== undefined) {
+      interactionInfo = `Dragging polyhedron #${this.draggingPolyhedronIndex}`;
+    } else if (this.isHovering && this.hoveringPolyhedronIndex !== undefined) {
+      interactionInfo = `Hovering polyhedron #${this.hoveringPolyhedronIndex}`;
+    }
 
-    // Build debug info HTML with updated gradient information
+    // Get position info for the first polyhedron
+    let positionInfo = 'N/A';
+    if (this.bodies && this.bodies[0]) {
+      const pos = this.bodies[0].translation();
+      positionInfo = `X: ${pos.x.toFixed(1)}, Y: ${pos.y.toFixed(1)}, Z: ${pos.z.toFixed(1)}`;
+    }
+
+    // Build debug info HTML
     this.debugDisplay.innerHTML = `
-      <div style="margin-bottom:5px;font-weight:bold;">Floor Debug</div>
+      <div style="margin-bottom:5px;font-weight:bold;">Polyhedron Debug</div>
+      <div>Type: ${this.currentPolyhedronType || 'icosahedron'}</div>
+      <div>Detail Level: ${this.options.polyhedronDetailLevel}</div>
+      <div>Count: ${this.polyhedra.length}</div>
+      <div>Position: ${positionInfo}</div>
+      <div>Interaction: ${interactionInfo}</div>
       <div>Theme: ${isDarkMode ? 'Dark Mode' : 'Light Mode'}</div>
       <div style="display:flex;align-items:center;margin:5px 0;">
         Detected BG: <span style="display:inline-block;width:12px;height:12px;background:${bgColorHex};margin:0 5px;border:1px solid white;"></span>${bgColorHex}
       </div>
       <div style="display:flex;align-items:center;margin:5px 0;">
-        Center Color: <span style="display:inline-block;width:12px;height:12px;background:${centerColorHex};margin:0 5px;border:1px solid white;"></span>${centerColorHex}
+        Color: <span style="display:inline-block;width:12px;height:12px;background:${centerColorHex};margin:0 5px;border:1px solid white;"></span>${centerColorHex}
       </div>
-      <div>Opacity: ${floorOpacity.toFixed(2)}</div>
-      <div>Floor Radius: 5.0</div>
-      <div>Floor Height: -1.5</div>
-      <div>Gradient: Center → 50% → 85% (50% transparent) → Edge (transparent)</div>
+      <div>Gravity: ${this.world ? this.world.gravity.y.toFixed(2) : 'N/A'}</div>
     `;
+  }
+
+  /**
+   * Check if the polyhedron is out of the viewport and respawn if needed
+   * @param {number} index - Index of the polyhedron to check
+   */
+  checkRespawnPolyhedron(index = 0) {
+    if (!this.physicsReady || !this.bodies[index]) return;
+
+    // Get current position
+    const position = this.bodies[index].translation();
+
+    // Define viewport bounds with some extra padding
+    const lowerBound = -15; // Threshold below which we consider the object out of view
+    const upperSpawnPoint = 15; // Position to respawn above the viewport
+
+    // If polyhedron has fallen below the lower bound
+    if (position.y < lowerBound) {
+      // Get the proper horizontal position for this index to maintain formation
+      const spacing = this.options.horizontalSpacing || 5;
+      const horizontalPosition = (index - (this.options.polyhedronCount - 1) / 2) * spacing;
+
+      // Add vertical staggering for visual interest
+      const verticalOffset = index === 1 ? 3 : 0;
+
+      // Respawn the polyhedron above the viewport
+      this.bodies[index].setTranslation({
+        x: horizontalPosition + (Math.random() * 2 - 1), // Horizontal position + small variation
+        y: upperSpawnPoint + verticalOffset,             // Above viewport with staggering
+        z: (Math.random() * 2) - 1                       // Random z position
+      });
+
+      // Apply random rotation
+      this.bodies[index].setAngvel({
+        x: (Math.random() - 0.5) * 2,
+        y: (Math.random() - 0.5) * 2,
+        z: (Math.random() - 0.5) * 2
+      });
+
+      // Reset linear velocity for a fresh drop
+      this.bodies[index].setLinvel({ x: 0, y: 0, z: 0 });
+
+      if (this.debugMode) {
+        console.log(`Polyhedron ${index} (${this.options.polyhedronTypes[index % this.options.polyhedronTypes.length]}) respawned above viewport`);
+      }
+    }
+  }
+
+  /**
+   * Change the polyhedron type
+   * @param {string} newType - The new polyhedron type ('icosahedron', 'dodecahedron', 'octahedron', 'tetrahedron', 'cube')
+   * @param {number} detailLevel - Detail level for the geometry (optional)
+   * @returns {boolean} Whether the type was changed successfully
+   */
+  changePolyhedronType(newType, detailLevel = 0) {
+    // Check if the requested type exists
+    if (!this.polyhedronTypes[newType]) {
+      console.error(`Polyhedron type '${newType}' not supported. Available types:`, Object.keys(this.polyhedronTypes));
+      return false;
+    }
+
+    // Store the new type in options
+    this.options.polyhedronType = newType;
+    this.options.polyhedronDetailLevel = detailLevel;
+
+    // Remove the old polyhedron from the scene
+    if (this.polyhedron) {
+      this.scene.remove(this.polyhedron);
+    }
+
+    // Create a new visual polyhedron
+    this.createVisualPolyhedron();
+
+    // If physics is ready, update the physics body too
+    if (this.physicsReady && this.body) {
+      // Remove the old collider
+      if (this.collider) {
+        this.world.removeCollider(this.collider, true);
+      }
+
+      // Create a new collider
+      this.createPhysicsBody();
+    }
+
+    // Make sure the polyhedron is visible if the animation is active
+    if (this.isActive) {
+      this.polyhedron.visible = true;
+    }
+
+    if (this.debugMode) {
+      console.log(`Changed polyhedron type to ${newType} with detail level ${detailLevel}`);
+    }
+
+    return true;
+  }
+
+  /**
+   * Get an array of available polyhedron types
+   * @returns {string[]} Array of available polyhedron types
+   */
+  getAvailablePolyhedronTypes() {
+    return Object.keys(this.polyhedronTypes);
   }
 }
 

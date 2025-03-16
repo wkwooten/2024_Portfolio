@@ -42,7 +42,7 @@
 	align-items: end;
 	z-index: var(--z-index-navbar);
 	position: relative;
-	max-width: 1980px;
+	max-width: var(--navbar-width);
 	width: 100%;
 }
 
@@ -75,7 +75,7 @@
 
 .nav_logo {
 	font-weight: bold;
-	margin-inline: var(--space-s);
+	margin-inline: var(--space-m);
 	font-size: 3rem;
 	color: var(--primary);
 	transition: .3s ease;
@@ -109,9 +109,10 @@
 .menu_bar {
 	display: flex;
 	flex-direction: row;
+	gap: var(--space-s);
 	height: 5.625rem;
 	align-items: end;
-	margin: 0rem;
+	margin-inline: var(--space-s);
 }
 
 .nav_button {
@@ -127,7 +128,7 @@
 	font-weight: 800;
 	font-size: 1.25rem !important;
 	text-indent: 1.25rem;
-	margin-inline: 1.25rem;
+	/* margin-inline: 1.25rem; */
 	transition: all ease-in 0.1s;
 }
 
@@ -774,13 +775,22 @@
 
 footer {
 	display: flex;
-	padding: 3.125rem var(--section-spacing);
-	flex-flow: row wrap;
-	align-items: start;
+	padding-block: var(--space-xl);
 	justify-content: center;
-	column-gap: var(--space-2xl);
 	border-top: var(--thicc-line-weight) solid var(--primary);
 	background: var(--BG);
+	width: 100%;
+}
+
+.footer_container {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-between;
+	align-items: start;
+	gap: var(--space-l);
+	margin-inline: var(--space-m);
+	max-width: var(--navbar-width);
+	width: 100%;
 }
 
 footer svg:hover {
@@ -791,6 +801,10 @@ footer svg:hover {
 footer svg:active {
 	transform: scale(.95);
 	opacity: .8;
+	-webkit-transform: scale(.95);
+	-moz-transform: scale(.95);
+	-ms-transform: scale(.95);
+	-o-transform: scale(.95);
 }
 
 .heart {
@@ -1078,3 +1092,5 @@ footer svg:active {
 	--z-index-nav-button: 1020;
 	--z-index-modal: 100;
 }
+
+/* Footer media query for mobile centering */

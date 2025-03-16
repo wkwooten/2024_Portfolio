@@ -234,6 +234,20 @@
 		text-align: left;
 	}
 
+	.footer_container {
+		justify-content: center;
+		text-align: center;
+	}
+
+	.sign {
+		align-items: center;
+		width: 100%;
+	}
+
+	.social_Container {
+		width: 100%;
+	}
+
 	/* Layout */
 	.works_container {
 		gap: var(--space-l);

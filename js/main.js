@@ -83,24 +83,34 @@ document.addEventListener('DOMContentLoaded', function() {
     accordionHeaders.forEach(header => {
       const content = header.nextElementSibling;
 
-      // Set initial max-height
       if (content && content.classList.contains('cs_section_content')) {
-        content.style.maxHeight = content.scrollHeight + "px"; // Fully expanded by default
+        // Set initial expanded state
+        content.style.maxHeight = 'none'; // Allow natural height initially
 
-        // Add click event listener to toggle accordion
-        header.addEventListener('click', function() {
-          // Toggle the rotation of the arrow
-          const chevron = this.querySelector('.chev');
-          if (chevron) {
-            chevron.classList.toggle('chev_rotate');
-          }
+        // Wait for all content to load
+        window.addEventListener('load', () => {
+          // Get the actual height after everything is loaded
+          const fullHeight = content.scrollHeight;
+          content.style.maxHeight = fullHeight + "px";
 
-          // Toggle between expanded and collapsed states
-          if (content.style.maxHeight && content.style.maxHeight !== "0px") {
-            content.style.maxHeight = "0px"; // Collapse
-          } else {
-            content.style.maxHeight = content.scrollHeight + "px"; // Expand
-          }
+          // Add click event listener to toggle accordion
+          header.addEventListener('click', function() {
+            // Toggle the rotation of the arrow
+            const chevron = this.querySelector('.chev');
+            if (chevron) {
+              chevron.classList.toggle('chev_rotate');
+            }
+
+            // Toggle between expanded and collapsed states
+            if (content.style.maxHeight && content.style.maxHeight !== "0px") {
+              content.style.maxHeight = "0px"; // Collapse
+            } else {
+              // Recalculate height in case content has changed
+              content.style.maxHeight = 'none';
+              const currentHeight = content.scrollHeight;
+              content.style.maxHeight = currentHeight + "px"; // Expand
+            }
+          });
         });
       }
     });
